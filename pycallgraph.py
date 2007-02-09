@@ -1,5 +1,7 @@
 import inspect
 import sys
+import os
+import tempfile
 
 call_dict = {}
 call_stack = ['__main__']
@@ -54,23 +56,33 @@ def tracer(frame, event, arg):
         if call_stack:
             call_stack.pop(-1)
 
-def write_dot(self, filename):
-    f = open('yo.dot', 'w')
-    f.write('digraph G {\n')
+def get_dot():
+    ret = ['digraph G {',]
     for fr_key, fr_val in call_dict.items():
         for to_key, to_val in fr_val.items():
-            r = float(to_val) / 50
-            if r > 255:
-                r = 255
-            f.write('"%s"->"%s" [color = "#%02x0000"]\n' % (fr_key, to_key, r))
-    f.write('}\n')
+            ret.append('"%s"->"%s"' % (fr_key, to_key))
+    ret.append('}')
+    return '\n'.join(ret)
+
+def save_dot(filename):
+    open(filename, 'w').write(get_dot())
+
+def make_graph(filename, format='png', tool='dot'):
+    f = tempfile.NamedTemporaryFile()
+    f.write(get_dot())
+    f.flush()
+    tempname = f.name
+    cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
+    os.system(cmd)
 
 if __name__ == '__main__':
-
-    def hello():
-        pass
+    
+    class Yo:
+        def hello(self):
+            pass
 
     start_trace()
-    hello()
+    Yo().hello()
     stop_trace()
+    make_graph('test.png')
 
