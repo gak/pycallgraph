@@ -27,6 +27,9 @@ import tempfile
 call_dict = {}
 call_stack = ['__main__']
 
+class PyCallGraphException(Exception):
+    pass
+
 def start_trace():
     sys.settrace(tracer)
 
@@ -42,6 +45,8 @@ def tracer(frame, event, arg):
         module = inspect.getmodule(code)
         if module:
             module_name = module.__name__ + '.'
+            if module_name == '__main__.':
+                module_name = ''
         else:
             module_name = 'unknown.'
             dont_keep = True
@@ -89,12 +94,16 @@ def save_dot(filename):
     open(filename, 'w').write(get_dot())
 
 def make_graph(filename, format='png', tool='dot'):
-    f = tempfile.NamedTemporaryFile()
+    fd, tempname = tempfile.mkstemp()
+    f = os.fdopen(fd, 'w')
     f.write(get_dot())
-    f.flush()
-    tempname = f.name
+    f.close()
     cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
-    os.system(cmd)
+    ret = os.system(cmd)
+    os.unlink(tempname)
+    if ret:
+        raise PyCallGraphException('The command "%(cmd)s" failed with error' \
+            'code %(ret)i.' % locals())
 
 if __name__ == '__main__':
     
@@ -102,8 +111,16 @@ if __name__ == '__main__':
         def hello(self):
             pass
 
+    f = 'test.png'
+    print 'Starting trace'
     start_trace()
     Yo().hello()
     stop_trace()
-    make_graph('test.png')
+    print 'Generating graph'
+    make_graph(f)
+    print '%s should be in this directiory. Hit enter to quit.' % f
+    raw_input()
+
+__version__ = "$Revision: 53 $"
+# vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
 
