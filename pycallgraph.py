@@ -24,8 +24,36 @@ import sys
 import os
 import tempfile
 
+# statistical data
 call_dict = {}
 call_stack = ['__main__']
+func_count = {}
+func_count_max = 0
+
+# graphviz settings
+graph_attributes = {
+    'graph': {
+    },
+    'node': {
+        'color': '.5 0 .9',
+        'style': 'filled',
+        'shape': 'rect',
+        'fontname': 'Helvetica',
+        'fontsize': 10,
+    },
+}
+settings = {
+    'node_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.9),
+    'edge_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.7),
+    'exclude_module': [],
+    'exclude_class': [],
+    'exclude_func': [],
+    'exclude_specific': ['stop_trace', 'make_graph'],
+    'include_module': [],
+    'include_class': [],
+    'include_func': [],
+    'include_specific': [],
+}
 
 class PyCallGraphException(Exception):
     pass
@@ -37,6 +65,8 @@ def stop_trace():
     sys.settrace(None)
 
 def tracer(frame, event, arg):
+    global func_count_max
+
     if event == 'call':
         dont_keep = False
         code = frame.f_code
@@ -44,16 +74,32 @@ def tracer(frame, event, arg):
         # work out the module
         module = inspect.getmodule(code)
         if module:
-            module_name = module.__name__ + '.'
-            if module_name == '__main__.':
+            module_name = module.__name__ 
+            if module_name == '__main__':
                 module_name = ''
+            else:
+                if settings['include_module']:
+                    if module_name not in settings['include_module']:
+                        dont_keep = True
+                else:
+                    if module_name in settings['exclude_module']:
+                        dont_keep = True
+                module_name += '.'
         else:
             module_name = 'unknown.'
             dont_keep = True
 
         # work out the instance, if we're in a class
         try:
-            class_name = frame.f_locals['self'].__class__.__name__ + '.'
+            class_name = frame.f_locals['self'].__class__.__name__
+            if settings['include_class']:
+                if class_name not in settings['include_class']:
+                    dont_keep = True
+            else:
+                if class_name in settings['exclude_class']:
+                    print 'exclude_class', class_name
+                    dont_keep = True
+            class_name += '.'
         except (KeyError, AttributeError):
             class_name = ''
 
@@ -62,38 +108,73 @@ def tracer(frame, event, arg):
         if func_name == '?':
             func_name = 'nofunc'
             dont_keep = True
-        
+        else:
+            if settings['include_func']:
+                if func_name not in settings['include_func']:
+                    dont_keep = True
+            else:
+                if func_name in settings['exclude_func']:
+                    dont_keep = True
+
         # join em together in a readable form
         full_name = '%s%s%s' % (module_name, class_name, func_name)
 
-        # throw it all in a dict
+        if full_name in settings['exclude_specific']:
+            dont_keep = True
+
+        # throw it all in dictonaires
         fr = call_stack[-1]
-        to = full_name
         if not dont_keep:
             if fr not in call_dict:
                 call_dict[fr] = {}
-            if to not in call_dict[fr]:
-                call_dict[fr][to] = 0
-            call_dict[fr][to] += 1
-
-        call_stack.append(to)
-        return tracer
+            if full_name not in call_dict[fr]:
+                call_dict[fr][full_name] = 0
+            call_dict[fr][full_name] += 1
+            if full_name not in func_count:
+                func_count[full_name] = 0
+            func_count[full_name] += 1
+            if func_count[full_name] > func_count_max:
+                func_count_max = func_count[full_name]
+            call_stack.append(full_name)
+        else:
+            call_stack.append('')
     if event == 'return':
         if call_stack:
             call_stack.pop(-1)
 
-def get_dot():
+def get_dot(stop=True):
+    if stop:
+        stop_trace()
     ret = ['digraph G {',]
+    for comp, comp_attr in graph_attributes.items():
+        ret.append('%s [' % comp)
+        for attr, val in comp_attr.items():
+            ret.append('%(attr)s = "%(val)s",' % locals())
+        ret.append('];')
+    for func, hits in func_count.items():
+        frac = float(hits) / func_count_max 
+        col = settings['node_color'](frac)
+        grp = func.split('.', 1)[0]
+        #ret.append('"%(func)s" [label="%(func)s\\n%(hits)i calls", color = "%(col)s", group = "%(grp)s"]' % locals())
+        ret.append('"%(func)s" [label="%(func)s\\ncalls: %(hits)i", color = "%(col)s"]' % locals())
     for fr_key, fr_val in call_dict.items():
+        if fr_key == '':
+            continue
         for to_key, to_val in fr_val.items():
-            ret.append('"%s"->"%s"' % (fr_key, to_key))
+            frac = float(to_val) / func_count_max
+            col = settings['edge_color'](frac)
+            edge = '[ color = "%s" ]' % col
+            ret.append('"%s"->"%s" %s' % (fr_key, to_key, edge))
     ret.append('}')
+    print '\n'.join(ret)
     return '\n'.join(ret)
 
 def save_dot(filename):
     open(filename, 'w').write(get_dot())
 
-def make_graph(filename, format='png', tool='dot'):
+def make_graph(filename, format='png', tool='dot', stop=True):
+    if stop:
+        stop_trace()
     fd, tempname = tempfile.mkstemp()
     f = os.fdopen(fd, 'w')
     f.write(get_dot())
@@ -106,17 +187,14 @@ def make_graph(filename, format='png', tool='dot'):
             'code %(ret)i.' % locals())
 
 if __name__ == '__main__':
-    
-    class Yo:
-        def hello(self):
-            pass
 
     f = 'test.png'
     print 'Starting trace'
     start_trace()
-    Yo().hello()
-    stop_trace()
+    import re
+    re.compile('h(e)l[A-Z]lo.*th[^e]*e(r)e')
     print 'Generating graph'
+    stop_trace()
     make_graph(f)
     print '%s should be in this directiory. Hit enter to quit.' % f
     raw_input()
