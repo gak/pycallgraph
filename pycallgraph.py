@@ -201,6 +201,6 @@ if __name__ == '__main__':
     print '%s should be in this directiory. Hit enter to quit.' % f
     raw_input()
 
-__version__ = "$Revision: 53 $"
+__version__ = "$Revision: $"
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
 
