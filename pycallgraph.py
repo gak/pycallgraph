@@ -25,10 +25,17 @@ import os
 import tempfile
 
 # statistical data
-call_dict = {}
-call_stack = ['__main__']
-func_count = {}
-func_count_max = 0
+def reset_trace():
+    global call_dict
+    call_dict = {}
+    global call_stack
+    call_stack = ['__main__']
+    global func_count
+    func_count = {}
+    global func_count_max
+    func_count_max = 0
+
+reset_trace()
 
 # graphviz settings
 graph_attributes = {
@@ -42,6 +49,8 @@ graph_attributes = {
         'fontsize': 10,
     },
 }
+
+# settings for building dot files
 settings = {
    'node_attributes': {
        'label': r'%(func)s\ncalls: %(hits)i',
@@ -57,12 +66,15 @@ settings = {
     'include_class': [],
     'include_func': [],
     'include_specific': [],
+    'dont_exclude_anything': False,
 }
 
 class PyCallGraphException(Exception):
     pass
 
-def start_trace():
+def start_trace(reset=True):
+    if reset:
+        reset_trace()
     sys.settrace(tracer)
 
 def stop_trace():
@@ -109,8 +121,7 @@ def tracer(frame, event, arg):
         # work out the current function or method
         func_name = code.co_name
         if func_name == '?':
-            func_name = 'nofunc'
-            dont_keep = True
+            func_name = '__main__'
         else:
             if settings['include_func']:
                 if func_name not in settings['include_func']:
@@ -127,7 +138,7 @@ def tracer(frame, event, arg):
 
         # throw it all in dictonaires
         fr = call_stack[-1]
-        if not dont_keep:
+        if not dont_keep or settings['dont_exclude_anything']:
             if fr not in call_dict:
                 call_dict[fr] = {}
             if full_name not in call_dict[fr]:
