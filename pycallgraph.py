@@ -43,6 +43,10 @@ graph_attributes = {
     },
 }
 settings = {
+   'node_attributes': {
+       'label': r'%(func)s\ncalls: %(hits)i',
+       'color': '%(col)s',
+    },
     'node_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.9),
     'edge_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.7),
     'exclude_module': [],
@@ -97,7 +101,6 @@ def tracer(frame, event, arg):
                     dont_keep = True
             else:
                 if class_name in settings['exclude_class']:
-                    print 'exclude_class', class_name
                     dont_keep = True
             class_name += '.'
         except (KeyError, AttributeError):
@@ -154,9 +157,9 @@ def get_dot(stop=True):
     for func, hits in func_count.items():
         frac = float(hits) / func_count_max 
         col = settings['node_color'](frac)
-        grp = func.split('.', 1)[0]
-        #ret.append('"%(func)s" [label="%(func)s\\n%(hits)i calls", color = "%(col)s", group = "%(grp)s"]' % locals())
-        ret.append('"%(func)s" [label="%(func)s\\ncalls: %(hits)i", color = "%(col)s"]' % locals())
+        attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
+        node_str = '"%s" [%s];' % (func, ','.join(attribs))
+        ret.append(node_str % locals())
     for fr_key, fr_val in call_dict.items():
         if fr_key == '':
             continue
@@ -166,7 +169,6 @@ def get_dot(stop=True):
             edge = '[ color = "%s" ]' % col
             ret.append('"%s"->"%s" %s' % (fr_key, to_key, edge))
     ret.append('}')
-    print '\n'.join(ret)
     return '\n'.join(ret)
 
 def save_dot(filename):
