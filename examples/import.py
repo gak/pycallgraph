@@ -1,6 +1,8 @@
 import pycallgraph
 
-import_list = ['pickle', 'ctypes', 'htmllib']
+pycallgraph.settings['dont_exclude_anything'] = True
+
+import_list = ['pickle', 'htmllib']
 
 for imp in import_list:
     pycallgraph.start_trace()
