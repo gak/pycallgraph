@@ -37,6 +37,8 @@ def reset_trace():
 
 reset_trace()
 
+trace_filter = None
+
 # graphviz settings
 graph_attributes = {
     'graph': {
@@ -58,33 +60,60 @@ settings = {
     },
     'node_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.9),
     'edge_color': lambda calls, : '%f %f %f' % (calls / 2 + .5, calls, 0.7),
-    'exclude_module': [],
-    'exclude_class': [],
-    'exclude_func': [],
-    'exclude_specific': ['stop_trace', 'make_graph'],
-    'include_module': [],
-    'include_class': [],
-    'include_func': [],
-    'include_specific': [],
     'dont_exclude_anything': False,
 }
 
 class PyCallGraphException(Exception):
     pass
 
-def start_trace(reset=True):
+class GlobbingFilter(object):
+    """Filter module names using a set of globs.
+
+    Objects are matched against the exclude list first, then the include list.
+    Anything that passes through without matching either, is excluded."""
+    def __init__(self, include=None, exclude=None, max_depth=None):
+        if include is None and exclude is None:
+            include = ['*']
+            exclude = []
+        elif include is None:
+            include = ['*']
+        elif exclude is None:
+            exclude = []
+        self.include = include
+        self.exclude = exclude
+        self.max_depth = max_depth or 9999
+
+    def __call__(self, call_stack, module_name, class_name, func_name,
+    full_name):
+        from fnmatch import fnmatch
+        if len(call_stack) > self.max_depth:
+            return False
+        for pattern in self.exclude:
+            if fnmatch(full_name, pattern):
+                return False
+        for pattern in self.include:
+            if fnmatch(full_name, pattern):
+                return True
+        return False
+
+def start_trace(reset=True, filter=None):
+    global trace_filter
     if reset:
         reset_trace()
+    if filter is None:
+        trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
+    else:
+        trace_filter = filter
     sys.settrace(tracer)
 
 def stop_trace():
     sys.settrace(None)
 
 def tracer(frame, event, arg):
-    global func_count_max
+    global func_count_max, trace_filter
 
     if event == 'call':
-        dont_keep = False
+        keep = True
         code = frame.f_code
    
         # work out the module
@@ -93,28 +122,13 @@ def tracer(frame, event, arg):
             module_name = module.__name__ 
             if module_name == '__main__':
                 module_name = ''
-            else:
-                if settings['include_module']:
-                    if module_name not in settings['include_module']:
-                        dont_keep = True
-                else:
-                    if module_name in settings['exclude_module']:
-                        dont_keep = True
-                module_name += '.'
         else:
-            module_name = 'unknown.'
-            dont_keep = True
+            module_name = 'unknown'
+            keep = False
 
         # work out the instance, if we're in a class
         try:
             class_name = frame.f_locals['self'].__class__.__name__
-            if settings['include_class']:
-                if class_name not in settings['include_class']:
-                    dont_keep = True
-            else:
-                if class_name in settings['exclude_class']:
-                    dont_keep = True
-            class_name += '.'
         except (KeyError, AttributeError):
             class_name = ''
 
@@ -122,23 +136,18 @@ def tracer(frame, event, arg):
         func_name = code.co_name
         if func_name == '?':
             func_name = '__main__'
-        else:
-            if settings['include_func']:
-                if func_name not in settings['include_func']:
-                    dont_keep = True
-            else:
-                if func_name in settings['exclude_func']:
-                    dont_keep = True
 
         # join em together in a readable form
-        full_name = '%s%s%s' % (module_name, class_name, func_name)
+        full_name = '.'.join(filter(None, [module_name, class_name,
+                                           func_name]))
 
-        if full_name in settings['exclude_specific']:
-            dont_keep = True
+        if trace_filter:
+            keep = trace_filter(call_stack, module_name, class_name,
+                                func_name, full_name)
 
         # throw it all in dictonaires
         fr = call_stack[-1]
-        if not dont_keep or settings['dont_exclude_anything']:
+        if keep or settings['dont_exclude_anything']:
             if fr not in call_dict:
                 call_dict[fr] = {}
             if full_name not in call_dict[fr]:
