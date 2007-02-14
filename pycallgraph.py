@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """
 pycallgraph
-http://pycallgraph.slowchop.com/
+
+U{http://pycallgraph.slowchop.com/}
+
 Copyright Gerald Kaszuba 2007
 
 This program is free software; you can redistribute it and/or modify
