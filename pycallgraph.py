@@ -26,6 +26,9 @@ import tempfile
 
 # statistical data
 def reset_trace():
+    """Resets all collected statistics. This is run automatically by
+    start_trace(reset=True) and when the module is loaded.
+    """
     global call_dict
     call_dict = {}
     global call_stack
@@ -54,7 +57,7 @@ graph_attributes = {
 
 # settings for building dot files
 settings = {
-   'node_attributes': {
+    'node_attributes': {
        'label': r'%(func)s\ncalls: %(hits)i',
        'color': '%(col)s',
     },
@@ -64,13 +67,15 @@ settings = {
 }
 
 class PyCallGraphException(Exception):
+    """Exception used for pycallgraph"""
     pass
 
 class GlobbingFilter(object):
     """Filter module names using a set of globs.
 
     Objects are matched against the exclude list first, then the include list.
-    Anything that passes through without matching either, is excluded."""
+    Anything that passes through without matching either, is excluded.
+    """
     def __init__(self, include=None, exclude=None, max_depth=None):
         if include is None and exclude is None:
             include = ['*']
@@ -97,6 +102,13 @@ class GlobbingFilter(object):
         return False
 
 def start_trace(reset=True, filter=None):
+    """Begins a trace. Setting reset to True will reset all previously recorded
+    trace data. filter needs to point to a callable function that accepts the
+    parameters (call_stack, module_name, class_name, func_name, full_name).
+    Every call will be passed into this function and it is up to the function
+    to decide if it should be included or not. Returning False means the call
+    will be filtered out and not included in the call graph.
+    """
     global trace_filter
     if reset:
         reset_trace()
@@ -107,9 +119,13 @@ def start_trace(reset=True, filter=None):
     sys.settrace(tracer)
 
 def stop_trace():
+    """Stops the currently running trace, if any."""
     sys.settrace(None)
 
 def tracer(frame, event, arg):
+    """This is an internal function that is called every time a call is made
+    during a trace. It keeps track of relationships between calls.
+    """
     global func_count_max, trace_filter
 
     if event == 'call':
@@ -166,6 +182,9 @@ def tracer(frame, event, arg):
             call_stack.pop(-1)
 
 def get_dot(stop=True):
+    """Returns a string containing a DOT file. Setting stop to True will cause
+    the trace to stop.
+    """
     if stop:
         stop_trace()
     ret = ['digraph G {',]
@@ -192,9 +211,19 @@ def get_dot(stop=True):
     return '\n'.join(ret)
 
 def save_dot(filename):
+    """Generates a DOT file and writes it into filename."""
     open(filename, 'w').write(get_dot())
 
-def make_graph(filename, format='png', tool='dot', stop=True):
+def make_graph(filename, format=None, tool=None, stop=None):
+    """This has been changed to make_dot_graph."""
+    raise PyCallGraphException( \
+        "make_graph is depricated. Please use make_dot_graph")
+
+def make_dot_graph(filename, format='png', tool='dot', stop=True):
+    """Creates a graph using a graphviz tool that supports the dot language. It
+    will output into a file specified by filename with the format specified.
+    Setting stop to True will stop the current trace.
+    """
     if stop:
         stop_trace()
     fd, tempname = tempfile.mkstemp()
@@ -209,7 +238,6 @@ def make_graph(filename, format='png', tool='dot', stop=True):
             'code %(ret)i.' % locals())
 
 if __name__ == '__main__':
-
     f = 'test.png'
     print 'Starting trace'
     start_trace()
