@@ -14,7 +14,7 @@ def filter_exclude():
     pycallgraph.start_trace(filter=filter)
     banana = Banana()
     banana.eat()
-    pycallgraph.make_graph('filter-exclude.png')
+    pycallgraph.make_dot_graph('filter-exclude.png')
 
 def filter_include():
     filter = pycallgraph.GlobbingFilter(include=['*.secret_function', \
@@ -22,14 +22,14 @@ def filter_include():
     pycallgraph.start_trace(filter=filter)
     banana = Banana()
     banana.eat()
-    pycallgraph.make_graph('filter-include.png')
+    pycallgraph.make_dot_graph('filter-include.png')
 
 def filter_max_depth():
     filter = pycallgraph.GlobbingFilter(max_depth=1)
     pycallgraph.start_trace(filter=filter)
     banana = Banana()
     banana.eat()
-    pycallgraph.make_graph('filter-max-depth.png')
+    pycallgraph.make_dot_graph('filter-max-depth.png')
 
 filter_exclude()
 filter_include()

@@ -11,7 +11,7 @@ class Banana:
 banana = Banana()
 banana.eat()
 
-pycallgraph.make_graph('basic.png')
+pycallgraph.make_dot_graph('basic.png')
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
 

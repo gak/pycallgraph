@@ -245,7 +245,7 @@ if __name__ == '__main__':
     re.compile('h(e)l[A-Z]lo.*th[^e]*e(r)e')
     print 'Generating graph'
     stop_trace()
-    make_graph(f)
+    make_dot_graph(f)
     print '%s should be in this directiory. Hit enter to quit.' % f
     raw_input()
 
