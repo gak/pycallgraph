@@ -2,11 +2,11 @@
 
 from distutils.core import setup
 
-import version
+from pycallgraph import __version__
 
 setup(
     name='pycallgraph',
-    version=version.version,
+    version=__version__,
     description='Python Call Graph',
     author='Gerald Kaszuba',
     author_email='pycallgraph@gakman.com',
@@ -18,7 +18,7 @@ of your Python code. It's very easy to use and can point out possible problems
 with your code execution.''',
     download_url =
     'http://pycallgraph.slowchop.com/files/download/pycallgraph-%s.tar.gz' % \
-            version.version,
+        __version__,
     classifiers = [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

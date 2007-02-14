@@ -217,7 +217,7 @@ def save_dot(filename):
 def make_graph(filename, format=None, tool=None, stop=None):
     """This has been changed to make_dot_graph."""
     raise PyCallGraphException( \
-        "make_graph is depricated. Please use make_dot_graph")
+        'make_graph is depricated. Please use make_dot_graph')
 
 def make_dot_graph(filename, format='png', tool='dot', stop=True):
     """Creates a graph using a graphviz tool that supports the dot language. It
@@ -249,6 +249,6 @@ if __name__ == '__main__':
     print '%s should be in this directiory. Hit enter to quit.' % f
     raw_input()
 
-__version__ = "$Revision: $"
+__version__ = '0.3.0'
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
 

@@ -1,3 +1,2 @@
-include version.py
 include examples/*
 
