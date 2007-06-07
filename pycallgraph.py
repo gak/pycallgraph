@@ -184,6 +184,7 @@ def tracer(frame, event, arg):
     if event == 'return':
         if call_stack:
             call_stack.pop(-1)
+    return tracer
 
 def get_dot(stop=True):
     """Returns a string containing a DOT file. Setting stop to True will cause
