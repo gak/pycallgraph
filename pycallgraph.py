@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import inspect
 import sys
 import os
+import os.path
+import re
 import tempfile
 
 # statistical data
@@ -232,12 +234,22 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
     f = os.fdopen(fd, 'w')
     f.write(get_dot())
     f.close()
+
+    # normalize filename
+    regex_user_expand = re.compile('\A~')
+    if regex_user_expand.match(filename):
+        filename = os.path.expanduser(filename)
+    else:
+        filename = os.path.expandvars(filename)  # expand, just in case
+
     cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
-    ret = os.system(cmd)
-    os.unlink(tempname)
-    if ret:
-        raise PyCallGraphException('The command "%(cmd)s" failed with error' \
-            'code %(ret)i.' % locals())
+    try:
+        ret = os.system(cmd)
+        if ret:
+            raise PyCallGraphException('The command "%(cmd)s" failed with error' \
+                                           'code %(ret)i.' % locals())
+    finally:
+        os.unlink(tempname)
 
 if __name__ == '__main__':
     f = 'test.png'
