@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 pycallgraph
 
@@ -251,18 +250,6 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
                                            'code %(ret)i.' % locals())
     finally:
         os.unlink(tempname)
-
-if __name__ == '__main__':
-    f = 'test.png'
-    print 'Starting trace'
-    start_trace()
-    import re
-    re.compile('h(e)l[A-Z]lo.*th[^e]*e(r)e')
-    print 'Generating graph'
-    stop_trace()
-    make_dot_graph(f)
-    print '%s should be in this directiory. Hit enter to quit.' % f
-    raw_input()
 
 __version__ = '0.3.1'
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
