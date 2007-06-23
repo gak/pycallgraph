@@ -10,4 +10,3 @@ for imp in import_list:
     pycallgraph.make_dot_graph('import-%s.png' % imp)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
-
