@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 """
-This example demonstrates the use of filtering.
+This example demonstrates the use of filtering timing functionality.
 """
 import re
 

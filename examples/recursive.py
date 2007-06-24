@@ -34,7 +34,7 @@ def factorial(n):
     return n * factorial(n-1)
 
 
-def main(self):
+def main():
     pycallgraph.start_trace()
     for a in xrange(1, 10):
         print factorial(a)
