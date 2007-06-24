@@ -39,6 +39,12 @@ parser.add_option(
     )
 
 parser.add_option(
+    '-s', '--stdlib', dest='include_stdlib', action='store_true',
+    default=False,
+    help='Include standard library functions in the trace. Default: False',
+    )
+
+parser.add_option(
     '-i', '--include', dest='include', default=[],
     action='append',
     help='Wildcard pattern of modules to include in the output. ' \
@@ -93,6 +99,8 @@ time_filter_func = pycallgraph.GlobbingFilter(
     include=options.include_timing,
     exclude=options.exclude_timing,
     )
+
+pycallgraph.settings['include_stdlib'] = options.include_stdlib
 
 pycallgraph.start_trace(
     filter_func=filter_func,
