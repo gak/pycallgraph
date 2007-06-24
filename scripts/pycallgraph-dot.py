@@ -48,7 +48,7 @@ parser.add_option(
     '-e', '--exclude', dest='exclude', default=[],
     action='append',
     help='Wildcard pattern of modules to exclude in the output. ' \
-        'You can have multiple exclude arguments.'
+        'You can have multiple exclude arguments.',
     )
 
 parser.add_option(
