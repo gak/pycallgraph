@@ -64,6 +64,7 @@ def filter_max_depth():
     banana.eat()
     pycallgraph.make_dot_graph('filter-max-depth.png')
 
+
 def main():
     filter_exclude()
     filter_include()

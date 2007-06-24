@@ -24,15 +24,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 This example demonstrates several different methods on colouring your graph.
 
-See U{http://www.graphviz.org/doc/info/attrs.html    #k:color} for details on how
-to return colour formats to Graphviz.
+See U{http://www.graphviz.org/doc/info/attrs.html#k:color} for details on
+how to return colour formats to Graphviz.
 """
 
 import random
 
 import pycallgraph
 
+
+def rainbow(calls, total_time):
+    """Colour using only changes in hue.
+
+    It will go from 0 to 0.8 which is red, orange, yellow, green, cyani, blue
+    then purple.
+
+    See U{http://en.wikipedia.org/wiki/Hue} for more information on hue.
+    """
+    return '%f 0.8 0.8' % (calls * 0.8)
+
+
+def greyscale(calls, total_time):
+    """Goes from dark grey to a light grey."""
+    return '0 0 %f' % (calls / 2 + 0.4)
+
+
+def orange_green(calls, total_time):
+    """Make a higher total time have an orange colour and a higher number
+    of calls have a green colour using RGB.
+    """
+    return '#%02X%02X%02X' % (
+        0x30 + total_time * 0xc0,
+        0x30 + calls * 0xc0 + total_time * 0x70,
+        0x30,
+    )
+
+
+def rand(calls, total_time):
+    """Random with a touch of usefulness"""
+    return '%f %f %f' % (
+        random.random(),
+        calls * 0.5 + 0.5,
+        calls * 0.5 + 0.5,
+    )
+
+
 def main():
+
     # Do the trace, remember the values for later
     pycallgraph.start_trace()
     import HTMLParser
@@ -45,46 +83,18 @@ def main():
     pycallgraph.make_dot_graph('colours-default.png')
 
     # Rainbow
-    def rainbow(calls, total_time):
-        """Colour using only changes in hue.
-
-        It will go from 0 to 0.8 which is red, orange, yellow, green, cyani, blue
-        then purple.
-
-        See U{http://en.wikipedia.org/wiki/Hue} for more information on hue.
-        """
-        return '%f 0.8 0.8' % (calls * 0.8)
-
     pycallgraph.settings['node_colour'] = rainbow
     pycallgraph.make_dot_graph('colours-rainbow.png')
 
     # Greyscale
-    def greyscale(calls, total_time):
-        """Goes from dark grey to a light grey."""
-        return '0 0 %f' % (calls / 2 + 0.4)
-
     pycallgraph.settings['node_colour'] = greyscale
     pycallgraph.make_dot_graph('colours-greyscale.png')
 
-    # Differences between calls and total time
-    def orange_green(calls, total_time):
-        """Make a higher total time have an orange colour and a higher number of
-        calls have a green colour using RGB.
-        """
-        return '    #%02X%02X%02X' % (
-            0x30 + total_time * 0xc0,
-            0x30 + calls * 0xc0 + total_time * 0x70,
-            0x30,
-        )
-
+    # Orange/Green
     pycallgraph.settings['node_colour'] = orange_green
     pycallgraph.make_dot_graph('colours-orange-green.png')
 
-    # Random!
-    def rand(calls, total_time):
-        """Random with a touch of usefulness"""
-        return '%f %f %f' % (random.random(), calls * 0.5 + 0.5, calls * 0.5 + 0.5)
-
+    # Random
     pycallgraph.settings['node_colour'] = rand
     pycallgraph.make_dot_graph('colours-random.png')
 

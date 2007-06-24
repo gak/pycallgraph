@@ -36,6 +36,7 @@ class Banana:
     def eat(self):
         pass
 
+
 def main():
     pycallgraph.start_trace()
     banana = Banana()
