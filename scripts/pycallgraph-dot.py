@@ -35,13 +35,14 @@ parser.add_option(
 
 parser.add_option(
     '-t', '--tool', dest='tool', default='dot',
-    help='The tool from graphviz to use. Default: dot',
+    help='The tool from Graphviz to use. Default: dot',
     )
 
 parser.add_option(
     '-i', '--include', dest='include', default=[],
     action='append',
-    help='Wildcard pattern of modules to include in the output.',
+    help='Wildcard pattern of modules to include in the output. ' \
+        'You can have multiple include arguments.',
     )
 
 parser.add_option(
