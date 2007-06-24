@@ -272,5 +272,5 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
 
 reset_trace()
 
-__version__ = '0.3.2'
+__version__ = '0.4.0'
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
