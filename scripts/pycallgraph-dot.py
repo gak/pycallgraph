@@ -57,22 +57,47 @@ parser.add_option(
     help='Maximum stack depth to trace.',
     )
 
+parser.add_option(
+    '--include-timing', dest='include_timing', default=[],
+    action='append',
+    help='Wildcard pattern of modules to include in time measurement. ' \
+        'You can have multiple include arguments.',
+    )
+
+parser.add_option(
+    '--exclude-timing', dest='exclude_timing', default=[],
+    action='append',
+    help='Wildcard pattern of modules to exclude in time measurement. ' \
+        'You can have multiple exclude arguments.',
+    )
+
 (options, args) = parser.parse_args()
 
 if len(args) < 2:
     parser.print_help()
     sys.exit(0)
 
-# Create globbing filter
+# Create filter
 if not options.include:
     options.include = ['*']
-glob_filter = pycallgraph.GlobbingFilter(
+filter_func = pycallgraph.GlobbingFilter(
     include=options.include,
     exclude=options.exclude,
     max_depth=options.max_depth,
     )
 
-pycallgraph.start_trace(filter_func=glob_filter)
+# Create timing filter
+if not options.include_timing:
+    options.include_timing = ['*']
+time_filter_func = pycallgraph.GlobbingFilter(
+    include=options.include_timing,
+    exclude=options.exclude_timing,
+    )
+
+pycallgraph.start_trace(
+    filter_func=filter_func,
+    time_filter_func=time_filter_func,
+)
 execfile(args[0])
 pycallgraph.make_dot_graph(args[1], options.format, options.tool)
 
