@@ -73,8 +73,8 @@ settings = {
        'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f',
        'color': '%(col)s',
     },
-    'node_color': colourize_node,
-    'edge_color': colourize_edge,
+    'node_colour': colourize_node,
+    'edge_colour': colourize_edge,
     'dont_exclude_anything': False,
 }
 
@@ -276,7 +276,7 @@ def get_dot(stop=True):
         ret.append('];')
     for func, hits in func_count.items():
         calls_frac, total_time_frac, total_time = frac_calculation(func, hits)
-        col = settings['node_color'](calls_frac, total_time_frac)
+        col = settings['node_colour'](calls_frac, total_time_frac)
         attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
         node_str = '"%s" [%s];' % (func, ','.join(attribs))
         ret.append(node_str % locals())
@@ -286,7 +286,7 @@ def get_dot(stop=True):
         for to_key, to_val in fr_val.items():
             calls_frac, total_time_frac, totla_time = \
                 frac_calculation(to_key, to_val)
-            col = settings['edge_color'](calls_frac, total_time_frac)
+            col = settings['edge_colour'](calls_frac, total_time_frac)
             edge = '[ color = "%s" ]' % col
             ret.append('"%s"->"%s" %s' % (fr_key, to_key, edge))
     ret.append('}')
