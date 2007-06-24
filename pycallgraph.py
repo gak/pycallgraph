@@ -162,6 +162,7 @@ def is_module_stdlib(file_name):
         lib_path = path[0]
     return file_name.lower().startswith(lib_path.lower())
 
+
 def start_trace(reset=True, filter_func=None, time_filter_func=None):
     """Begins a trace. Setting reset to True will reset all previously recorded
     trace data. filter_func needs to point to a callable function that accepts
