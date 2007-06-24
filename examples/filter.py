@@ -64,8 +64,12 @@ def filter_max_depth():
     banana.eat()
     pycallgraph.make_dot_graph('filter-max-depth.png')
 
-filter_exclude()
-filter_include()
-filter_max_depth()
+def main():
+    filter_exclude()
+    filter_include()
+    filter_max_depth()
+
+if __name__ == '__main__':
+    main()
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

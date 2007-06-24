@@ -38,9 +38,12 @@ class Banana:
     def eat(self):
         pass
 
-banana = Banana()
-banana.eat()
+def main():
+    banana = Banana()
+    banana.eat()
+    pycallgraph.make_dot_graph('basic.png')
 
-pycallgraph.make_dot_graph('basic.png')
+if __name__ == '__main__':
+    main()
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

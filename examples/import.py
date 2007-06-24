@@ -27,13 +27,16 @@ imported.
 """
 import pycallgraph
 
-pycallgraph.settings['dont_exclude_anything'] = True
+def main():
+    pycallgraph.settings['dont_exclude_anything'] = True
+    import_list = ['pickle', 'htmllib']
 
-import_list = ['pickle', 'htmllib']
+    for imp in import_list:
+        pycallgraph.start_trace()
+        __import__(imp)
+        pycallgraph.make_dot_graph('import-%s.png' % imp)
 
-for imp in import_list:
-    pycallgraph.start_trace()
-    __import__(imp)
-    pycallgraph.make_dot_graph('import-%s.png' % imp)
+if __name__ == '__main__':
+    main()
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

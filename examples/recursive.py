@@ -35,9 +35,14 @@ def factorial(n):
         return 1
     return n * factorial(n-1)
 
-for a in xrange(1, 10):
-    print factorial(a)
 
-pycallgraph.make_dot_graph('recursive.png')
+def main(self):
+    for a in xrange(1, 10):
+        print factorial(a)
+
+    pycallgraph.make_dot_graph('recursive.png')
+
+if __name__ == '__main__':
+    main()
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
