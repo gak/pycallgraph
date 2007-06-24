@@ -29,6 +29,7 @@ import time
 
 # Initialise module variables
 trace_filter = None
+time_filter = None
 
 call_dict = {}
 
@@ -87,12 +88,17 @@ def reset_trace():
     global call_stack
     global func_count
     global func_count_max
+    global func_time
+    global func_time_max
+    global call_stack_timer
 
     call_dict = {}
     call_stack = ['__main__']
     func_count = {}
     func_count_max = 0
-
+    func_time = {}
+    func_time_max = 0
+    call_stack_timer = []
 
 class PyCallGraphException(Exception):
     """Exception used for pycallgraph"""
@@ -106,7 +112,8 @@ class GlobbingFilter(object):
     Anything that passes through without matching either, is excluded.
     """
 
-    def __init__(self, include=None, exclude=None, max_depth=None):
+    def __init__(self, include=None, exclude=None, max_depth=None,
+                 min_depth=None):
         if include is None and exclude is None:
             include = ['*']
             exclude = []
@@ -117,11 +124,14 @@ class GlobbingFilter(object):
         self.include = include
         self.exclude = exclude
         self.max_depth = max_depth or 9999
+        self.min_depth = min_depth or 0
 
-    def __call__(self, stack, module_name, class_name, func_name, \
-                 full_name):
+    def __call__(self, stack, module_name=None, class_name=None,
+                 func_name=None, full_name=None):
         from fnmatch import fnmatch
         if len(stack) > self.max_depth:
+            return False
+        if len(stack) < self.min_depth:
             return False
         for pattern in self.exclude:
             if fnmatch(full_name, pattern):
@@ -132,7 +142,7 @@ class GlobbingFilter(object):
         return False
 
 
-def start_trace(reset=True, filter_func=None):
+def start_trace(reset=True, filter_func=None, time_filter_func=None):
     """Begins a trace. Setting reset to True will reset all previously recorded
     trace data. filter_func needs to point to a callable function that accepts
     the parameters (call_stack, module_name, class_name, func_name, full_name).
@@ -141,12 +151,20 @@ def start_trace(reset=True, filter_func=None):
     will be filtered out and not included in the call graph.
     """
     global trace_filter
+    global time_filter
     if reset:
         reset_trace()
-    if filter_func is None:
-        trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
-    else:
+
+    if filter_func:
         trace_filter = filter_func
+    else:
+        trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
+
+    if time_filter_func:
+        time_filter = time_filter_func
+    else:
+        time_filter = GlobbingFilter()
+
     sys.settrace(tracer)
 
 
@@ -162,6 +180,7 @@ def tracer(frame, event, arg):
     global func_count_max
     global func_count
     global trace_filter
+    global time_filter
     global call_stack
     global func_time
     global func_time_max
@@ -187,10 +206,9 @@ def tracer(frame, event, arg):
         # Work out the class name.
         try:
             class_name = frame.f_locals['self'].__class__.__name__
+            full_name_list.append(class_name)
         except (KeyError, AttributeError):
             class_name = ''
-        if class_name:
-            full_name_list.append(class_name)
 
         # Work out the current function or method
         func_name = code.co_name
@@ -234,7 +252,7 @@ def tracer(frame, event, arg):
         if call_stack:
             full_name = call_stack.pop(-1)
             t = call_stack_timer.pop(-1)
-            if t:
+            if t and time_filter(stack=call_stack, full_name=full_name):
                 if full_name not in func_time:
                     func_time[full_name] = 0
                 call_time = (time.time() - t)
