@@ -73,7 +73,7 @@ glob_filter = pycallgraph.GlobbingFilter(
     )
 
 pycallgraph.start_trace(filter_func=glob_filter)
-execfile(args[0], globals(), locals())
+execfile(args[0])
 pycallgraph.make_dot_graph(args[1], options.format, options.tool)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
