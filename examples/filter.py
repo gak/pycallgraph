@@ -25,7 +25,7 @@ def filter_exclude():
 def filter_include():
     filter_func = pycallgraph.GlobbingFilter(include=['*.secret_function', \
         'Banana.__init__'])
-    pycallgraph.start_trace(filter_func=filter)
+    pycallgraph.start_trace(filter_func=filter_func)
     banana = Banana()
     banana.eat()
     pycallgraph.make_dot_graph('filter-include.png')
