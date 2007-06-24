@@ -27,8 +27,6 @@ This example demonstrates a simple recursive call.
 
 import pycallgraph
 
-pycallgraph.start_trace()
-
 
 def factorial(n):
     if n == 1:
@@ -37,6 +35,7 @@ def factorial(n):
 
 
 def main(self):
+    pycallgraph.start_trace()
     for a in xrange(1, 10):
         print factorial(a)
 

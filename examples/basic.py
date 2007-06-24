@@ -27,8 +27,6 @@ This example demonstrates a simple use of pycallgraph.
 
 import pycallgraph
 
-pycallgraph.start_trace()
-
 
 class Banana:
 
@@ -39,6 +37,7 @@ class Banana:
         pass
 
 def main():
+    pycallgraph.start_trace()
     banana = Banana()
     banana.eat()
     pycallgraph.make_dot_graph('basic.png')

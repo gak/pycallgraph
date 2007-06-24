@@ -27,6 +27,7 @@ imported.
 """
 import pycallgraph
 
+
 def main():
     pycallgraph.settings['dont_exclude_anything'] = True
     import_list = ['pickle', 'htmllib']

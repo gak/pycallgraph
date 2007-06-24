@@ -28,6 +28,7 @@ for this to work.
 
 import pycallgraph
 
+
 def main():
     pycallgraph.start_trace()
     import urllib
