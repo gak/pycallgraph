@@ -379,9 +379,33 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
     finally:
         os.unlink(tempname)
 
+
+def simple_memoize(callable_object):
+    """Simple memoization for functions without keyword arguments.
+
+    This is useful for mapping code objects to module in this context.
+    inspect.getmodule() requires a number of system calls, which may slow down
+    the tracing considerably. Caching the mapping from code objects (there is
+    *one* code object for each function, regardless of how many simultaneous
+    activations records there are).
+
+    In this context we can ignore keyword arguments, but a generic memoizer
+    ought to take care of that as well.
+    """
+
+    cache = dict()
+    def wrapper(*rest):
+        if rest not in cache:
+            cache[rest] = callable_object(*rest)
+        return cache[rest]
+
+    return wrapper
+
+    
 settings = {}
 graph_attributes = {}
 reset_settings()
 reset_trace()
+inspect.getmodule = simple_memoize(inspect.getmodule)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
