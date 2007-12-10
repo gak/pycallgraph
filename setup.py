@@ -7,7 +7,8 @@ from pycallgraph import __version__
 setup(
     name='pycallgraph',
     version=__version__,
-    description='Python Call Graph',
+    description='Python Call Graph uses GraphViz to generate call graphs ' \
+        'from one execution of your Python code.',
     author='Gerald Kaszuba',
     author_email='pycallgraph@gakman.com',
     url='http://pycallgraph.slowchop.com/',
