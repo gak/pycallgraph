@@ -31,18 +31,18 @@ import pycallgraph
 parser = OptionParser(usage='%prog [options] pythonfile')
 
 parser.add_option(
+    '-o', '--output-file', dest='output_file', default='pycg.png',
+    help='The generated GraphViz image. Default: pycg.png',
+    )
+
+parser.add_option(
     '-f', '--image-format', dest='format', default='png',
     help='The image format of imagefile. Default: png',
     )
 
 parser.add_option(
-    '-o', '--image-file', dest='image_file', default='pycg.png',
-    help='The output png file. Default: pycg.png',
-    )
-
-parser.add_option(
     '-q', '--quiet', dest='quiet', action='store_true',
-    help='Suppress output.',
+    help='Suppress status output to the console.',
     )
 
 parser.add_option(
@@ -152,9 +152,9 @@ except Exception, e:
 options = __pygc_options.pop()
 
 if not options.quiet:
-    print('Creating %s' % options.image_file)
+    print('Creating %s' % options.output_file)
 
-pycallgraph.make_dot_graph(options.image_file, options.format, options.tool)
+pycallgraph.make_dot_graph(options.output_file, options.format, options.tool)
     
 if reraise:
     if not options.quiet:
