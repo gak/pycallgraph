@@ -13,7 +13,7 @@ setup(
     author_email='pycallgraph@gakman.com',
     url='http://pycallgraph.slowchop.com/',
     py_modules=['pycallgraph'],
-    scripts=['scripts/pycallgraph-dot.py', ],
+    scripts=['scripts/pycg', ],
     long_description = \
 '''Python Call Graph uses GraphViz to generate call graphs from one execution
 of your Python code. It's very easy to use and can point out possible problems
