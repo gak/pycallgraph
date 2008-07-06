@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 pycallgraph
 This script is the command line interface to the pycallgraph make_dot_graph
