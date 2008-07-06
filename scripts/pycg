@@ -159,7 +159,7 @@ pycallgraph.make_dot_graph(options.image_file, options.format, options.tool)
 if reraise:
     if not options.quiet:
         print('Done and raising the caught exception:')
-    raise e
+    raise
 
 if not options.quiet:
     print('Done!')
