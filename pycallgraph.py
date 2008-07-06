@@ -21,7 +21,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 __author__ = 'Gerald Kaszuba'
 
 import inspect
@@ -396,6 +396,7 @@ def simple_memoize(callable_object):
     """
 
     cache = dict()
+
     def wrapper(*rest):
         if rest not in cache:
             cache[rest] = callable_object(*rest)
@@ -403,7 +404,7 @@ def simple_memoize(callable_object):
 
     return wrapper
 
-    
+
 settings = {}
 graph_attributes = {}
 reset_settings()
