@@ -132,6 +132,8 @@ except NameError:
 if not options.quiet:
     print('Starting trace')
 
+reraise = False
+
 pycallgraph.start_trace(
     filter_func=filter_func,
     time_filter_func=time_filter_func,
@@ -142,6 +144,10 @@ try:
 except SystemExit, e:
     # Ignore it when the script calls os.exit() so we can still make the graph.
     pass
+except Exception, e:
+    reraise = True
+    if not options.quiet:
+        print('Caught exception, will raise after graph is made.')
 
 options = __pygc_options.pop()
 
@@ -149,6 +155,11 @@ if not options.quiet:
     print('Creating %s' % options.image_file)
 
 pycallgraph.make_dot_graph(options.image_file, options.format, options.tool)
+    
+if reraise:
+    if not options.quiet:
+        print('Done and raising the caught exception:')
+    raise e
 
 if not options.quiet:
     print('Done!')
