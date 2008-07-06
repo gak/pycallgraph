@@ -37,7 +37,7 @@ def factorial(n):
 def main():
     pycallgraph.start_trace()
     for a in xrange(1, 10):
-        print factorial(a)
+        factorial(a)
 
     pycallgraph.make_dot_graph('recursive.png')
 
