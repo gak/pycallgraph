@@ -27,11 +27,22 @@ from optparse import OptionParser
 
 import pycallgraph
 
-parser = OptionParser(usage='%prog [options] pythonfile imagefile')
+
+parser = OptionParser(usage='%prog [options] pythonfile')
 
 parser.add_option(
     '-f', '--image-format', dest='format', default='png',
     help='The image format of imagefile. Default: png',
+    )
+
+parser.add_option(
+    '-o', '--image-file', dest='image_file', default='pycg.png',
+    help='The output png file. Default: pycg.png',
+    )
+
+parser.add_option(
+    '-q', '--quiet', dest='quiet', action='store_true',
+    help='Suppress output.',
     )
 
 parser.add_option(
@@ -80,7 +91,10 @@ parser.add_option(
 
 (options, args) = parser.parse_args()
 
-if len(args) < 2:
+if not options.quiet:
+    print('Python Call Graph v%s' % pycallgraph.__version__)
+
+if len(args) < 1:
     parser.print_help()
     sys.exit(0)
 
@@ -103,11 +117,40 @@ time_filter_func = pycallgraph.GlobbingFilter(
 
 pycallgraph.settings['include_stdlib'] = options.include_stdlib
 
+# Remove this script from the argument list so we don't break the Python
+# script we are calling.
+sys.argv = args
+
+# Sometimes scripts change "options", so use a secret one.
+# Also, this (kind of) allows pygc to call itself, since calling itself would
+# overwrite global variables in this file.
+try:
+    __pygc_options.append(options)
+except NameError:
+    __pygc_options = [options]
+
+if not options.quiet:
+    print('Starting trace')
+
 pycallgraph.start_trace(
     filter_func=filter_func,
     time_filter_func=time_filter_func,
 )
-execfile(args[0])
-pycallgraph.make_dot_graph(args[1], options.format, options.tool)
+
+try:
+    execfile(args[0])
+except SystemExit, e:
+    # Ignore it when the script calls os.exit() so we can still make the graph.
+    pass
+
+options = __pygc_options.pop()
+
+if not options.quiet:
+    print('Creating %s' % options.image_file)
+
+pycallgraph.make_dot_graph(options.image_file, options.format, options.tool)
+
+if not options.quiet:
+    print('Done!')
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
