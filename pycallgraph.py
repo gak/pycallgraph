@@ -254,8 +254,11 @@ def tracer(frame, event, arg):
 
         # Store the call information
         if keep:
-
-            fr = call_stack[-1]
+            
+            if call_stack:
+                fr = call_stack[-1]
+            else:
+                fr = None
             if fr not in call_dict:
                 call_dict[fr] = {}
             if full_name not in call_dict[fr]:
@@ -278,7 +281,10 @@ def tracer(frame, event, arg):
     if event == 'return':
         if call_stack:
             full_name = call_stack.pop(-1)
-            t = call_stack_timer.pop(-1)
+            if call_stack_timer:
+                t = call_stack_timer.pop(-1)
+            else:
+                t = None
             if t and time_filter(stack=call_stack, full_name=full_name):
                 if full_name not in func_time:
                     func_time[full_name] = 0
