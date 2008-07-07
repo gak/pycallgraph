@@ -6,11 +6,14 @@ from distutils.core import setup
 from pycallgraph import __version__
 
 # Only install the man page if the correct directory exists
-man_path = '/usr/share/man/man1/'
-if path.exists(man_path):
-    data_files=[['/usr/share/man/man1/', ['man/pycg.1']]]
-else:
-    data_files=None
+# XXX: Commented because easy_install doesn't like it
+#man_path = '/usr/share/man/man1/'
+#if path.exists(man_path):
+#    data_files=[['/usr/share/man/man1/', ['man/pycg.1']]]
+#else:
+#    data_files=None
+
+data_files=None
 
 setup(
     name='pycallgraph',
