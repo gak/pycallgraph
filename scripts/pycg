@@ -23,6 +23,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import sys
+import os
 from optparse import OptionParser
 
 import pycallgraph
@@ -128,6 +129,9 @@ try:
     __pygc_options.append(options)
 except NameError:
     __pygc_options = [options]
+
+# Insert the current working directory into the path
+sys.path.insert(0, os.getcwd())
 
 if not options.quiet:
     print('Starting trace')
