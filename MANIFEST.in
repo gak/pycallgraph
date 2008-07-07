@@ -1,3 +1,4 @@
 include examples/*.py
+include man/pycg.1
 include COPYING
 
