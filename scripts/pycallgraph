@@ -32,8 +32,8 @@ import pycallgraph
 parser = OptionParser(usage='%prog [options] pythonfile')
 
 parser.add_option(
-    '-o', '--output-file', dest='output_file', default='pycg.png',
-    help='The generated GraphViz image. Default: pycg.png',
+    '-o', '--output-file', dest='output_file', default='pycallgraph.png',
+    help='The generated GraphViz image. Default: pycallgraph.png',
     )
 
 parser.add_option(

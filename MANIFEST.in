@@ -1,4 +1,4 @@
 include examples/*.py
-include man/pycg.1
+include man/pycallgraph.1
 include COPYING
 

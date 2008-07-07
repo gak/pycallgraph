@@ -9,7 +9,7 @@ from pycallgraph import __version__
 # XXX: Commented because easy_install doesn't like it
 #man_path = '/usr/share/man/man1/'
 #if path.exists(man_path):
-#    data_files=[['/usr/share/man/man1/', ['man/pycg.1']]]
+#    data_files=[['/usr/share/man/man1/', ['man/pycallgraph.1']]]
 #else:
 #    data_files=None
 
@@ -21,10 +21,10 @@ setup(
     description='Python Call Graph uses GraphViz to generate call graphs ' \
         'from one execution of your Python code.',
     author='Gerald Kaszuba',
-    author_email='pycg@slowchop.com',
+    author_email='pycallgraph@slowchop.com',
     url='http://pycallgraph.slowchop.com/',
     py_modules=['pycallgraph'],
-    scripts=['scripts/pycg'],
+    scripts=['scripts/pycallgraph'],
     data_files=data_files,
     long_description = \
 '''Python Call Graph uses GraphViz to generate call graphs from one execution
