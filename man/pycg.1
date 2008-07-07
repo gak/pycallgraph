@@ -76,11 +76,11 @@ pycg ./myprogram.py
 Create a call graph of a standard Python installation script with command line
 parameters:
 .IP
-pycg --output-file=setup.png -- setup.py --dry-run install
+pycg \-\-output-file=setup.png \-\- setup.py \-\-dry\-run install
 .PP
 Only see the module "distutils" within the execution of easy_install:
 .IP
-pycg --include=distutils.* /usr/bin/easy_install
+pycg \-\-include=distutils.* /usr/bin/easy_install
 .SH AUTHORS
 pycg and pycallgraph were written by Gerald Kaszuba <pycg@slowchop.com>.
 .LP
