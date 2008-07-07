@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 
+from os import path
 from distutils.core import setup
 
 from pycallgraph import __version__
+
+# Only install the man page if the correct directory exists
+man_path = '/usr/share/man/man1/'
+if path.exists(man_path):
+    data_files=[['/usr/share/man/man1/', ['man/pycg.1']]]
+else:
+    data_files=None
 
 setup(
     name='pycallgraph',
@@ -10,10 +18,11 @@ setup(
     description='Python Call Graph uses GraphViz to generate call graphs ' \
         'from one execution of your Python code.',
     author='Gerald Kaszuba',
-    author_email='pycallgraph@gakman.com',
+    author_email='pycg@slowchop.com',
     url='http://pycallgraph.slowchop.com/',
     py_modules=['pycallgraph'],
-    scripts=['scripts/pycg', ],
+    scripts=['scripts/pycg'],
+    data_files=data_files,
     long_description = \
 '''Python Call Graph uses GraphViz to generate call graphs from one execution
 of your Python code. It's very easy to use and can point out possible problems
