@@ -364,11 +364,7 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
     if stop:
         stop_trace()
 
-    # create a temporary file to be used for the dot data
-    fd, tempname = tempfile.mkstemp()
-    f = os.fdopen(fd, 'w')
-    f.write(get_dot())
-    f.close()
+    dot_data = get_dot()
 
     # normalize filename
     regex_user_expand = re.compile('\A~')
@@ -377,15 +373,27 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
     else:
         filename = os.path.expandvars(filename)  # expand, just in case
 
-    cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
-    try:
-        ret = os.system(cmd)
-        if ret:
-            raise PyCallGraphException( \
-                'The command "%(cmd)s" failed with error ' \
-                'code %(ret)i.' % locals())
-    finally:
-        os.unlink(tempname)
+    if format == 'dot':
+        f = open(filename, 'w')
+        f.write(dot_data)
+        f.close()
+
+    else:
+        # create a temporary file to be used for the dot data
+        fd, tempname = tempfile.mkstemp()
+        f = os.fdopen(fd, 'w')
+        f.write(dot_data)
+        f.close()
+
+        cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
+        try:
+            ret = os.system(cmd)
+            if ret:
+                raise PyCallGraphException( \
+                    'The command "%(cmd)s" failed with error ' \
+                    'code %(ret)i.' % locals())
+        finally:
+            os.unlink(tempname)
 
 
 def simple_memoize(callable_object):
