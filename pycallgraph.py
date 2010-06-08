@@ -188,6 +188,13 @@ def start_trace(reset=True, filter_func=None, time_filter_func=None):
     else:
         time_filter = GlobbingFilter()
 
+    global server
+    import ubigraph
+    import xmlrpclib
+    server_url = 'http://127.0.0.1:20738/RPC2'
+    server = xmlrpclib.Server(server_url)
+    server.ubigraph.clear()
+
     sys.settrace(tracer)
 
 
@@ -230,12 +237,26 @@ def tracer(frame, event, arg):
         if module_name:
             full_name_list.append(module_name)
 
+        mod_vertex_id = hash(module_name)
+        server.ubigraph.new_vertex_w_id(mod_vertex_id)
+        server.ubigraph.set_vertex_attribute(mod_vertex_id , 'label', module_name)
+        server.ubigraph.set_vertex_attribute(mod_vertex_id, 'size', '1')
+
         # Work out the class name.
         try:
             class_name = frame.f_locals['self'].__class__.__name__
             full_name_list.append(class_name)
         except (KeyError, AttributeError):
             class_name = ''
+
+        full_cls_name = '.'.join(full_name_list)
+        cls_vertex_id = hash(full_cls_name)
+        server.ubigraph.new_vertex_w_id(cls_vertex_id)
+        server.ubigraph.set_vertex_attribute(cls_vertex_id, 'label', full_cls_name)
+        server.ubigraph.set_vertex_attribute(cls_vertex_id, 'color', '#00ff00')
+        server.ubigraph.set_vertex_attribute(cls_vertex_id, 'size', '.5')
+        e = server.ubigraph.new_edge(cls_vertex_id, mod_vertex_id)
+#        server.ubigraph.set_edge_attribute(e, 'strength', '2')
 
         # Work out the current function or method
         func_name = code.co_name
@@ -246,6 +267,25 @@ def tracer(frame, event, arg):
         # Create a readable representation of the current call
         full_name = '.'.join(full_name_list)
 
+        func_vertex_id = hash(full_name)
+        server.ubigraph.new_vertex_w_id(func_vertex_id)
+#        server.ubigraph.set_vertex_attribute(func_vertex_id, 'label', full_name)
+        server.ubigraph.set_vertex_attribute(func_vertex_id, 'fontsize', '10')
+        server.ubigraph.set_vertex_attribute(func_vertex_id, 'color', '#ff0000')
+        server.ubigraph.set_vertex_attribute(func_vertex_id, 'size', '.2')
+        # join to module
+        e = server.ubigraph.new_edge(func_vertex_id, mod_vertex_id)
+        # join to class
+        e = server.ubigraph.new_edge(func_vertex_id, cls_vertex_id)
+#        server.ubigraph.set_edge_attribute(e, 'strength', '2')
+
+        # join to parent
+        if call_stack:
+            e = server.ubigraph.new_edge(func_vertex_id, hash(call_stack[-1]))
+            server.ubigraph.set_edge_attribute(e, 'strength', '0.1')
+            server.ubigraph.set_edge_attribute(e, 'color', '#ffffff')
+            server.ubigraph.set_edge_attribute(e, 'stroke', 'dashed')
+
         # Load the trace filter, if any. 'keep' determines if we should ignore
         # this call
         if keep and trace_filter:
@@ -254,7 +294,7 @@ def tracer(frame, event, arg):
 
         # Store the call information
         if keep:
-            
+
             if call_stack:
                 fr = call_stack[-1]
             else:
