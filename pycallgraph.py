@@ -26,6 +26,7 @@ __author__ = 'Gerald Kaszuba'
 
 import inspect
 import sys
+import math
 import os
 import re
 import tempfile
@@ -346,9 +347,44 @@ def get_dot(stop=True):
     return ret
 
 
+def get_gdf(stop=True):
+    """Returns a string containing a GDF file. Setting stop to True will cause
+    the trace to stop.
+    """
+    if stop:
+        stop_trace()
+    ret = ['nodedef>name VARCHAR, label VARCHAR, hits INTEGER, ' + \
+            'calls_frac DOUBLE, total_time_frac DOUBLE, ' + \
+            'total_time DOUBLE, color VARCHAR, width DOUBLE']
+    for func, hits in func_count.items():
+        calls_frac, total_time_frac, total_time = _frac_calculation(func, hits)
+        col = settings['node_colour'](calls_frac, total_time_frac)
+        color = ','.join([str(round(float(c) * 255)) for c in col.split()])
+        ret.append('%s,%s,%s,%s,%s,%s,\'%s\',%s' % (func, func, hits, \
+                    calls_frac, total_time_frac, total_time, color, \
+                    math.log(hits * 10)))
+    ret.append('edgedef>node1 VARCHAR, node2 VARCHAR, color VARCHAR')
+    for fr_key, fr_val in call_dict.items():
+        if fr_key == '':
+            continue
+        for to_key, to_val in fr_val.items():
+            calls_frac, total_time_frac, total_time = \
+                _frac_calculation(to_key, to_val)
+            col = settings['edge_colour'](calls_frac, total_time_frac)
+            color = ','.join([str(round(float(c) * 255)) for c in col.split()])
+            ret.append('%s,%s,\'%s\'' % (fr_key, to_key, color))
+    ret = '\n'.join(ret)
+    return ret
+
+
 def save_dot(filename):
     """Generates a DOT file and writes it into filename."""
     open(filename, 'w').write(get_dot())
+
+
+def save_gdf(filename):
+    """Generates a GDF file and writes it into filename."""
+    open(filename, 'w').write(get_gdf())
 
 
 def make_graph(filename, format=None, tool=None, stop=None):
@@ -395,6 +431,21 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
                     'code %(ret)i.' % locals())
         finally:
             os.unlink(tempname)
+
+
+def make_gdf_graph(filename, stop=True):
+    """Create a graph in simple GDF format, suitable for feeding into Gephi,
+    or some other graph manipulation and display tool. Setting stop to True 
+    will stop the current trace.
+    """
+    if stop:
+        stop_trace()
+
+    try:
+        f = open(filename, 'w')
+        f.write(get_gdf())
+    finally:
+        if f: f.close()
 
 
 def simple_memoize(callable_object):
