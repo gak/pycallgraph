@@ -296,26 +296,27 @@ def tracer(frame, event, arg):
     return tracer
 
 
+def _frac_calculation(func, count):
+    global func_count_max
+    global func_time
+    global func_time_max
+    calls_frac = float(count) / func_count_max
+    try:
+        total_time = func_time[func]
+    except KeyError:
+        total_time = 0
+    if func_time_max:
+        total_time_frac = float(total_time) / func_time_max
+    else:
+        total_time_frac = 0
+    return calls_frac, total_time_frac, total_time
+
+
 def get_dot(stop=True):
     """Returns a string containing a DOT file. Setting stop to True will cause
     the trace to stop.
     """
     global func_time_max
-
-    def frac_calculation(func, count):
-        global func_count_max
-        global func_time
-        global func_time_max
-        calls_frac = float(count) / func_count_max
-        try:
-            total_time = func_time[func]
-        except KeyError:
-            total_time = 0
-        if func_time_max:
-            total_time_frac = float(total_time) / func_time_max
-        else:
-            total_time_frac = 0
-        return calls_frac, total_time_frac, total_time
 
     if stop:
         stop_trace()
@@ -326,7 +327,7 @@ def get_dot(stop=True):
             ret.append('%(attr)s = "%(val)s",' % locals())
         ret.append('];')
     for func, hits in func_count.items():
-        calls_frac, total_time_frac, total_time = frac_calculation(func, hits)
+        calls_frac, total_time_frac, total_time = _frac_calculation(func, hits)
         col = settings['node_colour'](calls_frac, total_time_frac)
         attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
         node_str = '"%s" [%s];' % (func, ','.join(attribs))
@@ -336,7 +337,7 @@ def get_dot(stop=True):
             continue
         for to_key, to_val in fr_val.items():
             calls_frac, total_time_frac, totla_time = \
-                frac_calculation(to_key, to_val)
+                _frac_calculation(to_key, to_val)
             col = settings['edge_colour'](calls_frac, total_time_frac)
             edge = '[ color = "%s" ]' % col
             ret.append('"%s"->"%s" %s' % (fr_key, to_key, edge))
