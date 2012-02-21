@@ -81,6 +81,11 @@ def reset_settings():
             'style': 'filled',
             'shape': 'rect',
         },
+        'edge': {
+            'fontname': 'Verdana',
+            'fontsize': 7,
+            'color': '0 0 0',
+        }
     }
 
 
@@ -255,7 +260,7 @@ def tracer(frame, event, arg):
 
         # Store the call information
         if keep:
-            
+
             if call_stack:
                 fr = call_stack[-1]
             else:
@@ -321,30 +326,45 @@ def get_dot(stop=True):
 
     if stop:
         stop_trace()
-    ret = ['digraph G {', ]
+    defaults = []
+    nodes    = []
+    edges    = []
+
+
+    # define default attributes
     for comp, comp_attr in graph_attributes.items():
-        ret.append('%s [' % comp)
-        for attr, val in comp_attr.items():
-            ret.append('%(attr)s = "%(val)s",' % locals())
-        ret.append('];')
+        attr = ', '.join( '%s = "%s"' % (attr, val)
+                         for attr, val in comp_attr.items() )
+        defaults.append( '\t%(comp)s [ %(attr)s ];\n' % locals() )
+
+    # define nodes
     for func, hits in func_count.items():
         calls_frac, total_time_frac, total_time = _frac_calculation(func, hits)
         col = settings['node_colour'](calls_frac, total_time_frac)
         attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
-        node_str = '"%s" [%s];' % (func, ','.join(attribs))
-        ret.append(node_str % locals())
+        node_str = '"%s" [%s];' % (func, ', '.join(attribs))
+        nodes.append( node_str % locals() )
+
+    # define edges
     for fr_key, fr_val in call_dict.items():
-        if fr_key == '':
-            continue
+        if not fr_key: continue
         for to_key, to_val in fr_val.items():
             calls_frac, total_time_frac, totla_time = \
                 _frac_calculation(to_key, to_val)
             col = settings['edge_colour'](calls_frac, total_time_frac)
-            edge = '[ color = "%s" ]' % col
-            ret.append('"%s"->"%s" %s' % (fr_key, to_key, edge))
-    ret.append('}')
-    ret = '\n'.join(ret)
-    return ret
+            edge = '[ color = "%s", label="%s" ]' % (col, to_val)
+            edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
+
+    defaults = '\n\t'.join( defaults )
+    nodes    = '\n\t'.join( nodes )
+    edges    = '\n\t'.join( edges )
+
+    dot_fmt = ("digraph G {\n"
+               "	%(defaults)s\n\n"
+               "	%(nodes)s\n\n"
+               "	%(edges)s\n}\n"
+              )
+    return dot_fmt % locals()
 
 
 def get_gdf(stop=True):
@@ -418,9 +438,8 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
     else:
         # create a temporary file to be used for the dot data
         fd, tempname = tempfile.mkstemp()
-        f = os.fdopen(fd, 'w')
-        f.write(dot_data)
-        f.close()
+        with os.fdopen(fd, 'w') as f:
+            f.write(dot_data)
 
         cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
         try:
@@ -435,7 +454,7 @@ def make_dot_graph(filename, format='png', tool='dot', stop=True):
 
 def make_gdf_graph(filename, stop=True):
     """Create a graph in simple GDF format, suitable for feeding into Gephi,
-    or some other graph manipulation and display tool. Setting stop to True 
+    or some other graph manipulation and display tool. Setting stop to True
     will stop the current trace.
     """
     if stop:
