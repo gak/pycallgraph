@@ -311,9 +311,9 @@ def _frac_calculation(func, count):
         total_time = func_time[func]
     except KeyError:
         total_time = 0
-    if func_time_max:
+    try:
         total_time_frac = float(total_time) / func_time_max
-    else:
+    except ZeroDivisionError:
         total_time_frac = 0
     return calls_frac, total_time_frac, total_time
 
@@ -322,8 +322,6 @@ def get_dot(stop=True):
     """Returns a string containing a DOT file. Setting stop to True will cause
     the trace to stop.
     """
-    global func_time_max
-
     if stop:
         stop_trace()
     defaults = []
