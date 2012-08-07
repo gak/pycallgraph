@@ -144,6 +144,7 @@ pycallgraph.start_trace(
 )
 
 try:
+    globals()['__file__'] = args[0]
     execfile(args[0])
 except SystemExit, e:
     # Ignore it when the script calls os.exit() so we can still make the graph.
