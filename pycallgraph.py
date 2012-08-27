@@ -21,7 +21,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 __author__ = 'Gerald Kaszuba'
 
 import inspect
@@ -322,8 +322,6 @@ def get_dot(stop=True):
     """Returns a string containing a DOT file. Setting stop to True will cause
     the trace to stop.
     """
-    if stop:
-        stop_trace()
     defaults = []
     nodes    = []
     edges    = []
@@ -369,8 +367,6 @@ def get_gdf(stop=True):
     """Returns a string containing a GDF file. Setting stop to True will cause
     the trace to stop.
     """
-    if stop:
-        stop_trace()
     ret = ['nodedef>name VARCHAR, label VARCHAR, hits INTEGER, ' + \
             'calls_frac DOUBLE, total_time_frac DOUBLE, ' + \
             'total_time DOUBLE, color VARCHAR, width DOUBLE']
