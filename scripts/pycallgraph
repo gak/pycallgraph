@@ -145,14 +145,12 @@ pycallgraph.start_trace(
 
 try:
     globals()['__file__'] = args[0]
-    execfile(args[0])
-except SystemExit, e:
+    with open(args[0]) as file_:
+        file_content = file_.read()
+    exec(file_content)
+except SystemExit:
     # Ignore it when the script calls os.exit() so we can still make the graph.
     pass
-except Exception, e:
-    reraise = True
-    if not options.quiet:
-        print('Caught exception, will raise after graph is made.')
 
 options = __pygc_options.pop()
 
@@ -161,11 +159,6 @@ if not options.quiet:
 
 pycallgraph.make_dot_graph(options.output_file, options.format, options.tool)
     
-if reraise:
-    if not options.quiet:
-        print('Done and raising the caught exception:')
-    raise
-
 if not options.quiet:
     print('Done!')
 
