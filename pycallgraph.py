@@ -141,8 +141,14 @@ class GlobbingFilter(object):
             exclude = []
         self.include = include
         self.exclude = exclude
-        self.max_depth = max_depth or 9999
-        self.min_depth = min_depth or 0
+        if max_depth is None:
+           self.max_depth = max_depth or 9999
+        else:
+           self.max_depth = max_depth
+        if min_depth is None:
+            self.min_depth = 0
+        else:
+            self.min_depth = min_depth or 0
 
     def __call__(self, stack, module_name=None, class_name=None,
                  func_name=None, full_name=None):
