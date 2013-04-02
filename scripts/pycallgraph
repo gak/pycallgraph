@@ -28,7 +28,6 @@ from optparse import OptionParser
 
 import pycallgraph
 
-
 parser = OptionParser(usage='%prog [options] pythonfile')
 
 parser.add_option(
@@ -90,6 +89,12 @@ parser.add_option(
         'You can have multiple exclude arguments.',
     )
 
+parser.add_option(
+    '--time_fraction_threshhold', dest='time_fraction_threshhold', default=0.05,
+    help='Set a threshhold for inclusion of functions in graphical output in terms' \
+            'of fraction of total time used.',
+    )
+
 (options, args) = parser.parse_args()
 
 if not options.quiet:
@@ -114,6 +119,7 @@ if not options.include_timing:
 time_filter_func = pycallgraph.GlobbingFilter(
     include=options.include_timing,
     exclude=options.exclude_timing,
+    fraction=float(options.time_fraction_threshhold),
     )
 
 pycallgraph.settings['include_stdlib'] = options.include_stdlib
