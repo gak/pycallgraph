@@ -31,13 +31,15 @@ import os
 import re
 import tempfile
 import time
+#NOTE: Should we make sure this import trys to look locally?
+from memory_profiler import memory_usage
 from distutils import sysconfig
 
 # Initialise module variables.
 # TODO Move these into settings
 trace_filter = None
 time_filter = None
-
+mem_filer = None
 
 def colourize_node(calls, total_time):
     value = float(total_time * 2 + calls) / 3
@@ -56,7 +58,7 @@ def reset_settings():
 
     settings = {
         'node_attributes': {
-           'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f',
+           'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f',
            'color': '%(col)s',
         },
         'node_colour': colourize_node,
@@ -99,7 +101,16 @@ def reset_trace():
     global func_count_max
     global func_time
     global func_time_max
+    global func_memory_in
+    global func_memory_in_max
+    global func_memory_out
+    global func_memory_out_max
     global call_stack_timer
+    global call_stack_memory_in
+    global call_stack_memory_out
+    global previous_event_return
+
+    previous_event_return = False
 
     call_dict = {}
 
@@ -114,8 +125,18 @@ def reset_trace():
     func_time = {}
     func_time_max = 0
 
+    # accumative memory addition per function
+    func_memory_in = {}
+    func_memory_in_max = 0
+
+    # accumative memory addition per function once exited
+    func_memory_out = {}
+    func_memory_out_max = 0
+
     # keeps track of the start time of each call on the stack
     call_stack_timer = []
+    call_stack_memory_in = []
+    call_stack_memory_out = []
 
 
 class PyCallGraphException(Exception):
@@ -131,7 +152,7 @@ class GlobbingFilter(object):
     """
 
     def __init__(self, include=None, exclude=None, max_depth=None,
-                 min_depth=None):
+                 min_depth=None, fraction=None):
         if include is None and exclude is None:
             include = ['*']
             exclude = []
@@ -149,6 +170,10 @@ class GlobbingFilter(object):
             self.min_depth = 0
         else:
             self.min_depth = min_depth or 0
+        if fraction is None:
+            self.fraction = 0
+        else:
+            self.fraction = fraction
 
     def __call__(self, stack, module_name=None, class_name=None,
                  func_name=None, full_name=None):
@@ -177,7 +202,7 @@ def is_module_stdlib(file_name):
     return file_name.lower().startswith(lib_path.lower())
 
 
-def start_trace(reset=True, filter_func=None, time_filter_func=None):
+def start_trace(reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
     """Begins a trace. Setting reset to True will reset all previously recorded
     trace data. filter_func needs to point to a callable function that accepts
     the parameters (call_stack, module_name, class_name, func_name, full_name).
@@ -187,6 +212,7 @@ def start_trace(reset=True, filter_func=None, time_filter_func=None):
     """
     global trace_filter
     global time_filter
+    global mem_filter
     if reset:
         reset_trace()
 
@@ -199,6 +225,11 @@ def start_trace(reset=True, filter_func=None, time_filter_func=None):
         time_filter = time_filter_func
     else:
         time_filter = GlobbingFilter()
+
+    if memory_filter_func:
+        mem_filter = memory_filter_func
+    else:
+        mem_filter = GlobbingFilter()
 
     sys.settrace(tracer)
 
@@ -216,9 +247,38 @@ def tracer(frame, event, arg):
     global func_count
     global trace_filter
     global time_filter
+    global mem_filter
     global call_stack
     global func_time
     global func_time_max
+    global func_memory_in
+    global func_memory_out
+    global func_memory_in_max
+    global func_memory_out_max
+    global previous_event_return
+
+    # Deal with memory when function has finished - so local variables can be cleaned up
+    if previous_event_return:
+        previous_event_return = False
+        #gc.collect()  -- NOT SURE IF THIS IS NEEDED 
+        cur_mem = memory_usage(-1, 0)
+        
+        if call_stack_memory_out:
+            full_name, m = call_stack_memory_out.pop(-1)
+        else:
+            full_name, m = (None, None)
+
+        # Note: call stack is no longer the call stack that may be expected. Potentially 
+        # need to store a copy of it.
+        if full_name and m and mem_filter(stack=call_stack, full_name=full_name):
+            call_memory = (cur_mem[0] - m)
+            if full_name not in func_memory_out:
+                func_memory_out[full_name] = 0
+            else:        
+                func_memory_out[full_name] += call_memory
+            if func_memory_out[full_name] > func_memory_out_max:
+                func_memory_out_max = func_memory_out[full_name]
+
 
     if event == 'call':
         keep = True
@@ -286,24 +346,50 @@ def tracer(frame, event, arg):
             call_stack.append(full_name)
             call_stack_timer.append(time.time())
 
+            cur_mem = memory_usage(-1, 0)
+            call_stack_memory_in.append(cur_mem[0])
+            call_stack_memory_out.append([full_name, cur_mem[0]])
+
         else:
             call_stack.append('')
             call_stack_timer.append(None)
 
     if event == 'return':
+
+        # new flag so that next 'event' will know that the last event was a return, use
+        previous_event_return = True
+
         if call_stack:
             full_name = call_stack.pop(-1)
+            
             if call_stack_timer:
                 t = call_stack_timer.pop(-1)
             else:
-                t = None
+                t = None    
+
             if t and time_filter(stack=call_stack, full_name=full_name):
                 if full_name not in func_time:
                     func_time[full_name] = 0
-                call_time = (time.time() - t)
+                call_time = (time.time() - t)  
                 func_time[full_name] += call_time
                 if func_time[full_name] > func_time_max:
                     func_time_max = func_time[full_name]
+                
+            if call_stack_memory_in:
+                m = call_stack_memory_in.pop(-1)
+            else:
+                m = None
+            
+            if m and mem_filter(stack=call_stack, full_name=full_name):
+                if full_name not in func_memory_in:
+                    func_memory_in[full_name] = 0
+                cur_mem = memory_usage(-1, 0)
+                call_memory = (cur_mem[0] - m)
+                func_memory_in[full_name] += call_memory
+                if func_memory_in[full_name] > func_memory_in_max:
+                    func_memory_in_max = func_memory_in[full_name]
+
+
 
     return tracer
 
@@ -312,18 +398,38 @@ def _frac_calculation(func, count):
     global func_count_max
     global func_time
     global func_time_max
+    global func_memory_in
+    global func_memory_in_max
+    global func_memory_out
+    global func_memory_out_max
     calls_frac = float(count) / func_count_max
     try:
         total_time = func_time[func]
+
     except KeyError:
         total_time = 0
     try:
         total_time_frac = float(total_time) / func_time_max
     except ZeroDivisionError:
         total_time_frac = 0
-    return calls_frac, total_time_frac, total_time
 
+    try:
+        total_memory_in = func_memory_in[func]
+        total_memory_out = func_memory_out[func]
 
+    except KeyError:
+        total_memory_in = 0
+        total_memory_out = 0
+    try:
+        total_memory_in_frac = float(total_memory_in) / func_memory_in_max
+        total_memory_out_frac = float(total_memory_out) / func_memory_out_max
+    except ZeroDivisionError:
+        total_memory_in_frac = 0
+        total_memory_out_frac = 0
+
+    return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
+
+#------------ DON'T CURRENTLY PRINT MEMORY OUT ----------------
 def get_dot(stop=True):
     """Returns a string containing a DOT file. Setting stop to True will cause
     the trace to stop.
@@ -341,21 +447,24 @@ def get_dot(stop=True):
 
     # define nodes
     for func, hits in func_count.items():
-        calls_frac, total_time_frac, total_time = _frac_calculation(func, hits)
+        calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
+                total_memory_out_frac, total_memory_out = _frac_calculation(func, hits)
         col = settings['node_colour'](calls_frac, total_time_frac)
         attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
         node_str = '"%s" [%s];' % (func, ', '.join(attribs))
-        nodes.append( node_str % locals() )
+        if time_filter==None or time_filter.fraction <= total_time_frac:
+            nodes.append( node_str % locals() )
 
     # define edges
     for fr_key, fr_val in call_dict.items():
         if not fr_key: continue
         for to_key, to_val in fr_val.items():
-            calls_frac, total_time_frac, totla_time = \
-                _frac_calculation(to_key, to_val)
+            calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
+               total_memory_out_frac, total_memory_out = _frac_calculation(to_key, to_val)
             col = settings['edge_colour'](calls_frac, total_time_frac)
             edge = '[ color = "%s", label="%s" ]' % (col, to_val)
-            edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
+            if time_filter==None or time_filter.fraction < total_time_frac:
+                edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
 
     defaults = '\n\t'.join( defaults )
     nodes    = '\n\t'.join( nodes )
@@ -375,24 +484,27 @@ def get_gdf(stop=True):
     """
     ret = ['nodedef>name VARCHAR, label VARCHAR, hits INTEGER, ' + \
             'calls_frac DOUBLE, total_time_frac DOUBLE, ' + \
-            'total_time DOUBLE, color VARCHAR, width DOUBLE']
+            'total_time DOUBLE, color VARCHAR, width DOUBLE, total_memory_in_frac DOUBLE, total_memory_in DOUBLE']
     for func, hits in func_count.items():
-        calls_frac, total_time_frac, total_time = _frac_calculation(func, hits)
+        calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
+            total_memory_out_frac, total_memory_out == _frac_calculation(func, hits)
         col = settings['node_colour'](calls_frac, total_time_frac)
         color = ','.join([str(round(float(c) * 255)) for c in col.split()])
-        ret.append('%s,%s,%s,%s,%s,%s,\'%s\',%s' % (func, func, hits, \
-                    calls_frac, total_time_frac, total_time, color, \
+        if time_filter==None or time_filter.fraction < total_time_frac:
+            ret.append('%s,%s,%s,%s,%s,%s,%s,%s,%s,\'%s\',%s' % (func, func, hits, \
+                    calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out, color, \
                     math.log(hits * 10)))
     ret.append('edgedef>node1 VARCHAR, node2 VARCHAR, color VARCHAR')
     for fr_key, fr_val in call_dict.items():
         if fr_key == '':
             continue
         for to_key, to_val in fr_val.items():
-            calls_frac, total_time_frac, total_time = \
-                _frac_calculation(to_key, to_val)
+            calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
+               total_memory_out_frac, total_memory_out =  _frac_calculation(to_key, to_val)
             col = settings['edge_colour'](calls_frac, total_time_frac)
             color = ','.join([str(round(float(c) * 255)) for c in col.split()])
-            ret.append('%s,%s,\'%s\'' % (fr_key, to_key, color))
+            if time_filter==None or time_filter.fraction < total_time_frac:
+                ret.append('%s,%s,\'%s\'' % (fr_key, to_key, color))
     ret = '\n'.join(ret)
     return ret
 
