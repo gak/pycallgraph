@@ -26,7 +26,13 @@ import sys
 import os
 from optparse import OptionParser
 
-import pycallgraph
+from pycallgraph import Config
+from pycallgraph import PyCallGraph
+
+
+config = Config()
+config.parse_args()
+
 
 parser = OptionParser(usage='%prog [options] pythonfile')
 
@@ -41,59 +47,10 @@ parser.add_option(
     )
 
 parser.add_option(
-    '-q', '--quiet', dest='quiet', action='store_true',
-    help='Suppress status output to the console.',
-    )
-
-parser.add_option(
     '-t', '--tool', dest='tool', default='dot',
     help='The tool from Graphviz to use. Default: dot',
     )
 
-parser.add_option(
-    '-s', '--stdlib', dest='include_stdlib', action='store_true',
-    default=False,
-    help='Include standard library functions in the trace. Default: False',
-    )
-
-parser.add_option(
-    '-i', '--include', dest='include', default=[],
-    action='append',
-    help='Wildcard pattern of modules to include in the output. ' \
-        'You can have multiple include arguments.',
-    )
-
-parser.add_option(
-    '-e', '--exclude', dest='exclude', default=[],
-    action='append',
-    help='Wildcard pattern of modules to exclude in the output. ' \
-        'You can have multiple exclude arguments.',
-    )
-
-parser.add_option(
-    '-d', '--max-depth', dest='max_depth', default=None,
-    help='Maximum stack depth to trace.',
-    )
-
-parser.add_option(
-    '--include-timing', dest='include_timing', default=[],
-    action='append',
-    help='Wildcard pattern of modules to include in time measurement. ' \
-        'You can have multiple include arguments.',
-    )
-
-parser.add_option(
-    '--exclude-timing', dest='exclude_timing', default=[],
-    action='append',
-    help='Wildcard pattern of modules to exclude in time measurement. ' \
-        'You can have multiple exclude arguments.',
-    )
-
-parser.add_option(
-    '--time_fraction_threshhold', dest='time_fraction_threshhold', default=0.05,
-    help='Set a threshhold for inclusion of functions in graphical output in terms' \
-            'of fraction of total time used.',
-    )
 
 (options, args) = parser.parse_args()
 

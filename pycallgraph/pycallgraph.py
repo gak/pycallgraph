@@ -42,44 +42,29 @@ from distutils import sysconfig
 from memory_profiler import memory_usage
 
 
-'''
-import pycallgraph
-
-from pycallgraph.d3 import D3Output
-
-d3 = D3Output('d3.html')
-pycg = PyCallGraph(output=d3)
-pycg.start()
-...
-pycg.done()
-
-'''
-
 class PyCallGraphException(Exception):
-    pass
-
-
-def start_trace(reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
     pass
 
 
 class PyCallGraph:
 
-    def __init__(self, output):
+    def __init__(self, output=None):
         '''output can be a single Output instance or an iterable with many
         of them.  For example:
 
         PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
         self.reset()
+        self.output = output or []
 
     def reset(self):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is loaded.
         '''
-        self.tracer = Tracer()
+        self.config = Config()
+        self.tracer = Tracer(self.config)
     
-    def start(reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
+    def start(self, reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
         """Begins a trace.  Setting reset to True will reset all previously recorded
         trace data.  filter_func needs to point to a callable function that accepts
         the parameters (call_stack, module_name, class_name, func_name, full_name).
@@ -93,21 +78,20 @@ class PyCallGraph:
         self.tracer.start()
 
     def stop(self):
-        pass
+        '''Stops the currently running trace, if any.'''
+        self.tracer.stop()
+
 
     def done(self):
-        '''Stops the trace and tells the outputters to create their output.'''
+        '''Stops the trace and tells the outputters to generate their output.'''
         pass
 
-
-
-class TraceData:
-
-    def __init__(self):
 
 
 class Tracer:
-    def __init__(self, trace_data):
+
+    def __init__(self, settings):
+        self.settings = settings
         self.init_trace_data()
         self.init_libpath()
 
@@ -156,13 +140,16 @@ class Tracer:
     def start(self):
         sys.settrace(self.tracer)
 
+    def stop(self):
+        sys.settrace(None)
+
     def tracer(self, frame, event, arg):
         '''This function is called every time a call is made during a trace. It
         keeps track of relationships between calls.
         '''
         # Deal with memory when function has finished so local variables can be cleaned up
-        if previous_event_return:
-            previous_event_return = False
+        if self.previous_event_return:
+            self.previous_event_return = False
             cur_mem = memory_usage(-1, 0)
             
             if self.call_stack_memory_out:
@@ -181,7 +168,6 @@ class Tracer:
                 if self.func_memory_out[full_name] > self.func_memory_out_max:
                     self.func_memory_out_max = self.func_memory_out[full_name]
 
-
         if event == 'call':
             keep = True
             code = frame.f_code
@@ -194,7 +180,7 @@ class Tracer:
             if module:
                 module_name = module.__name__
                 module_path = module.__file__
-                if not self.settings['include_stdlib'] \
+                if not self.settings.include_stdlib \
                     and self.is_module_stdlib(module_path):
                     keep = False
                 if module_name == '__main__':
@@ -239,7 +225,7 @@ class Tracer:
                     self.call_dict[fr][full_name] = 0
                 self.call_dict[fr][full_name] += 1
 
-                if full_name not in func_count:
+                if full_name not in self.func_count:
                     self.func_count[full_name] = 0
                 self.func_count[full_name] += 1
                 if self.func_count[full_name] > self.func_count_max:
@@ -258,7 +244,7 @@ class Tracer:
 
         if event == 'return':
 
-            previous_event_return = True
+            self.previous_event_return = True
 
             if self.call_stack:
                 full_name = self.call_stack.pop(-1)
@@ -272,7 +258,7 @@ class Tracer:
                     if full_name not in self.func_time:
                         self.func_time[full_name] = 0
                     call_time = (time.time() - t)  
-                    func_time[full_name] += call_time
+                    self.func_time[full_name] += call_time
                     if self.func_time[full_name] > self.func_time_max:
                         self.func_time_max = self.func_time[full_name]
                     
@@ -298,68 +284,24 @@ class Tracer:
 
 
 
-class Settings:
-    pass
+#class GephiOutput(Output):
+#    pass
 
 
-class Output:
-
-    def __init__(self):
-        pass
-
-    def sanity_check(self):
-        '''
-        Basic checks for certain libraries or external applications. Raise
-        or warn if there is a problem.
-        '''
-        raise NotImplementedError('sanity_check')
-
-    def update(self):
-        '''
-        If the Output generator allows real-time updates, this method will
-        be called periodically during a trace.
-        '''
-        raise NotImplementedError('update')
-
-    def is_realtime(self):
-        '''
-        Return True if the update method should be called periodically.
-        '''
-        return False
-
-    def done(self):
-        '''
-        Called when the trace is complete and ready to be saved.
-        '''
-        raise NotImplementedError('done')
+#class AnsiOutput(Output):
+#    pass
 
 
-class GraphvizDotOutput(Output):
-    pass
+#class MatrixOutput(Output):
+#    pass
 
 
-class GraphvizDotImageOutput(GraphvizDotOutput):
-    pass
+#class D3Output(Output):
+#    pass
 
 
-class GephiOutput(Output):
-    pass
-
-
-class AnsiOutput(Output):
-    pass
-
-
-class MatrixOutput(Output):
-    pass
-
-
-class D3Output(Output):
-    pass
-
-
-class UbigraphOutput(Output):
-    pass
+#class UbigraphOutput(Output):
+#    pass
 
 
 
@@ -462,166 +404,6 @@ class GlobbingFilter(object):
         return False
 
 
-
-
-def stop_trace():
-    """Stops the currently running trace, if any."""
-    sys.settrace(None)
-
-
-def tracer(frame, event, arg):
-    """This is an internal function that is called every time a call is made
-    during a trace. It keeps track of relationships between calls.
-    """
-    global func_count_max
-    global func_count
-    global trace_filter
-    global time_filter
-    global mem_filter
-    global call_stack
-    global func_time
-    global func_time_max
-    global func_memory_in
-    global func_memory_out
-    global func_memory_in_max
-    global func_memory_out_max
-    global previous_event_return
-
-    # Deal with memory when function has finished - so local variables can be cleaned up
-    if previous_event_return:
-        previous_event_return = False
-        #gc.collect()  -- NOT SURE IF THIS IS NEEDED 
-        cur_mem = memory_usage(-1, 0)
-        
-        if call_stack_memory_out:
-            full_name, m = call_stack_memory_out.pop(-1)
-        else:
-            full_name, m = (None, None)
-
-        # Note: call stack is no longer the call stack that may be expected. Potentially 
-        # need to store a copy of it.
-        if full_name and m and mem_filter(stack=call_stack, full_name=full_name):
-            call_memory = (cur_mem[0] - m)
-            if full_name not in func_memory_out:
-                func_memory_out[full_name] = 0
-            else:        
-                func_memory_out[full_name] += call_memory
-            if func_memory_out[full_name] > func_memory_out_max:
-                func_memory_out_max = func_memory_out[full_name]
-
-
-    if event == 'call':
-        keep = True
-        code = frame.f_code
-
-        # Stores all the parts of a human readable name of the current call.
-        full_name_list = []
-
-        # Work out the module name
-        module = inspect.getmodule(code)
-        if module:
-            module_name = module.__name__
-            module_path = module.__file__
-            if not settings['include_stdlib'] \
-                and is_module_stdlib(module_path):
-                keep = False
-            if module_name == '__main__':
-                module_name = ''
-        else:
-            module_name = ''
-        if module_name:
-            full_name_list.append(module_name)
-
-        # Work out the class name.
-        try:
-            class_name = frame.f_locals['self'].__class__.__name__
-            full_name_list.append(class_name)
-        except (KeyError, AttributeError):
-            class_name = ''
-
-        # Work out the current function or method
-        func_name = code.co_name
-        if func_name == '?':
-            func_name = '__main__'
-        full_name_list.append(func_name)
-
-        # Create a readable representation of the current call
-        full_name = '.'.join(full_name_list)
-
-        # Load the trace filter, if any. 'keep' determines if we should ignore
-        # this call
-        if keep and trace_filter:
-            keep = trace_filter(call_stack, module_name, class_name,
-                func_name, full_name)
-
-        # Store the call information
-        if keep:
-
-            if call_stack:
-                fr = call_stack[-1]
-            else:
-                fr = None
-            if fr not in call_dict:
-                call_dict[fr] = {}
-            if full_name not in call_dict[fr]:
-                call_dict[fr][full_name] = 0
-            call_dict[fr][full_name] += 1
-
-            if full_name not in func_count:
-                func_count[full_name] = 0
-            func_count[full_name] += 1
-            if func_count[full_name] > func_count_max:
-                func_count_max = func_count[full_name]
-
-            call_stack.append(full_name)
-            call_stack_timer.append(time.time())
-
-            cur_mem = memory_usage(-1, 0)
-            call_stack_memory_in.append(cur_mem[0])
-            call_stack_memory_out.append([full_name, cur_mem[0]])
-
-        else:
-            call_stack.append('')
-            call_stack_timer.append(None)
-
-    if event == 'return':
-
-        # new flag so that next 'event' will know that the last event was a return, use
-        previous_event_return = True
-
-        if call_stack:
-            full_name = call_stack.pop(-1)
-            
-            if call_stack_timer:
-                t = call_stack_timer.pop(-1)
-            else:
-                t = None    
-
-            if t and time_filter(stack=call_stack, full_name=full_name):
-                if full_name not in func_time:
-                    func_time[full_name] = 0
-                call_time = (time.time() - t)  
-                func_time[full_name] += call_time
-                if func_time[full_name] > func_time_max:
-                    func_time_max = func_time[full_name]
-                
-            if call_stack_memory_in:
-                m = call_stack_memory_in.pop(-1)
-            else:
-                m = None
-            
-            if m and mem_filter(stack=call_stack, full_name=full_name):
-                if full_name not in func_memory_in:
-                    func_memory_in[full_name] = 0
-                cur_mem = memory_usage(-1, 0)
-                call_memory = (cur_mem[0] - m)
-                func_memory_in[full_name] += call_memory
-                if func_memory_in[full_name] > func_memory_in_max:
-                    func_memory_in_max = func_memory_in[full_name]
-
-
-
-    return tracer
 
 
 def _frac_calculation(func, count):
@@ -755,45 +537,6 @@ def make_graph(filename, format=None, tool=None, stop=None):
         'make_graph is depricated. Please use make_dot_graph')
 
 
-def make_dot_graph(filename, format='png', tool='dot', stop=True):
-    """Creates a graph using a Graphviz tool that supports the dot language. It
-    will output into a file specified by filename with the format specified.
-    Setting stop to True will stop the current trace.
-    """
-    if stop:
-        stop_trace()
-
-    dot_data = get_dot()
-
-    # normalize filename
-    regex_user_expand = re.compile('\A~')
-    if regex_user_expand.match(filename):
-        filename = os.path.expanduser(filename)
-    else:
-        filename = os.path.expandvars(filename)  # expand, just in case
-
-    if format == 'dot':
-        f = open(filename, 'w')
-        f.write(dot_data)
-        f.close()
-
-    else:
-        # create a temporary file to be used for the dot data
-        fd, tempname = tempfile.mkstemp()
-        with os.fdopen(fd, 'w') as f:
-            f.write(dot_data)
-
-        cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
-        try:
-            ret = os.system(cmd)
-            if ret:
-                raise PyCallGraphException( \
-                    'The command "%(cmd)s" failed with error ' \
-                    'code %(ret)i.' % locals())
-        finally:
-            os.unlink(tempname)
-
-
 def make_gdf_graph(filename, stop=True):
     """Create a graph in simple GDF format, suitable for feeding into Gephi,
     or some other graph manipulation and display tool. Setting stop to True
@@ -835,7 +578,6 @@ def simple_memoize(callable_object):
 settings = {}
 graph_attributes = {}
 reset_settings()
-reset_trace()
 inspect.getmodule = simple_memoize(inspect.getmodule)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
