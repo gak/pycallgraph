@@ -4,10 +4,10 @@ from pycallgraph.output import Output
 class GraphvizOutput(Output):
 
     def make_dot_graph(filename, format='png', tool='dot'):
-        """Creates a graph using a Graphviz tool that supports the dot language. It
-        will output into a file specified by filename with the format specified.
-        Setting stop to True will stop the current trace.
-        """
+        '''Creates a graph using a Graphviz tool that supports the dot
+        language. It will output into a file specified by filename with the
+        format specified.  Setting stop to True will stop the current trace.
+        '''
         if stop:
             stop_trace()
 
@@ -44,8 +44,6 @@ class GraphvizOutput(Output):
 
 
 
-class GraphvizDotImageOutput(GraphvizDotOutput):
+class GraphvizImageOutput(GraphvizOutput):
     pass
-
-
 
