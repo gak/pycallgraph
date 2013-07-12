@@ -2,17 +2,20 @@ import pytest
 from StringIO import StringIO
 
 import fix_path
-from pycallgraph import PyCallGraph
-from pycallgraph.output import GraphvizOutput
+from pycallgraph import *
+from pycallgraph.output import *
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope='module')
 def pycg():
     return PyCallGraph()
 
 
-@pytest.fixture(scope="module")
-def dot():
-    io = StringIO()
-    return GraphvizOutput(fp=io)
+@pytest.fixture(scope='module')
+def config():
+    return Config()
 
+
+@pytest.fixture(scope='module')
+def dot(config):
+    return GraphvizOutput(config)

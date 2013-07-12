@@ -3,7 +3,7 @@ from pycallgraph.output import Output
 
 class GraphvizOutput(Output):
 
-    def make_dot_graph(filename, format='png', tool='dot'):
+    def make_dot_graph(fp, format='png', tool='dot'):
         '''Creates a graph using a Graphviz tool that supports the dot
         language. It will output into a file specified by filename with the
         format specified.  Setting stop to True will stop the current trace.

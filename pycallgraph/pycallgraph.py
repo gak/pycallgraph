@@ -28,20 +28,13 @@ __author__ = 'Gerald Kaszuba'
 # __credits__ = '??'
 
 
-import inspect
-import sys
-import math
-import os
-import re
-import tempfile
-import time
-from distutils import sysconfig
-
 #NOTE: Should we make sure this import trys to look locally?
 #TODO: Load only when the memory profiler option is active
 from memory_profiler import memory_usage
 
 from .output import Output
+from .config import Config
+from .tracer import Tracer
 
 
 class PyCallGraphException(Exception):
@@ -50,21 +43,22 @@ class PyCallGraphException(Exception):
 
 class PyCallGraph:
 
-    def __init__(self, output=None):
-        '''output can be a single Output instance or an iterable with many
+    def __init__(self, outputs=None):
+        '''outputs can be a single Output instance or an iterable with many
         of them.  For example:
 
         PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
         self.reset()
-        self.output = output or []
+
+        self.outputs = output or []
 
     def reset(self):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is loaded.
         '''
         self.config = Config()
-        self.tracer = Tracer(self.config)
+        self.tracer = Tracer(config=self.config, outputs=self.outputs)
 
     def start(self, reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
         """Begins a trace.  Setting reset to True will reset all previously recorded
@@ -83,12 +77,15 @@ class PyCallGraph:
         '''Stops the currently running trace, if any.'''
         self.tracer.stop()
 
-
     def done(self):
         '''Stops the trace and tells the outputters to generate their output.'''
-        pass
+        self.stop()
 
+        for output in self.outputs:
+            output.done()
 
+    def add_output(self, output):
+        self.outputs.append(output)
 
 
 
@@ -161,58 +158,6 @@ def reset_settings():
             'color': '0 0 0',
         }
     }
-
-
-
-
-class GlobbingFilter(object):
-    '''Filter module names using a set of globs.
-
-    Objects are matched against the exclude list first, then the include list.
-    Anything that passes through without matching either, is excluded.
-    '''
-
-    def __init__(self, include=None, exclude=None, max_depth=None,
-                 min_depth=None, fraction=None):
-        if include is None and exclude is None:
-            include = ['*']
-            exclude = []
-        elif include is None:
-            include = ['*']
-        elif exclude is None:
-            exclude = []
-        self.include = include
-        self.exclude = exclude
-        if max_depth is None:
-           self.max_depth = max_depth or 9999
-        else:
-           self.max_depth = max_depth
-        if min_depth is None:
-            self.min_depth = 0
-        else:
-            self.min_depth = min_depth or 0
-        if fraction is None:
-            self.fraction = 0
-        else:
-            self.fraction = fraction
-
-    def __call__(self, stack, module_name=None, class_name=None,
-                 func_name=None, full_name=None):
-        from fnmatch import fnmatch
-        if len(stack) > self.max_depth:
-            return False
-        if len(stack) < self.min_depth:
-            return False
-        for pattern in self.exclude:
-            if fnmatch(full_name, pattern):
-                return False
-        for pattern in self.include:
-            if fnmatch(full_name, pattern):
-                return True
-        return False
-
-
-
 
 def _frac_calculation(func, count):
     global func_count_max
@@ -358,34 +303,5 @@ def make_gdf_graph(filename, stop=True):
         f.write(get_gdf())
     finally:
         if f: f.close()
-
-
-def simple_memoize(callable_object):
-    """Simple memoization for functions without keyword arguments.
-
-    This is useful for mapping code objects to module in this context.
-    inspect.getmodule() requires a number of system calls, which may slow down
-    the tracing considerably. Caching the mapping from code objects (there is
-    *one* code object for each function, regardless of how many simultaneous
-    activations records there are).
-
-    In this context we can ignore keyword arguments, but a generic memoizer
-    ought to take care of that as well.
-    """
-
-    cache = dict()
-
-    def wrapper(*rest):
-        if rest not in cache:
-            cache[rest] = callable_object(*rest)
-        return cache[rest]
-
-    return wrapper
-
-
-settings = {}
-graph_attributes = {}
-reset_settings()
-inspect.getmodule = simple_memoize(inspect.getmodule)
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

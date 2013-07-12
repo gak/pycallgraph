@@ -1,7 +1,27 @@
+import inspect
+import sys
+import math
+import os
+import re
+import tempfile
+import time
+from distutils import sysconfig
+
+
+from .globbing_filter import GlobbingFilter
+
+#NOTE: Should we make sure this import trys to look locally?
+#TODO: Load only when the memory profiler option is active
+from .memory_profiler import memory_usage
+
+
 class Tracer:
 
-    def __init__(self, settings):
-        self.settings = settings
+    def __init__(self, config, outputs):
+        self.config = config
+        self.outputs = outputs
+        self.updatables = [for a in self.outputs if a.should_update()]
+
         self.init_trace_data()
         self.init_libpath()
 
@@ -18,15 +38,15 @@ class Tracer:
         self.func_count = {}
         self.func_count_max = 0
 
-        # Accumative time per function
+        # Accumulative time per function
         self.func_time = {}
         self.func_time_max = 0
 
-        # Accumative memory addition per function
+        # Accumulative memory addition per function
         self.func_memory_in = {}
         self.func_memory_in_max = 0
 
-        # Accumative memory addition per function once exited
+        # Accumulative memory addition per function once exited
         self.func_memory_out = {}
         self.func_memory_out_max = 0
 
@@ -191,3 +211,27 @@ class Tracer:
     def is_module_stdlib(self, file_name):
         '''Returns True if the file_name is in the lib directory.'''
         return file_name.lower().startswith(self.lib_path)
+
+def simple_memoize(callable_object):
+    '''Simple memoization for functions without keyword arguments.
+
+    This is useful for mapping code objects to module in this context.
+    inspect.getmodule() requires a number of system calls, which may slow down
+    the tracing considerably. Caching the mapping from code objects (there is
+    *one* code object for each function, regardless of how many simultaneous
+    activations records there are).
+
+    In this context we can ignore keyword arguments, but a generic memoizer
+    ought to take care of that as well.
+    '''
+
+    cache = dict()
+
+    def wrapper(*rest):
+        if rest not in cache:
+            cache[rest] = callable_object(*rest)
+        return cache[rest]
+
+    return wrapper
+
+inspect.getmodule = simple_memoize(inspect.getmodule)
