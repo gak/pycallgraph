@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-pycallgraph
+pycallgraph - Python Call Graph
 
 U{http://pycallgraph.slowchop.com/}
 
@@ -49,9 +49,8 @@ class PyCallGraph:
 
         PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
+        self.outputs = outputs or []
         self.reset()
-
-        self.outputs = output or []
 
     def reset(self):
         '''Resets all collected statistics.  This is run automatically by
@@ -60,14 +59,16 @@ class PyCallGraph:
         self.config = Config()
         self.tracer = Tracer(config=self.config, outputs=self.outputs)
 
-    def start(self, reset=True, filter_func=None, time_filter_func=None, memory_filter_func=None):
-        """Begins a trace.  Setting reset to True will reset all previously recorded
-        trace data.  filter_func needs to point to a callable function that accepts
-        the parameters (call_stack, module_name, class_name, func_name, full_name).
-        Every call will be passed into this function and it is up to the function
-        to decide if it should be included or not.  Returning False means the call
-        will be filtered out and not included in the call graph.
-        """
+    def start(self, reset=True, filter_func=None, time_filter_func=None,
+            memory_filter_func=None):
+        '''Begins a trace.  Setting reset to True will reset all previously
+        recorded trace data.  filter_func needs to point to a callable
+        function that accepts the parameters (call_stack, module_name,
+        class_name, func_name, full_name). Every call will be passed into
+        this function and it is up to the function to decide if it should be
+        included or not.  Returning False means the call will be filtered out
+        and not included in the call graph.
+        '''
         if reset:
             self.reset()
 
@@ -194,54 +195,6 @@ def _frac_calculation(func, count):
 
     return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
 
-#------------ DON'T CURRENTLY PRINT MEMORY OUT ----------------
-def get_dot(stop=True):
-    """Returns a string containing a DOT file. Setting stop to True will cause
-    the trace to stop.
-    """
-    defaults = []
-    nodes    = []
-    edges    = []
-
-
-    # define default attributes
-    for comp, comp_attr in graph_attributes.items():
-        attr = ', '.join( '%s = "%s"' % (attr, val)
-                         for attr, val in comp_attr.items() )
-        defaults.append( '\t%(comp)s [ %(attr)s ];\n' % locals() )
-
-    # define nodes
-    for func, hits in func_count.items():
-        calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
-                total_memory_out_frac, total_memory_out = _frac_calculation(func, hits)
-        col = settings['node_colour'](calls_frac, total_time_frac)
-        attribs = ['%s="%s"' % a for a in settings['node_attributes'].items()]
-        node_str = '"%s" [%s];' % (func, ', '.join(attribs))
-        if time_filter==None or time_filter.fraction <= total_time_frac:
-            nodes.append( node_str % locals() )
-
-    # define edges
-    for fr_key, fr_val in call_dict.items():
-        if not fr_key: continue
-        for to_key, to_val in fr_val.items():
-            calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
-               total_memory_out_frac, total_memory_out = _frac_calculation(to_key, to_val)
-            col = settings['edge_colour'](calls_frac, total_time_frac)
-            edge = '[ color = "%s", label="%s" ]' % (col, to_val)
-            if time_filter==None or time_filter.fraction < total_time_frac:
-                edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
-
-    defaults = '\n\t'.join( defaults )
-    nodes    = '\n\t'.join( nodes )
-    edges    = '\n\t'.join( edges )
-
-    dot_fmt = ("digraph G {\n"
-               "	%(defaults)s\n\n"
-               "	%(nodes)s\n\n"
-               "	%(edges)s\n}\n"
-              )
-    return dot_fmt % locals()
-
 
 def get_gdf(stop=True):
     """Returns a string containing a GDF file. Setting stop to True will cause
@@ -259,6 +212,7 @@ def get_gdf(stop=True):
             ret.append('%s,%s,%s,%s,%s,%s,%s,%s,%s,\'%s\',%s' % (func, func, hits, \
                     calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out, color, \
                     math.log(hits * 10)))
+
     ret.append('edgedef>node1 VARCHAR, node2 VARCHAR, color VARCHAR')
     for fr_key, fr_val in call_dict.items():
         if fr_key == '':

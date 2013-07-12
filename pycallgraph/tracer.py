@@ -20,7 +20,7 @@ class Tracer:
     def __init__(self, config, outputs):
         self.config = config
         self.outputs = outputs
-        self.updatables = [for a in self.outputs if a.should_update()]
+        self.updatables = [a for a in self.outputs if a.should_update()]
 
         self.init_trace_data()
         self.init_libpath()
@@ -110,7 +110,7 @@ class Tracer:
             if module:
                 module_name = module.__name__
                 module_path = module.__file__
-                if not self.settings.include_stdlib \
+                if not self.config.include_stdlib \
                     and self.is_module_stdlib(module_path):
                     keep = False
                 if module_name == '__main__':

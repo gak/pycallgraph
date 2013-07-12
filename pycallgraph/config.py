@@ -2,6 +2,7 @@
 
 import sys
 import argparse
+from .output import outputters
 
 
 class Config:
@@ -86,17 +87,11 @@ class Config:
     def add_module_arguments(self):
         subparsers = self.parser.add_subparsers(help='sub-command help')
 
-        graphviz = subparsers.add_parser('graphviz', help='Graphviz image generation')
+        for outputter in outputters:
+            outputter.add_arguments(subparsers)
 
-        graphviz.add_argument('-o', '--output-file', type=str,
-            default='pycallgraph.png',
-            help='The generated GraphViz image (pycallgraph.png)')
-
-        graphviz.add_argument('--font-size', type=int, default=7,
-            help='Modify the font size (7)')
-
-        moo = subparsers.add_parser('d3', help='Generate a HTML file with embedded d3.js')
-        moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
+        # moo = subparsers.add_parser('d3', help='Generate a HTML file with embedded d3.js')
+        # moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
 
 if __name__ == '__main__':
     c = Config()
