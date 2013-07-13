@@ -1,6 +1,3 @@
-import fix_path
-
-
 def test_empty(pycg):
     pycg.start()
     pycg.stop()
@@ -16,3 +13,6 @@ def test_output(pycg, dot):
 
     assert dot.fp.getvalue() != ''
 
+'''
+pycg = PyCallGraph()
+'''

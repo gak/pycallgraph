@@ -15,8 +15,12 @@ class Config:
         self.create_parser()
 
     def parse_args(self, args=None):
-        args = self.parser.parse_args(args)
-        print(args)
+        # Inject the parsed arguments into this class
+        args = self.parser.parse_args(args, namespace=self)
+
+        # An outputter may inject variables into the settings
+        for outputter in outputters:
+            outputter.inject_config(self)
 
     def create_parser(self):
         '''Used by the pycallgraph command line interface to parse
