@@ -13,6 +13,17 @@ def test_output(pycg, dot):
 
     assert dot.fp.getvalue() != ''
 
+def test_font_size(config):
+    config.font_size = 20
+    output = pycallgraph.GraphvizOutput(config)
+    pycg = pycallgraph.PyCallGraph(config)
+    pycg.done()
+
 '''
-pycg = PyCallGraph()
+config = pycallgraph.Config()
+config.font_size = 20
+
+output = pycallgraph.GraphvizOutput(config)
+pycg = pycallgraph.PyCallGraph(config)
+
 '''
