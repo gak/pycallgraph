@@ -6,21 +6,15 @@ def test_empty(pycg):
     print(pycg.tracer.call_stack)
     print(pycg.tracer.func_count)
 
-def test_font_size(config):
-    import fix_path
-    import pycallgraph
-
-    output = pycallgraph.output.GraphvizSourceOutput()
-
-    from StringIO import StringIO
-    output.fp = StringIO()
-    config.font_size = 20
-
-    pycg = pycallgraph.PyCallGraph(outputs=output)
+def test_graphviz_source(pycg, graphviz_source):
+    pycg.add_output(graphviz_source)
     pycg.done()
+    print(graphviz_source.fp.getvalue())
 
-    print(output.fp.getvalue())
-    print("ASDfasdf")
+def test_graphviz_image(pycg, graphviz_image):
+    pycg.add_output(graphviz_image)
+    pycg.done()
+    print(graphviz_image.fp.getvalue())
 
 '''
 config = pycallgraph.Config()

@@ -1,7 +1,4 @@
-class Output:
-
-    def __init__(self, config):
-        self.config = config
+class Output(object):
 
     def sanity_check(self):
         '''

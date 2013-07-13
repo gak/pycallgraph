@@ -18,4 +18,12 @@ def config():
 
 @pytest.fixture(scope='module')
 def graphviz_source():
-    return GraphvizSourceOutput()
+    output = GraphvizSourceOutput()
+    output.fp = StringIO()
+    return output
+
+@pytest.fixture(scope='module')
+def graphviz_image():
+    output = GraphvizImageOutput()
+    output.fp = StringIO()
+    return output

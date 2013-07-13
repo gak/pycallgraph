@@ -15,12 +15,11 @@ from .globbing_filter import GlobbingFilter
 from .memory_profiler import memory_usage
 
 
-class Tracer:
+class Tracer(object):
 
     def __init__(self, outputs, config):
         self.outputs = outputs
         self.config = config
-        print(self.outputs)
         self.updatables = [a for a in self.outputs if a.should_update()]
 
         self.init_trace_data()

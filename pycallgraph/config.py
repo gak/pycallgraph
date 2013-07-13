@@ -5,7 +5,7 @@ import argparse
 from .output import outputters
 
 
-class Config:
+class Config(object):
     '''Handles configuration settings for pycallgraph and each output module.
     It also handles command line arguments.
     '''

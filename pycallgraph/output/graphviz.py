@@ -1,3 +1,4 @@
+import tempfile
 import re
 import os
 
@@ -18,8 +19,9 @@ def colorize_edge(calls, total_time):
 
 
 class GraphvizSourceOutput(Output):
-
     def __init__(self):
+        self.tool = 'dot'
+
         self.fp = None
         self.output_file = 'pycallgraph.dot'
         self.font_name = 'Verdana'
@@ -31,7 +33,6 @@ class GraphvizSourceOutput(Output):
 
     @classmethod
     def add_arguments(cls, subparsers):
-
         defaults = cls()
 
         subparser = subparsers.add_parser('graphviz-source',
@@ -40,6 +41,12 @@ class GraphvizSourceOutput(Output):
         subparser.add_argument('-o', '--output-file', type=str,
             default=defaults.output_file,
             help='The generated GraphViz dot source')
+
+        cls.add_base_arguments(subparser)
+
+    @classmethod
+    def add_base_arguments(cls, subparser):
+        defaults = cls()
 
         subparser.add_argument('--font-name', type=str,
             default=defaults.font_name,
@@ -85,14 +92,13 @@ class GraphvizSourceOutput(Output):
             }
         }
 
-    def reset(self):
-        self.prepare_output_file()
-        self.prepare_graph_attributes()
-
     def done(self):
+        self.prepare_output_file()
         self.fp.write(self.generate())
 
     def generate(self):
+        self.prepare_graph_attributes()
+
         defaults = []
         nodes = []
         edges = []
@@ -141,37 +147,45 @@ class GraphvizSourceOutput(Output):
 
 class GraphvizImageOutput(GraphvizSourceOutput):
 
+    def __init__(self):
+        super(GraphvizImageOutput, self).__init__()
+        self.output_file = 'pycallgraph.png'
+        self.image_format = 'png'
+
     @classmethod
-    def add_arguments(self, subparsers):
+    def add_arguments(cls, subparsers):
+        defaults = cls()
+
         subparser = subparsers.add_parser('graphviz-image',
             help='Graphviz image generation')
 
         subparser.add_argument('-o', '--output-file', type=str,
-            default='pycallgraph.png',
-            help='The generated GraphViz image (pycallgraph.png)')
+            default=defaults.output_file,
+            help='The generated GraphViz image')
 
-    def generate(self):
-        source = super().generate()
+        subparser.add_argument('-t', '--output-type', type=str,
+            default=defaults.image_format,
+            help='Image format to product (png, ps, etc.)')
 
-        if format == 'dot':
-            f = open(filename, 'w')
-            f.write(dot_data)
-            f.close()
+        cls.add_base_arguments(subparser)
 
-        else:
-            # create a temporary file to be used for the dot data
-            fd, tempname = tempfile.mkstemp()
-            with os.fdopen(fd, 'w') as f:
-                f.write(dot_data)
+    def done(self):
+        source = super(GraphvizImageOutput, self).generate()
 
-            cmd = '%(tool)s -T%(format)s -o%(filename)s %(tempname)s' % locals()
-            try:
-                ret = os.system(cmd)
-                if ret:
-                    raise PyCallGraphException( \
-                        'The command "%(cmd)s" failed with error ' \
-                        'code %(ret)i.' % locals())
-            finally:
-                os.unlink(tempname)
+        # Create a temporary file to be used for the dot data
+        fd, temp_name = tempfile.mkstemp()
+        with os.fdopen(fd, 'w') as f:
+            f.write(source)
 
+        cmd = '{} -T{} -o{} {}'.format(
+            self.tool, self.image_format, self.output_file, temp_name
+        )
 
+        try:
+            ret = os.system(cmd)
+            if ret:
+                raise PyCallGraphException( \
+                    'The command "%(cmd)s" failed with error ' \
+                    'code %(ret)i.' % locals())
+        finally:
+            os.unlink(temp_name)

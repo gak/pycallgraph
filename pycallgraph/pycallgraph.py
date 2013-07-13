@@ -40,7 +40,7 @@ class PyCallGraphException(Exception):
     pass
 
 
-class PyCallGraph:
+class PyCallGraph(object):
 
     def __init__(self, outputs=None, config=None):
         '''outputs can be a single Output instance or an iterable with many
@@ -66,8 +66,7 @@ class PyCallGraph:
         self.tracer = Tracer(outputs=self.outputs, config=self.config)
 
         for output in self.outputs:
-            output.set_tracer(self.tracer)
-            output.reset()
+            self.prepare_output(output)
 
     def start(self, reset=True, filter_func=None, time_filter_func=None,
             memory_filter_func=None):
@@ -97,7 +96,11 @@ class PyCallGraph:
 
     def add_output(self, output):
         self.outputs.append(output)
+        self.prepare_output(output)
 
+    def prepare_output(self, output):
+        output.set_tracer(self.tracer)
+        output.reset()
 
 
 #class GephiOutput(Output):
