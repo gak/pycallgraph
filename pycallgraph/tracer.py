@@ -212,6 +212,35 @@ class Tracer(object):
         '''Returns True if the file_name is in the lib directory.'''
         return file_name.lower().startswith(self.lib_path)
 
+    def frac_calculation(self, func, count):
+        calls_frac = float(count) / self.func_count_max
+        try:
+            total_time = self.func_time[func]
+
+        except KeyError:
+            total_time = 0
+        try:
+            total_time_frac = float(total_time) / self.func_time_max
+        except ZeroDivisionError:
+            total_time_frac = 0
+
+        try:
+            total_memory_in = self.func_memory_in[func]
+            total_memory_out = self.func_memory_out[func]
+
+        except KeyError:
+            total_memory_in = 0
+            total_memory_out = 0
+        try:
+            total_memory_in_frac = float(total_memory_in) / self.func_memory_in_max
+            total_memory_out_frac = float(total_memory_out) / self.func_memory_out_max
+        except ZeroDivisionError:
+            total_memory_in_frac = 0
+            total_memory_out_frac = 0
+
+        return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
+
+
 def simple_memoize(callable_object):
     '''Simple memoization for functions without keyword arguments.
 

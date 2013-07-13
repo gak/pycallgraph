@@ -3,6 +3,7 @@ import re
 import os
 
 from ..pycallgraph import __version__
+from ..exceptions import PyCallGraphException
 from .output import Output
 
 
@@ -17,7 +18,6 @@ def colorize_edge(calls, total_time):
     return '%f %f %f' % (value / 2 + .5, value, 0.7)
 
 
-
 class GraphvizSourceOutput(Output):
     def __init__(self):
         self.tool = 'dot'
@@ -30,6 +30,8 @@ class GraphvizSourceOutput(Output):
         self.node_label = '%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f'
         self.node_color_func = colorize_node
         self.edge_color_func = colorize_edge
+
+        self.time_filter = None
 
     @classmethod
     def add_arguments(cls, subparsers):
@@ -54,15 +56,10 @@ class GraphvizSourceOutput(Output):
 
         subparser.add_argument('--font-size', type=int,
             default=defaults.font_size,
-            help='Size of the font to be used (7)')
+            help='Size of the font to be used')
 
-    def normalize_path(self, path):
-        regex_user_expand = re.compile('\A~')
-        if regex_user_expand.match(path):
-            path = os.path.expanduser(path)
-        else:
-            path = os.path.expandvars(path)  # expand, just in case
-        return path
+    def sanity_check(self):
+        self.ensure_binary(self.tool)
 
     def prepare_output_file(self):
         self.output_file = self.normalize_path(self.output_file)
@@ -113,23 +110,23 @@ class GraphvizSourceOutput(Output):
         for func, hits in self.tracer.func_count.items():
             calls_frac, total_time_frac, total_time, total_memory_in_frac, \
                 total_memory_in, total_memory_out_frac, total_memory_out = \
-                _frac_calculation(func, hits)
+                self.tracer.frac_calculation(func, hits)
 
-            col = self.node_color(calls_frac, total_time_frac)
-            attribs = ['%s="%s"' % a for a in self.node_attributes.items()]
+            col = self.node_color_func(calls_frac, total_time_frac)
+            attribs = ['%s="%s"' % a for a in self.graph_attributes.items()]
             node_str = '"%s" [%s];' % (func, ', '.join(attribs))
-            if time_filter==None or time_filter.fraction <= total_time_frac:
-                nodes.append( node_str % locals() )
+            if self.time_filter is None or self.time_filter.fraction <= total_time_frac:
+                nodes.append(node_str % locals())
 
         # Define edges
         for fr_key, fr_val in self.tracer.call_dict.items():
             if not fr_key: continue
             for to_key, to_val in fr_val.items():
                 calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
-                   total_memory_out_frac, total_memory_out = _frac_calculation(to_key, to_val)
-                col = self.edge_color(calls_frac, total_time_frac)
+                   total_memory_out_frac, total_memory_out = self.tracer.frac_calculation(to_key, to_val)
+                col = self.edge_color_func(calls_frac, total_time_frac)
                 edge = '[ color = "%s", label="%s" ]' % (col, to_val)
-                if time_filter==None or time_filter.fraction < total_time_frac:
+                if self.time_filter is None or self.time_filter.fraction < total_time_frac:
                     edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
 
         defaults = '\n\t'.join(defaults)

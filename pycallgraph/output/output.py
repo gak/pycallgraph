@@ -1,3 +1,10 @@
+import shutil
+from distutils.spawn import find_executable
+
+from ..exceptions import PyCallGraphException
+        
+
+
 class Output(object):
 
     def sanity_check(self):
@@ -34,3 +41,18 @@ class Output(object):
         Called when the trace is complete and ready to be saved.
         '''
         raise NotImplementedError('done')
+
+    def ensure_binary(self, cmd):
+        if find_executable(cmd):
+            return
+
+        raise PyCallGraphException(
+            'The command "{}" is required to be in your path.'.format(cmd))
+
+    def normalize_path(self, path):
+        regex_user_expand = re.compile('\A~')
+        if regex_user_expand.match(path):
+            path = os.path.expanduser(path)
+        else:
+            path = os.path.expandvars(path)  # expand, just in case
+        return path

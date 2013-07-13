@@ -34,10 +34,7 @@ from memory_profiler import memory_usage
 from .output import Output
 from .config import Config
 from .tracer import Tracer
-
-
-class PyCallGraphException(Exception):
-    pass
+from .exceptions import PyCallGraphException
 
 
 class PyCallGraph(object):
@@ -99,6 +96,7 @@ class PyCallGraph(object):
         self.prepare_output(output)
 
     def prepare_output(self, output):
+        output.sanity_check()
         output.set_tracer(self.tracer)
         output.reset()
 
@@ -132,42 +130,6 @@ def reset_settings():
         'dont_exclude_anything': False,
         'include_stdlib': True,
     }
-
-def _frac_calculation(func, count):
-    global func_count_max
-    global func_time
-    global func_time_max
-    global func_memory_in
-    global func_memory_in_max
-    global func_memory_out
-    global func_memory_out_max
-    calls_frac = float(count) / func_count_max
-    try:
-        total_time = func_time[func]
-
-    except KeyError:
-        total_time = 0
-    try:
-        total_time_frac = float(total_time) / func_time_max
-    except ZeroDivisionError:
-        total_time_frac = 0
-
-    try:
-        total_memory_in = func_memory_in[func]
-        total_memory_out = func_memory_out[func]
-
-    except KeyError:
-        total_memory_in = 0
-        total_memory_out = 0
-    try:
-        total_memory_in_frac = float(total_memory_in) / func_memory_in_max
-        total_memory_out_frac = float(total_memory_out) / func_memory_out_max
-    except ZeroDivisionError:
-        total_memory_in_frac = 0
-        total_memory_out_frac = 0
-
-    return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
-
 
 def get_gdf(stop=True):
     """Returns a string containing a GDF file. Setting stop to True will cause
