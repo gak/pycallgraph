@@ -42,21 +42,32 @@ class PyCallGraphException(Exception):
 
 class PyCallGraph:
 
-    def __init__(self, config=None, outputs=None):
+    def __init__(self, outputs=None, config=None):
         '''outputs can be a single Output instance or an iterable with many
         of them.  For example:
 
         PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
+        if outputs is None:
+            self.outputs = []
+        elif isinstance(outputs, Output):
+            self.outputs = [outputs]
+        else:
+            self.outputs = outputs
+
         self.config = config or Config()
-        self.outputs = outputs or []
+
         self.reset()
 
     def reset(self):
         '''Resets all collected statistics.  This is run automatically by
-        start(reset=True) and when the class is loaded.
+        start(reset=True) and when the class is initialized.
         '''
-        self.tracer = Tracer(config=self.config, outputs=self.outputs)
+        self.tracer = Tracer(outputs=self.outputs, config=self.config)
+
+        for output in self.outputs:
+            output.set_tracer(self.tracer)
+            output.reset()
 
     def start(self, reset=True, filter_func=None, time_filter_func=None,
             memory_filter_func=None):
@@ -109,28 +120,12 @@ class PyCallGraph:
 #    pass
 
 
-def colourize_node(calls, total_time):
-    value = float(total_time * 2 + calls) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.9)
-
-
-def colourize_edge(calls, total_time):
-    value = float(total_time * 2 + calls) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.7)
-
-
 def reset_settings():
     global settings
     global graph_attributes
     global __version__
 
     settings = {
-        'node_attributes': {
-           'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f',
-           'color': '%(col)s',
-        },
-        'node_colour': colourize_node,
-        'edge_colour': colourize_edge,
         'dont_exclude_anything': False,
         'include_stdlib': True,
     }

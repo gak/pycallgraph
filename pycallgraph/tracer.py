@@ -17,9 +17,10 @@ from .memory_profiler import memory_usage
 
 class Tracer:
 
-    def __init__(self, config, outputs):
-        self.config = config
+    def __init__(self, outputs, config):
         self.outputs = outputs
+        self.config = config
+        print(self.outputs)
         self.updatables = [a for a in self.outputs if a.should_update()]
 
         self.init_trace_data()

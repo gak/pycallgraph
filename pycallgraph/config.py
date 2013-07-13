@@ -14,6 +14,15 @@ class Config:
         self.include_stdlib = True
         self.create_parser()
 
+    def add_module_arguments(self):
+        subparsers = self.parser.add_subparsers(help='sub-command help')
+
+        for outputter in outputters:
+            outputter.add_arguments(subparsers)
+
+        # moo = subparsers.add_parser('d3', help='Generate a HTML file with embedded d3.js')
+        # moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
+
     def parse_args(self, args=None):
         # Inject the parsed arguments into this class
         args = self.parser.parse_args(args, namespace=self)
@@ -87,15 +96,6 @@ class Config:
             help='Set a threshhold for inclusion of functions in graphical output in terms' \
                     'of fraction of total time used.',
             )
-
-    def add_module_arguments(self):
-        subparsers = self.parser.add_subparsers(help='sub-command help')
-
-        for outputter in outputters:
-            outputter.add_arguments(subparsers)
-
-        # moo = subparsers.add_parser('d3', help='Generate a HTML file with embedded d3.js')
-        # moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
 
 if __name__ == '__main__':
     c = Config()

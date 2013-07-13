@@ -17,5 +17,5 @@ def config():
 
 
 @pytest.fixture(scope='module')
-def dot(config):
-    return GraphvizOutput(config)
+def graphviz_source():
+    return GraphvizSourceOutput()
