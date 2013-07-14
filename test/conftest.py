@@ -10,11 +10,9 @@ from pycallgraph.output import *
 def pycg():
     return PyCallGraph()
 
-
 @pytest.fixture(scope='module')
 def config():
     return Config()
-
 
 @pytest.fixture(scope='module')
 def graphviz_source():
@@ -25,5 +23,11 @@ def graphviz_source():
 @pytest.fixture(scope='module')
 def graphviz_image():
     output = GraphvizImageOutput()
+    output.fp = StringIO()
+    return output
+
+@pytest.fixture(scope='module')
+def pickle_output():
+    output = PickleOutput()
     output.fp = StringIO()
     return output

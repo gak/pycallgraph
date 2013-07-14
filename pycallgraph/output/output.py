@@ -1,4 +1,5 @@
-import shutil
+import re
+import os
 from distutils.spawn import find_executable
 
 from ..exceptions import PyCallGraphException
@@ -12,7 +13,7 @@ class Output(object):
         Basic checks for certain libraries or external applications.  Raise
         or warn if there is a problem.
         '''
-        raise NotImplementedError('sanity_check')
+        pass
 
     @classmethod
     def add_arguments(cls, subparsers):
@@ -56,3 +57,9 @@ class Output(object):
         else:
             path = os.path.expandvars(path)  # expand, just in case
         return path
+
+    def prepare_output_file(self):
+        if self.fp is None:
+            self.output_file = self.normalize_path(self.output_file)
+            self.fp = open(self.output_file, 'wb')
+

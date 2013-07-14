@@ -1,5 +1,4 @@
 import tempfile
-import re
 import os
 
 from ..pycallgraph import __version__
@@ -60,11 +59,6 @@ class GraphvizSourceOutput(Output):
 
     def sanity_check(self):
         self.ensure_binary(self.tool)
-
-    def prepare_output_file(self):
-        self.output_file = self.normalize_path(self.output_file)
-        if self.fp is None:
-            self.fp = open(self.output_file, 'wb')
 
     def prepare_graph_attributes(self):
         self.graph_attributes = {

@@ -240,6 +240,18 @@ class Tracer(object):
 
         return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
 
+    def __getstate__(self):
+        odict = self.__dict__.copy()
+        dont_keep = [
+            'outputs',
+            'config',
+            'updatables',
+            'lib_path',
+        ]
+        for key in dont_keep:
+            del odict[key]
+
+        return odict
 
 def simple_memoize(callable_object):
     '''Simple memoization for functions without keyword arguments.

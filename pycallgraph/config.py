@@ -24,12 +24,7 @@ class Config(object):
         # moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
 
     def parse_args(self, args=None):
-        # Inject the parsed arguments into this class
-        args = self.parser.parse_args(args, namespace=self)
-
-        # An outputter may inject variables into the settings
-        for outputter in outputters:
-            outputter.inject_config(self)
+        self.parser.parse_args(args, namespace=self)
 
     def create_parser(self):
         '''Used by the pycallgraph command line interface to parse

@@ -1,3 +1,6 @@
+import pickle
+
+
 def test_empty(pycg):
     pycg.start()
     pycg.stop()
@@ -18,24 +21,14 @@ def test_graphviz_image(pycg, graphviz_image):
     re.compile('asdf.*asdf[1ab]+34$')
     pycg.done()
 
-'''
-config = pycallgraph.Config()
-output = pycallgraph.GraphvizOutput(config)
-pycg = pycallgraph.PyCallGraph(config)
+def test_pickle(pycg, pickle_output):
+    pycg.add_output(pickle_output)
+    pycg.start()
+    import re
+    re.compile('asdf.*asdf[1ab]+34$')
+    pycg.done()
 
+    tracer = pickle.loads(pickle_output.fp.getvalue())
 
-g = GraphvizOutput()
-g.font_size = 5
-
-p = PyCallGraph(output=g)
-
----- OR -----
-
-./pycallgraph --include-stdlib graphviz-image --font-size 5 -o test.png
-
-config = Config()
-config.parse_args(sys.argv)
-
-p = PyCallGraph(config=config)
-
-'''
+    print(tracer)
+    print(tracer.__dict__)
