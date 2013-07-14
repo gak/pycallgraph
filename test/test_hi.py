@@ -1,5 +1,7 @@
 import pickle
 
+from helpers import *
+
 
 def test_empty(pycg):
     pycg.start()
@@ -11,15 +13,22 @@ def test_empty(pycg):
 
 def test_graphviz_source(pycg, graphviz_source):
     pycg.add_output(graphviz_source)
+    pycg.start()
+    wait_100ms()
     pycg.done()
     print(graphviz_source.fp.getvalue())
 
 def test_graphviz_image(pycg, graphviz_image):
     pycg.add_output(graphviz_image)
     pycg.start()
-    import re
-    re.compile('asdf.*asdf[1ab]+34$')
+    # import re
+    # re.compile('asdf.*asdf[1ab]+34$')
+    wait_100ms()
+    wait_200ms()
     pycg.done()
+    print(graphviz_image.generate())
+    import os
+    os.system('qiv pycallgraph.png')
 
 def test_pickle(pycg, pickle_output):
     pycg.add_output(pickle_output)

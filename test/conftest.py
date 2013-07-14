@@ -1,5 +1,6 @@
 import pytest
 from StringIO import StringIO
+import time
 
 import fix_path
 from pycallgraph import *
@@ -31,3 +32,6 @@ def pickle_output():
     output = PickleOutput()
     output.fp = StringIO()
     return output
+
+
+	

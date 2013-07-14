@@ -26,7 +26,11 @@ class GraphvizSourceOutput(Output):
         self.font_name = 'Verdana'
         self.font_size = 7
 
-        self.node_label = '%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f'
+        self.node_attributes = {
+           'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f',
+           'color': '%(col)s',
+        }
+
         self.node_color_func = colorize_node
         self.edge_color_func = colorize_edge
 
@@ -98,7 +102,7 @@ class GraphvizSourceOutput(Output):
         for comp, comp_attr in self.graph_attributes.items():
             attr = ', '.join('%s = "%s"' % (attr, val)
                              for attr, val in comp_attr.items() )
-            defaults.append('\t%(comp)s [ %(attr)s ];\n' % locals())
+            defaults.append('\t%(comp)s [ %(attr)s ];' % locals())
 
         # Define nodes
         for func, hits in self.tracer.func_count.items():
@@ -107,7 +111,7 @@ class GraphvizSourceOutput(Output):
                 self.tracer.frac_calculation(func, hits)
 
             col = self.node_color_func(calls_frac, total_time_frac)
-            attribs = ['%s="%s"' % a for a in self.graph_attributes.items()]
+            attribs = ['%s="%s"' % a for a in self.node_attributes.items()]
             node_str = '"%s" [%s];' % (func, ', '.join(attribs))
             if self.time_filter is None or self.time_filter.fraction <= total_time_frac:
                 nodes.append(node_str % locals())
@@ -119,9 +123,9 @@ class GraphvizSourceOutput(Output):
                 calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
                    total_memory_out_frac, total_memory_out = self.tracer.frac_calculation(to_key, to_val)
                 col = self.edge_color_func(calls_frac, total_time_frac)
-                edge = '[ color = "%s", label="%s" ]' % (col, to_val)
+                edge = '[color = "%s", label="%s"]' % (col, to_val)
                 if self.time_filter is None or self.time_filter.fraction < total_time_frac:
-                    edges.append('"%s"->"%s" %s;' % (fr_key, to_key, edge))
+                    edges.append('"%s" -> "%s" %s;' % (fr_key, to_key, edge))
 
         defaults = '\n\t'.join(defaults)
         nodes    = '\n\t'.join(nodes)
@@ -162,6 +166,7 @@ class GraphvizImageOutput(GraphvizSourceOutput):
 
     def done(self):
         source = super(GraphvizImageOutput, self).generate()
+        print(source)
 
         # Create a temporary file to be used for the dot data
         fd, temp_name = tempfile.mkstemp()
