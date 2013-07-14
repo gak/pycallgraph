@@ -18,6 +18,13 @@ def test_graphviz_source(pycg, graphviz_source):
     pycg.done()
     print(graphviz_source.fp.getvalue())
 
+def hi():
+    return 1024 * 1024 * 'a'
+
+def hii():
+    a = 100 * 1024 * 1024 * 'a'
+    b = hi()
+
 def test_graphviz_image(pycg, graphviz_image):
     pycg.add_output(graphviz_image)
     pycg.start()
@@ -25,6 +32,7 @@ def test_graphviz_image(pycg, graphviz_image):
     re.compile('asdf.*asdf[1ab]+34$')
     wait_100ms()
     wait_200ms()
+    hii()
     pycg.done()
     import os
     os.system('qiv pycallgraph.png')

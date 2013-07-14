@@ -63,3 +63,9 @@ class Output(object):
             self.output_file = self.normalize_path(self.output_file)
             self.fp = open(self.output_file, 'wb')
 
+    def human_readable_size(self, num):
+        for x in ['B', 'KB', 'MB', 'GB']:
+            if num < 1024.0 and num > -1024.0:
+                return "%3.1f%s" % (num, x)
+            num /= 1024.0
+        return "%3.1f%s" % (num, 'TB')

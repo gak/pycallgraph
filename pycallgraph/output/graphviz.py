@@ -28,8 +28,14 @@ class GraphvizSourceOutput(Output):
         self.group_font_size = 10
 
         self.node_attributes = {
-           'label': r'%(func)s\ncalls: %(hits)i\ntotal time: %(total_time)f\ntotal memory in: %(total_memory_in)f\ntotal memory out: %(total_memory_out)f',
            'color': '%(col)s',
+           'label': r'\n'.join([
+               '%(func)s',
+               'calls: %(hits)i',
+               'total time: %(total_time)f',
+               'memory in: %(total_memory_in)s',
+               'memory out: %(total_memory_out)s',
+            ]),
         }
 
         self.node_color_func = colorize_node
@@ -138,8 +144,12 @@ class GraphvizSourceOutput(Output):
                 total_memory_in, total_memory_out_frac, total_memory_out = \
                 self.tracer.frac_calculation(func, hits)
 
+            total_memory_in = self.human_readable_size(total_memory_in)
+            total_memory_out = self.human_readable_size(total_memory_out)
+
             col = self.node_color_func(calls_frac, total_time_frac)
             attribs = ['%s="%s"' % a for a in self.node_attributes.items()]
+            print(attribs)
             node_str = '"%s" [%s];' % (func, ', '.join(attribs))
             if self.time_filter is None or self.time_filter.fraction <= total_time_frac:
                 nodes.append(node_str % locals())

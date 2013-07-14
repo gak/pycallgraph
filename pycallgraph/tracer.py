@@ -74,30 +74,36 @@ class Tracer(object):
     def stop(self):
         sys.settrace(None)
 
+    def memory(self):
+        return int(memory_usage(-1, 0)[0] * 1000000)
+
     def tracer(self, frame, event, arg):
         '''This function is called every time a call is made during a trace. It
         keeps track of relationships between calls.
         '''
-        # Deal with memory when function has finished so local variables can be cleaned up
-        if self.previous_event_return:
-            self.previous_event_return = False
-            cur_mem = memory_usage(-1, 0)
 
-            if self.call_stack_memory_out:
-                full_name, m = self.call_stack_memory_out.pop(-1)
-            else:
-                full_name, m = (None, None)
+        if self.config.track_memory:
+            cur_mem = self.memory()
 
-            # NOTE: Call stack is no longer the call stack that may be expected. Potentially
-            # need to store a copy of it.
-            if full_name and m and self.mem_filter(stack=self.call_stack, full_name=full_name):
-                call_memory = (cur_mem[0] - m)
-                if full_name not in self.func_memory_out:
-                    self.func_memory_out[full_name] = 0
+            # Deal with memory when function has finished so local variables can be cleaned up
+            if self.previous_event_return:
+                self.previous_event_return = False
+
+                if self.call_stack_memory_out:
+                    full_name, m = self.call_stack_memory_out.pop(-1)
                 else:
-                    self.func_memory_out[full_name] += call_memory
-                if self.func_memory_out[full_name] > self.func_memory_out_max:
-                    self.func_memory_out_max = self.func_memory_out[full_name]
+                    full_name, m = (None, None)
+
+                # NOTE: Call stack is no longer the call stack that may be expected. Potentially
+                # need to store a copy of it.
+                if full_name and m and self.mem_filter(stack=self.call_stack, full_name=full_name):
+                    call_memory = (cur_mem - m)
+                    if full_name not in self.func_memory_out:
+                        self.func_memory_out[full_name] = 0
+                    else:
+                        self.func_memory_out[full_name] += call_memory
+                    if self.func_memory_out[full_name] > self.func_memory_out_max:
+                        self.func_memory_out_max = self.func_memory_out[full_name]
 
         if event == 'call':
             keep = True
@@ -112,8 +118,9 @@ class Tracer(object):
                 module_name = module.__name__
                 module_path = module.__file__
                 if not self.config.include_stdlib \
-                    and self.is_module_stdlib(module_path):
+                        and self.is_module_stdlib(module_path):
                     keep = False
+
                 if module_name == '__main__':
                     module_name = ''
             else:
@@ -121,7 +128,7 @@ class Tracer(object):
             if module_name:
                 full_name_list.append(module_name)
 
-            # Work out the class name.
+            # Work out the class name
             try:
                 class_name = frame.f_locals['self'].__class__.__name__
                 full_name_list.append(class_name)
@@ -165,9 +172,9 @@ class Tracer(object):
                 self.call_stack.append(full_name)
                 self.call_stack_timer.append(time.time())
 
-                self.cur_mem = memory_usage(-1, 0)
-                self.call_stack_memory_in.append(self.cur_mem[0])
-                self.call_stack_memory_out.append([full_name, self.cur_mem[0]])
+                if self.config.track_memory:
+                    self.call_stack_memory_in.append(cur_mem)
+                    self.call_stack_memory_out.append([full_name, cur_mem])
 
             else:
                 self.call_stack.append('')
@@ -193,19 +200,20 @@ class Tracer(object):
                     if self.func_time[full_name] > self.func_time_max:
                         self.func_time_max = self.func_time[full_name]
 
-                if self.call_stack_memory_in:
-                    m = self.call_stack_memory_in.pop(-1)
-                else:
-                    m = None
+                if self.config.track_memory:
+                    if self.call_stack_memory_in:
+                        m = self.call_stack_memory_in.pop(-1)
+                    else:
+                        m = None
 
-                if m and self.mem_filter(stack=self.call_stack, full_name=full_name):
-                    if full_name not in self.func_memory_in:
-                        self.func_memory_in[full_name] = 0
-                    cur_mem = memory_usage(-1, 0)
-                    call_memory = (cur_mem[0] - m)
-                    self.func_memory_in[full_name] += call_memory
-                    if self.func_memory_in[full_name] > self.func_memory_in_max:
-                        self.func_memory_in_max = self.func_memory_in[full_name]
+                    if m and self.mem_filter(stack=self.call_stack, full_name=full_name):
+                        if full_name not in self.func_memory_in:
+                            self.func_memory_in[full_name] = 0
+                        cur_mem = self.memory()
+                        call_memory = (cur_mem - m)
+                        self.func_memory_in[full_name] += call_memory
+                        if self.func_memory_in[full_name] > self.func_memory_in_max:
+                            self.func_memory_in_max = self.func_memory_in[full_name]
 
         return self.tracer
 
@@ -228,10 +236,10 @@ class Tracer(object):
         try:
             total_memory_in = self.func_memory_in[func]
             total_memory_out = self.func_memory_out[func]
-
         except KeyError:
             total_memory_in = 0
             total_memory_out = 0
+
         try:
             total_memory_in_frac = float(total_memory_in) / self.func_memory_in_max
             total_memory_out_frac = float(total_memory_out) / self.func_memory_out_max
