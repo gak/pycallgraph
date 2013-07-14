@@ -27,6 +27,7 @@ def hii():
 
 def test_graphviz_image(pycg, graphviz_image):
     pycg.add_output(graphviz_image)
+    pycg.config.track_memory = True
     pycg.start()
     import re
     re.compile('asdf.*asdf[1ab]+34$')
