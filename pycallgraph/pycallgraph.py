@@ -26,11 +26,6 @@ __author__ = 'Gerald Kaszuba'
 # TODO Add additional authors in __credis__ ?
 # __credits__ = '??'
 
-
-#NOTE: Should we make sure this import trys to look locally?
-#TODO: Load only when the memory profiler option is active
-from memory_profiler import memory_usage
-
 from .output import Output
 from .config import Config
 from .tracer import Tracer

@@ -13,7 +13,6 @@ from .globbing_filter import GlobbingFilter
 
 #NOTE: Should we make sure this import trys to look locally?
 #TODO: Load only when the memory profiler option is active
-from .memory_profiler import memory_usage
 
 
 class Tracer(object):
@@ -75,6 +74,7 @@ class Tracer(object):
         sys.settrace(None)
 
     def memory(self):
+        from .memory_profiler import memory_usage
         return int(memory_usage(-1, 0)[0] * 1000000)
 
     def tracer(self, frame, event, arg):
