@@ -6,6 +6,7 @@ import re
 import tempfile
 import time
 from distutils import sysconfig
+from collections import defaultdict
 
 
 from .globbing_filter import GlobbingFilter
@@ -241,6 +242,9 @@ class Tracer(object):
         return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
 
     def __getstate__(self):
+        '''Used for when creating a pickle. Certain instance variables can't
+        pickled and aren't used anyway.
+        '''
         odict = self.__dict__.copy()
         dont_keep = [
             'outputs',
@@ -252,6 +256,13 @@ class Tracer(object):
             del odict[key]
 
         return odict
+
+    def groups(self):
+        grp = defaultdict(list)
+        for func in self.func_count:
+            name = func.split('.', 1)[0]
+            grp[name].append(func)
+        return grp
 
 def simple_memoize(callable_object):
     '''Simple memoization for functions without keyword arguments.

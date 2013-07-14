@@ -21,12 +21,11 @@ def test_graphviz_source(pycg, graphviz_source):
 def test_graphviz_image(pycg, graphviz_image):
     pycg.add_output(graphviz_image)
     pycg.start()
-    # import re
-    # re.compile('asdf.*asdf[1ab]+34$')
+    import re
+    re.compile('asdf.*asdf[1ab]+34$')
     wait_100ms()
     wait_200ms()
     pycg.done()
-    print(graphviz_image.generate())
     import os
     os.system('qiv pycallgraph.png')
 
