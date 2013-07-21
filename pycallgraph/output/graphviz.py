@@ -1,7 +1,7 @@
 import tempfile
 import os
 
-from ..pycallgraph import __version__
+from ..metadata import __version__
 from ..exceptions import PyCallGraphException
 from .output import Output
 
@@ -98,7 +98,7 @@ class GraphvizSourceOutput(Output):
             }
         }
 
-        if self.tracer.config.track_memory:
+        if self.processor.config.track_memory:
             self.node_attributes['label'] += self.memory_node_label
 
     def done(self):
@@ -125,7 +125,7 @@ class GraphvizSourceOutput(Output):
         # - Their code visibility is better
 
         # Define groups
-        for group, funcs in self.tracer.groups().items():
+        for group, funcs in self.processor.groups().items():
             funcs = '" "'.join(funcs)
             group_color = self.group_border_color
             group_font_size = self.group_font_size
@@ -139,10 +139,10 @@ class GraphvizSourceOutput(Output):
                 'color="%(group_color)s"; }' % locals())
 
         # Define nodes
-        for func, hits in self.tracer.func_count.items():
+        for func, hits in self.processor.func_count.items():
             calls_frac, total_time_frac, total_time, total_memory_in_frac, \
                 total_memory_in, total_memory_out_frac, total_memory_out = \
-                self.tracer.frac_calculation(func, hits)
+                self.processor.frac_calculation(func, hits)
 
             total_memory_in = self.human_readable_size(total_memory_in)
             total_memory_out = self.human_readable_size(total_memory_out)
@@ -155,11 +155,11 @@ class GraphvizSourceOutput(Output):
                 nodes.append(node_str % locals())
 
         # Define edges
-        for fr_key, fr_val in self.tracer.call_dict.items():
+        for fr_key, fr_val in self.processor.call_dict.items():
             if not fr_key: continue
             for to_key, to_val in fr_val.items():
                 calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, \
-                   total_memory_out_frac, total_memory_out = self.tracer.frac_calculation(to_key, to_val)
+                   total_memory_out_frac, total_memory_out = self.processor.frac_calculation(to_key, to_val)
                 col = self.edge_color_func(calls_frac, total_time_frac)
                 edge = '[color = "%s", label="%s"]' % (col, to_val)
                 if self.time_filter is None or self.time_filter.fraction < total_time_frac:

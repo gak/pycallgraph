@@ -1,34 +1,6 @@
-'''
-pycallgraph - Python Call Graph
-
-U{http://pycallgraph.slowchop.com/}
-
-Copyright Gerald Kaszuba 2007-2013
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-'''
-
-__version__ = '0.6.0'
-__author__ = 'Gerald Kaszuba'
-
-# TODO Add additional authors in __credis__ ?
-# __credits__ = '??'
-
 from .output import Output
 from .config import Config
-from .tracer import Tracer
+from .tracer import AsyncronousTracer, SyncronousTracer
 from .exceptions import PyCallGraphException
 
 
@@ -55,7 +27,12 @@ class PyCallGraph(object):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is initialized.
         '''
-        self.tracer = Tracer(outputs=self.outputs, config=self.config)
+        if self.config.threaded:
+            cls = AsyncronousTracer
+        else:
+            cls = SyncronousTracer
+
+        self.tracer = cls(outputs=self.outputs, config=self.config)
 
         for output in self.outputs:
             self.prepare_output(output)
@@ -73,6 +50,9 @@ class PyCallGraph(object):
         if reset:
             self.reset()
 
+        for output in self.outputs:
+            output.start()
+
         self.tracer.start()
 
     def stop(self):
@@ -83,6 +63,9 @@ class PyCallGraph(object):
         '''Stops the trace and tells the outputters to generate their output.'''
         self.stop()
 
+        # If in threaded mode, wait for the processor thread to complete
+        self.tracer.done()
+
         for output in self.outputs:
             output.done()
 
@@ -92,7 +75,7 @@ class PyCallGraph(object):
 
     def prepare_output(self, output):
         output.sanity_check()
-        output.set_tracer(self.tracer)
+        output.set_processor(self.tracer.processor)
         output.reset()
 
 
@@ -115,16 +98,6 @@ class PyCallGraph(object):
 #class UbigraphOutput(Output):
 #    pass
 
-
-def reset_settings():
-    global settings
-    global graph_attributes
-    global __version__
-
-    settings = {
-        'dont_exclude_anything': False,
-        'include_stdlib': True,
-    }
 
 def get_gdf(stop=True):
     """Returns a string containing a GDF file. Setting stop to True will cause
@@ -187,5 +160,3 @@ def make_gdf_graph(filename, stop=True):
         f.write(get_gdf())
     finally:
         if f: f.close()
-
-# vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

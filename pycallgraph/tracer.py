@@ -7,17 +7,58 @@ import tempfile
 import time
 from distutils import sysconfig
 from collections import defaultdict
-
+from threading import Thread
+from Queue import Queue, Empty
 
 from .globbing_filter import GlobbingFilter
 
-#NOTE: Should we make sure this import trys to look locally?
-#TODO: Load only when the memory profiler option is active
 
-
-class Tracer(object):
+class SyncronousTracer(object):
 
     def __init__(self, outputs, config):
+        self.processor = TraceProcessor(outputs, config)
+        self.config = config
+
+    def tracer(self, frame, event, arg):
+        self.processor.process(frame, event, arg, self.memory())
+        return self.tracer
+
+    def memory(self):
+        if self.config.track_memory:
+            from .memory_profiler import memory_usage
+            return int(memory_usage(-1, 0)[0] * 1000000)
+
+    def start(self):
+        sys.settrace(self.tracer)
+
+    def stop(self):
+        sys.settrace(None)
+
+    def done(self):
+        pass
+
+
+class AsyncronousTracer(SyncronousTracer):
+
+    def start(self):
+        self.processor.start()
+        SyncronousTracer.start(self)
+
+    def tracer(self, frame, event, arg):
+        self.processor.queue(frame, event, arg, self.memory())
+        return self.tracer
+
+    def done(self):
+        self.processor.done()
+        self.processor.join()
+
+
+class TraceProcessor(Thread):
+
+    def __init__(self, outputs, config):
+        Thread.__init__(self)
+        self.trace_queue = Queue()
+        self.keep_going = True
         self.outputs = outputs
         self.config = config
         self.updatables = [a for a in self.outputs if a.should_update()]
@@ -67,24 +108,34 @@ class Tracer(object):
             self.lib_path = path[0]
         self.lib_path = self.lib_path.lower()
 
-    def start(self):
-        sys.settrace(self.tracer)
+    def queue(self, frame, event, arg, memory):
+        data = {
+            'frame': frame,
+            'event': event,
+            'arg': arg,
+            'memory': memory,
+        }
+        self.trace_queue.put(data)
 
-    def stop(self):
-        sys.settrace(None)
+    def run(self):
+        while self.keep_going:
+            try:
+                data = self.trace_queue.get(timeout=0.1)
+            except Empty:
+                pass
+            self.process(**data)
 
-    def memory(self):
-        from .memory_profiler import memory_usage
-        return int(memory_usage(-1, 0)[0] * 1000000)
+    def done(self):
+        while not self.trace_queue.empty():
+            time.sleep(0.1)
+        self.keep_going = False
 
-    def tracer(self, frame, event, arg):
-        '''This function is called every time a call is made during a trace. It
-        keeps track of relationships between calls.
+    def process(self, frame, event, arg, memory=None):
+        '''This function processes a trace result. keeps track of
+        relationships between calls.
         '''
 
-        if self.config.track_memory:
-            cur_mem = self.memory()
-
+        if memory is not None:
             # Deal with memory when function has finished so local variables can be cleaned up
             if self.previous_event_return:
                 self.previous_event_return = False
@@ -97,7 +148,7 @@ class Tracer(object):
                 # NOTE: Call stack is no longer the call stack that may be expected. Potentially
                 # need to store a copy of it.
                 if full_name and m and self.mem_filter(stack=self.call_stack, full_name=full_name):
-                    call_memory = (cur_mem - m)
+                    call_memory = memory - m
                     if full_name not in self.func_memory_out:
                         self.func_memory_out[full_name] = 0
                     else:
@@ -172,9 +223,9 @@ class Tracer(object):
                 self.call_stack.append(full_name)
                 self.call_stack_timer.append(time.time())
 
-                if self.config.track_memory:
-                    self.call_stack_memory_in.append(cur_mem)
-                    self.call_stack_memory_out.append([full_name, cur_mem])
+                if memory is not None:
+                    self.call_stack_memory_in.append(memory)
+                    self.call_stack_memory_out.append([full_name, memory])
 
             else:
                 self.call_stack.append('')
@@ -200,7 +251,7 @@ class Tracer(object):
                     if self.func_time[full_name] > self.func_time_max:
                         self.func_time_max = self.func_time[full_name]
 
-                if self.config.track_memory:
+                if memory is not None:
                     if self.call_stack_memory_in:
                         m = self.call_stack_memory_in.pop(-1)
                     else:
@@ -209,13 +260,10 @@ class Tracer(object):
                     if m and self.mem_filter(stack=self.call_stack, full_name=full_name):
                         if full_name not in self.func_memory_in:
                             self.func_memory_in[full_name] = 0
-                        cur_mem = self.memory()
-                        call_memory = (cur_mem - m)
+                        call_memory = memory - m
                         self.func_memory_in[full_name] += call_memory
                         if self.func_memory_in[full_name] > self.func_memory_in_max:
                             self.func_memory_in_max = self.func_memory_in[full_name]
-
-        return self.tracer
 
     def is_module_stdlib(self, file_name):
         '''Returns True if the file_name is in the lib directory.'''
@@ -271,6 +319,7 @@ class Tracer(object):
             name = func.split('.', 1)[0]
             grp[name].append(func)
         return grp
+        
 
 def simple_memoize(callable_object):
     '''Simple memoization for functions without keyword arguments.
