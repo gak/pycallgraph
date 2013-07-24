@@ -140,6 +140,8 @@ class GraphvizSourceOutput(Output):
 
         # Define nodes
         for func, hits in self.tracer.func_count.items():
+
+            # XXX: This line is pretty terrible. Maybe retur an object?
             calls_frac, total_time_frac, total_time, total_memory_in_frac, \
                 total_memory_in, total_memory_out_frac, total_memory_out = \
                 self.tracer.frac_calculation(func, hits)
