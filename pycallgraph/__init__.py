@@ -1,7 +1,12 @@
-from .pycallgraph import __version__
-from .pycallgraph import __author__
+'''
+Python Call Graph is a library and command line tool that visualises the flow
+of your Python application.
+
+See http://pycallgraph.slowchop.com/ for more information.
+'''
+
 from .pycallgraph import PyCallGraph
 
-from .tracer import Tracer
 from .config import Config
 from .globbing_filter import GlobbingFilter
+

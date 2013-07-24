@@ -12,6 +12,7 @@ def test_empty(pycg):
     print(pycg.tracer.func_count)
 
 def test_graphviz_source(pycg, graphviz_source):
+    # pycg.config.threaded = True
     pycg.add_output(graphviz_source)
     pycg.start()
     wait_100ms()
@@ -27,6 +28,7 @@ def hii():
 
 def test_graphviz_image(pycg, graphviz_image):
     pycg.add_output(graphviz_image)
+    #pycg.config.track_memory = True
     pycg.start()
     import re
     re.compile('asdf.*asdf[1ab]+34$')
@@ -48,3 +50,9 @@ def test_pickle(pycg, pickle_output):
 
     print(tracer)
     print(tracer.__dict__)
+
+def test_ubigraph(pycg):
+    from pycallgraph.output import UbigraphOutput
+    ubigraph = UbigraphOutput()
+    pycg.add_output(ubigraph)
+    pycg.start()

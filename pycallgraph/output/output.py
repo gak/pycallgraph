@@ -5,12 +5,11 @@ from distutils.spawn import find_executable
 from ..exceptions import PyCallGraphException
         
 
-
 class Output(object):
+    '''Base class for all outputters.'''
 
     def sanity_check(self):
-        '''
-        Basic checks for certain libraries or external applications.  Raise
+        '''Basic checks for certain libraries or external applications.  Raise
         or warn if there is a problem.
         '''
         pass
@@ -22,25 +21,25 @@ class Output(object):
     def reset(self):
         pass
 
-    def set_tracer(self, tracer):
-        self.tracer = tracer
+    def set_processor(self, processor):
+        self.processor = processor
 
-    def update(self)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        :
-        '''
-        Called periodically during a trace.
+    def start(self):
+        '''Initialise variables after initial configuration.'''
+        pass
+
+    def update(self):
+        '''Called periodically during a trace, but only when should_update is
+        set to True.
         '''
         raise NotImplementedError('update')
 
     def should_update(self):
-        '''
-        Return True if the update method should be called periodically.
-        '''
+        '''Return True if the update method should be called periodically.'''
         return False
 
     def done(self):
-        '''
-        Called when the trace is complete and ready to be saved.
-        '''
+        '''Called when the trace is complete and ready to be saved.'''
         raise NotImplementedError('done')
 
     def ensure_binary(self, cmd):

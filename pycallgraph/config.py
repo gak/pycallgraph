@@ -11,6 +11,8 @@ class Config(object):
     '''
 
     def __init__(self):
+        self.quiet = False
+        self.threaded = False
         self.include_stdlib = True
         self.track_memory = False
 
@@ -45,6 +47,10 @@ class Config(object):
         self.parser.add_argument(
             '-q', '--quiet', dest='quiet', action='store_true',
             help='Suppress status output to the console')
+
+        self.parser.add_argument(
+            '-t', '--threaded', action='store_true',
+            help='Process traces asyncronously')
 
         self.parser.add_argument(
             '-s', '--stdlib', dest='include_stdlib', action='store_true',

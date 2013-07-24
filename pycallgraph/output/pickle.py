@@ -1,7 +1,5 @@
 import cPickle as pickle
 
-from ..pycallgraph import __version__
-from ..exceptions import PyCallGraphException
 from .output import Output
 
 
