@@ -1,10 +1,7 @@
-import pytest
 from StringIO import StringIO
 import time
 
-import fix_path
-from pycallgraph import *
-from pycallgraph.output import *
+from helpers import *
 
 
 @pytest.fixture(scope='module')
