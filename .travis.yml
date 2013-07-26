@@ -1,7 +1,6 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "pypy"
 
@@ -9,5 +8,9 @@ before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq graphviz
 
-install: "pip install -r requirements/development.txt --use-mirrors"
+install:
+ - "echo Python $TRAVIS_PYTHON_VERSION"
+ - "pip install -r requirements/development.txt --use-mirrors"
+ - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then 2to3 -wn pycallgraph; fi"
+
 script: py.test
