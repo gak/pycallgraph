@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from os import path
-from distutils.core import setup
+from setuptools import setup
 
-from pycallgraph import __version__
+# TODO: Have the version in only one place
+__version__ = '1.0.0'
 
 # Only install the man page if the correct directory exists
 # XXX: Commented because easy_install doesn't like it
@@ -23,16 +24,16 @@ setup(
     author='Gerald Kaszuba',
     author_email='pycallgraph@slowchop.com',
     url='http://pycallgraph.slowchop.com/',
-    py_modules=['pycallgraph'],
+    packages=['pycallgraph', 'pycallgraph.output'],
     scripts=['scripts/pycallgraph'],
     data_files=data_files,
-    long_description = \
-'''Python Call Graph uses GraphViz to generate call graphs from one execution
-of your Python code. It's very easy to use and can point out possible problems
-with your code execution.''',
+    use_2to3=True,
+
+    # TODO: Update download_url
     download_url =
     'http://pycallgraph.slowchop.com/files/download/pycallgraph-%s.tar.gz' % \
         __version__,
+
     classifiers = [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

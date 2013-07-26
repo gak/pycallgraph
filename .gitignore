@@ -1,2 +1,4 @@
 *.pyc
 docs/_build/
+build/
+cache/
