@@ -8,7 +8,10 @@ import time
 from distutils import sysconfig
 from collections import defaultdict
 from threading import Thread
-from Queue import Queue, Empty
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
 
 from .globbing_filter import GlobbingFilter
 

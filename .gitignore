@@ -2,6 +2,8 @@ docs/_build/
 build/
 .cache/
 .coverage
+dist/
+*.egg-info
 
 *.pyc
 *.png

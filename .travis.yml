@@ -16,7 +16,6 @@ before_install:
  - sudo apt-get install -qq graphviz
 
 install:
- - "echo Python $TRAVIS_PYTHON_VERSION"
  - "pip install -r requirements/development.txt --use-mirrors"
  - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then 2to3 -wn pycallgraph; 2to3 -wn test; fi"
 

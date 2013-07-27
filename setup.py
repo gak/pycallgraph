@@ -3,8 +3,7 @@
 from os import path
 from setuptools import setup
 
-# TODO: Have the version in only one place
-__version__ = '1.0.0'
+import pycallgraph as pycg
 
 # Only install the man page if the correct directory exists
 # XXX: Commented because easy_install doesn't like it
@@ -18,12 +17,13 @@ data_files=None
 
 setup(
     name='pycallgraph',
-    version=__version__,
-    description='Python Call Graph uses GraphViz to generate call graphs ' \
-        'from one execution of your Python code.',
-    author='Gerald Kaszuba',
-    author_email='pycallgraph@slowchop.com',
-    url='http://pycallgraph.slowchop.com/',
+    version=pycg.__version__,
+    description=pycg.__doc__.strip().replace('\n', ' '),
+    long_description=open('README.md').read(),
+    author=pycg.__author__,
+    author_email=pycg.__email__,
+    license=open('LICENSE').read(),
+    url=pycg.__url__,
     packages=['pycallgraph', 'pycallgraph.output'],
     scripts=['scripts/pycallgraph'],
     data_files=data_files,
@@ -32,7 +32,7 @@ setup(
     # TODO: Update download_url
     download_url =
     'http://pycallgraph.slowchop.com/files/download/pycallgraph-%s.tar.gz' % \
-        __version__,
+        pycg.__version__,
 
     classifiers = [
         'Development Status :: 4 - Beta',
@@ -41,7 +41,9 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Debuggers',

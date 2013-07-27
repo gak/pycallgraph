@@ -1,4 +1,8 @@
-import xmlrpclib
+try:
+    from xmlrpclib import Server
+except ImportError:
+    from xmlrpc.client import Server
+
 
 from ..exceptions import PyCallGraphException
 from .output import Output
@@ -10,7 +14,7 @@ class UbigraphOutput(Output):
         self.server_url = 'http://127.0.0.1:20738/RPC2'
 
     def start(self):
-        server = xmlrpclib.Server(self.server_url)
+        server = Server(self.server_url)
         self.graph = server.ubigraph
 
         # Create a graph
