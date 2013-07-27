@@ -49,16 +49,17 @@ class GraphvizOutput(Output):
     def add_arguments(cls, subparsers):
         defaults = cls()
 
-        subparser = subparsers.add_parser('graphviz-source',
-            help='Graphviz source generation')
+        subparser = subparsers.add_parser('graphviz',
+            help='Graphviz generation')
 
         subparser.add_argument('-o', '--output-file', type=str,
             default=defaults.output_file,
-            help='The generated GraphViz file')
+            help='The generated Graphviz file')
 
         subparser.add_argument('-t', '--output-type', type=str,
             default=defaults.output_type,
-            help='Image format to product (png, ps, dot, etc.)')
+            help='Image format to produce, e.g. png, ps, dot, etc. '
+                'See http://www.graphviz.org/doc/info/output.html for more.')
 
         cls.add_base_arguments(subparser)
 
