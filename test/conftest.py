@@ -1,4 +1,7 @@
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import time
 
 from helpers import *
@@ -14,13 +17,7 @@ def config():
 
 @pytest.fixture(scope='module')
 def graphviz_source():
-    output = GraphvizSourceOutput()
-    output.fp = StringIO()
-    return output
-
-@pytest.fixture(scope='module')
-def graphviz_image():
-    output = GraphvizImageOutput()
+    output = GraphvizOutput()
     output.fp = StringIO()
     return output
 
