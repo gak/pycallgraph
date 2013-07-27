@@ -1,6 +1,7 @@
 docs/_build/
 build/
 .cache/
+.coverage
 
 *.pyc
 *.png

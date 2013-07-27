@@ -1,8 +1,15 @@
-language: python
+language:
+ - python
+
 python:
   - "2.7"
   - "3.3"
   - "pypy"
+
+env:
+  global:
+  	# COVERALLS_REPO_TOKEN
+	- secure: "g94JYpTRakg5qLo8g2Q0kDX5HHPL/IfNEuYIeV29x5SHnISbwmRntudLSqRb0E2zxoKMyqo9l8UtcGd08TkV7hyanywtQygFIG9Cp2EE11Uq5CGZ7cr0G5HikRIJAQb9fFDDzGhrMUJIGuRPEJ81A9H2I2ZhNq54w3FuRi2FOO4="
 
 before_install:
  - sudo apt-get update -qq
@@ -13,4 +20,8 @@ install:
  - "pip install -r requirements/development.txt --use-mirrors"
  - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then 2to3 -wn pycallgraph; 2to3 -wn test; fi"
 
-script: py.test
+script:
+ - py.test --cov coveralls --cov-report term-missing --cov=pycallgraph test
+
+after_success:
+ - coveralls
