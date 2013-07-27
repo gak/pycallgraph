@@ -1,3 +1,5 @@
+import warnings
+
 from .output import Output
 from .config import Config
 from .tracer import AsyncronousTracer, SyncronousTracer
@@ -33,7 +35,7 @@ class PyCallGraph(object):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is initialized.
         '''
-        self.tracer = self.get_class(outputs=self.outputs, config=self.config)
+        self.tracer = self.get_class()(self.outputs, config=self.config)
 
         for output in self.outputs:
             self.prepare_output(output)
@@ -48,6 +50,10 @@ class PyCallGraph(object):
         included or not.  Returning False means the call will be filtered out
         and not included in the call graph.
         '''
+        if not self.outputs:
+            warnings.warn('No outputs declared. Please see the examples in '
+                'the README or online documentation.', RuntimeWarning)
+
         if reset:
             self.reset()
 

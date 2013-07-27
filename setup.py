@@ -41,9 +41,10 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Debuggers',
-        ],
+    ],
 )
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

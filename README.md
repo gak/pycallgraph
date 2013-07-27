@@ -41,8 +41,9 @@ For more information, see the [command-line usage](https://pycallgraph.readthedo
 The absolute basic usage via the API (for version 1.0.0+) is:
 
     from pycallgraph import PyCallGraph
+    from pycallgraph.output import GraphvizImageOutput
 
-    pycg = PyCallGraph()
+    pycg = PyCallGraph(outputs=GraphvizImageOutput)
     pycg.start()
 
     code_to_profile()
