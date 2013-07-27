@@ -1,6 +1,6 @@
 # Python Call Graph
 
-[![Build Status](https://travis-ci.org/gak/pycallgraph.png)](https://travis-ci.org/gak/pycallgraph)
+[![Build Status](https://travis-ci.org/gak/pycallgraph.png)](https://travis-ci.org/gak/pycallgraph) [![Coverage Status](https://coveralls.io/repos/gak/pycallgraph/badge.png?branch=develop)](https://coveralls.io/r/gak/pycallgraph?branch=develop)
 
 pycallgraph is a Python module that creates call graphs for Python programs.
 
