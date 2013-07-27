@@ -1,4 +1,7 @@
-*.pyc
 docs/_build/
 build/
-cache/
+.cache/
+
+*.pyc
+*.png
+

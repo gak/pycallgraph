@@ -1,18 +1,16 @@
-.. Python Call Graph documentation master file, created by
-   sphinx-quickstart on Wed Jul 24 17:23:48 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Python Call Graph documentation
 ===============================
 
-Contents:
+Welcome to the Python Call Graph (pycallgraph) documentation.
+
+You can either use the :ref:`command-line interface <command_line_tutorial>` for a quick visualisation of your Python script, or the :ref:`pycallgraph module <api_tutorial>` for more fine-grained settings.
 
 .. toctree::
    :maxdepth: 2
 
    intro
    tutorial
+   api
 
 Indices and tables
 ==================
