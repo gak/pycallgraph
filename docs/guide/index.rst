@@ -7,4 +7,5 @@ Guide
    intro
    basic_usage
    outputs
+   filtering
    custom_outputs

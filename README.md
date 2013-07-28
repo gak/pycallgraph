@@ -24,4 +24,4 @@ pycallgraph can be installed via pip or easy_install:
 
 ## Documentation
 
-The [documentation](https://pycallgraph.readthedocs.org/) has many [screenshots](), [basic usage](https://pycallgraph.readthedocs.org/), a guide to [create your own output classes](https://pycallgraph.readthedocs.org/), and [API reference](https://pycallgraph.readthedocs.org/).
+The [documentation](https://pycallgraph.readthedocs.org/) has many [screenshots](), a quick start guide with [basic usage](https://pycallgraph.readthedocs.org/), a guide to [create your own output classes](https://pycallgraph.readthedocs.org/), and the [API reference](https://pycallgraph.readthedocs.org/).

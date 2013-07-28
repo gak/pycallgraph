@@ -28,6 +28,8 @@ Installation is easy as:
 
     pip install pycallgraph
 
+**Note**: Version 1.0.0 of pycallgraph broke backwards compatibility in both the API and command-line.
+
 Features
 ========
 

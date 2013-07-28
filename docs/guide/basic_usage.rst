@@ -1,14 +1,12 @@
 Basic Usage
 ===========
 
-**Note**: Version 1.0.0 of pycallgraph broke backwards compatibility in the API and command-line.
-
 pycallgraph can be used with either the command-line, or via the module.
 
 .. _command_line_tutorial:
 
-Command-line Interface Tutorial
-===============================
+Command-line Interface
+----------------------
 
 From the command line, execute:
 
@@ -22,8 +20,8 @@ For more information, see the [command-line usage](https://pycallgraph.readthedo
 
 .. _api_tutorial:
 
-API Tutorial
-============
+API Usage
+---------
 
 The absolute basic usage via the API (for version 1.0.0+) is:
 
