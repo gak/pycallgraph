@@ -1,7 +1,0 @@
-Classes
-=======
-
-.. toctree::
-	
-	pycallgraph
-	output
