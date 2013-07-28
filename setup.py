@@ -2,6 +2,9 @@
 
 from os import path
 from setuptools import setup
+import sys
+
+from setuptools.command.test import test as TestCommand
 
 import pycallgraph as pycg
 
@@ -14,6 +17,18 @@ import pycallgraph as pycg
 #    data_files=None
 
 data_files=None
+
+class PyTest(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
 
 setup(
     name='pycallgraph',
@@ -33,6 +48,10 @@ setup(
     download_url =
     'http://pycallgraph.slowchop.com/files/download/pycallgraph-%s.tar.gz' % \
         pycg.__version__,
+
+    # Testing
+    tests_require=['pytest'],
+    cmdclass = {'test': PyTest},
 
     classifiers = [
         'Development Status :: 4 - Beta',

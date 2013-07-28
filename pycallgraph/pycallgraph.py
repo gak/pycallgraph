@@ -10,9 +10,11 @@ class PyCallGraph(object):
 
     def __init__(self, outputs=None, config=None):
         '''outputs can be a single Output instance or an iterable with many
-        of them.  For example:
+        of them.  Some examples:
 
-        PyCallGraph(output=[D3Output(), GephiOutput()])
+        >>> PyCallGraph(output=GraphvizOutput())
+
+        >>> PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
         if outputs is None:
             self.outputs = []
@@ -57,8 +59,8 @@ class PyCallGraph(object):
         and not included in the call graph.
         '''
         if not self.outputs:
-            warnings.warn('No outputs declared. Please see the examples in '
-                'the README or online documentation.', RuntimeWarning)
+            raise PyCallGraphException('No outputs declared. Please see the '
+                'examples in the online documentation.')
 
         if reset:
             self.reset()

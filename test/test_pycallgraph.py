@@ -1,13 +1,12 @@
 from helpers import *
 
 
-def test_no_args(recwarn):
+def test_start_no_outputs():
 	pycg = PyCallGraph()
-	pycg.start()
-	pycg.done()
-	recwarn.pop(RuntimeWarning)
+	with pytest.raises(PyCallGraphException):
+		pycg.start()
 
-def test_no_args(recwarn):
-	with PyCallGraph():
-		pass
-	recwarn.pop(RuntimeWarning)
+def test_with_block_no_outputs():
+	with pytest.raises(PyCallGraphException):
+		with PyCallGraph():
+			pass
