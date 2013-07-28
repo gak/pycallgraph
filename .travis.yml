@@ -3,6 +3,7 @@ language:
 
 python:
   - "2.7"
+  - "3.0"
   - "3.3"
   - "pypy"
 
