@@ -5,7 +5,7 @@ Guide
    :maxdepth: 3
 
    intro
-   basic_usage
    outputs
    filtering
+   command_line_usage
    custom_outputs

@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Python Call Graph'
-copyright = u'2013, Gerald Kaszuba'
+copyright = u'2007-2013 Gerald Kaszuba, et al.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -217,8 +217,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pythoncallgraph', u'Python Call Graph',
-     [u'Gerald Kaszuba'], 1)
+    ('guide/command_line_usage', 'pycallgraph', u'Python Call Graph',
+    	['''pycallgraph was written by Gerald Kaszuba <pycallgraph@slowchop.com>.
+
+This manual page was originally written by Jan Alonzo <jmalonzo@unpluggable.com>, for the Debian GNU/Linux system.
+'''], 1)
 ]
 
 # If true, show URL addresses after external links.

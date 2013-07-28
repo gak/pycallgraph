@@ -1,0 +1,40 @@
+.. _command_line_usage:
+
+Command-line Usage
+==================
+
+Synopsis
+--------
+
+pycallgraph [*OPTION*]... *OUTPUT_MODE* *python_file.py*
+
+Description
+-----------
+
+.. only:: man
+
+	pycallgraph is a program that creates call graph visualisation from Python scripts.
+
+*OUTPUT_MODE* can be one of graphviz, gephi and ubigraph. *python_file.py* is a python script that will be traced and afterwards, a call graph visualisation will be generated.
+
+Arguments
+---------
+
+.. cmdoption:: -m <module>, --module <module>
+
+   Run a module as a script.
+
+Examples
+--------
+
+Create a call graph called pycallgraph.png on myprogram.py::
+
+    pycallgraph ./myprogram.py
+
+Create a call graph of a standard Python installation script with command line parameters::
+
+    pycallgraph --output-file=setup.png -- setup.py --dry-run install
+
+Only see the module "distutils" within the execution of easy_install::
+
+    pycallgraph --include=distutils.* /usr/bin/easy_install

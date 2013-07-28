@@ -17,19 +17,6 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-Quick Start
-===========
-
-Welcome to the Python Call Graph (pycallgraph) documentation. The latest version is *1.0.0*.
-
-You can either use the :ref:`command-line interface <command_line_tutorial>` for a quick visualisation of your Python script, or the :ref:`pycallgraph module <api_tutorial>` for more fine-grained settings.
-
-Installation is easy as:
-
-    pip install pycallgraph
-
-**Note**: Version 1.0.0 of pycallgraph broke backwards compatibility in both the API and command-line.
-
 Features
 ========
 
@@ -38,6 +25,32 @@ Features
 * Modules can be visually grouped together.
 * Easily extendable to create your own output formats.
 * (The beginnings of) automated unit testing and a goal for 100% code coverage.
+
+Quick Start
+===========
+
+Welcome to the Python Call Graph (pycallgraph) documentation. The latest version is **1.0.0** and is a backwards incompatbile from the previous release.
+
+Installation is easy as::
+
+    pip install pycallgraph
+
+You can either use the :ref:`command-line interface <command_line_usage>` for a quick visualisation of your Python script, or the :ref:`pycallgraph module <pycallgraph>` for more fine-grained settings.
+
+The following examples specify graphviz as the outputter, so it's required to be installed. They will generate a file called **pycallgraph.png**.
+
+The command-line method of running pycallgraph is::
+
+	$ pycallgraph graphviz -- ./mypythonscript.py
+
+A simple use of the API is::
+
+	from pycallgraph import PyCallGraph
+	from pycallgraph.output import GraphvizImageOutput
+
+	with PyCallGraph(outputs=GraphvizImageOutput):
+		code_to_profile()
+
 
 Documentation Index
 ===================

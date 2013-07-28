@@ -25,6 +25,12 @@ class PyCallGraph(object):
 
         self.reset()
 
+    def __enter__(self):
+        self.start()
+        
+    def __exit__(self, type, value, traceback):
+        self.done()
+
     def get_class(self):
         if self.config.threaded:
             return AsyncronousTracer
