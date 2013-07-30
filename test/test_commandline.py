@@ -4,8 +4,8 @@ from helpers import *
 
 
 def execute(arguments):
-	return subprocess.check_output(
-		'PYTHONPATH=. scripts/pycallgraph ' + arguments, shell=True)
+	command = 'PYTHONPATH=. scripts/pycallgraph ' + arguments
+	return subprocess.check_output(command, shell=True).decode('utf-8')
 
 
 def test_help():
