@@ -1,105 +1,52 @@
 #!/usr/bin/env python
 """
 pycallgraph
-This script is the command line interface to the pycallgraph make_dot_graph
-method.
+This script is the command line interface to the pycallgraph Python library.
 
-U{http://pycallgraph.slowchop.com/}
-
-Copyright Gerald Kaszuba 2007
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+See http://pycallgraph.slowchop.com/ for more information.
 """
 import sys
 import os
-from optparse import OptionParser
 
 from pycallgraph import Config
 from pycallgraph import PyCallGraph
+from pycallgraph import __version__
+from pycallgraph import GlobbingFilter
 
 
 config = Config()
 config.parse_args()
 
-
-parser = OptionParser(usage='%prog [options] pythonfile')
-
-parser.add_option(
-    '-o', '--output-file', dest='output_file', default='pycallgraph.png',
-    help='The generated GraphViz image. Default: pycallgraph.png',
-    )
-
-parser.add_option(
-    '-f', '--image-format', dest='format', default='png',
-    help='The image format of imagefile. Default: png',
-    )
-
-parser.add_option(
-    '-t', '--tool', dest='tool', default='dot',
-    help='The tool from Graphviz to use. Default: dot',
-    )
-
-
-(options, args) = parser.parse_args()
-
-if not options.quiet:
-    print('Python Call Graph v%s' % pycallgraph.__version__)
-
-if len(args) < 1:
-    parser.print_help()
-    sys.exit(0)
+if not config.quiet:
+    print('Python Call Graph v%s' % __version__)
 
 # Create filter
-if not options.include:
-    options.include = ['*']
-filter_func = pycallgraph.GlobbingFilter(
-    include=options.include,
-    exclude=options.exclude,
-    max_depth=options.max_depth,
+if not config.include:
+    config.include = ['*']
+filter_func = GlobbingFilter(
+    include=config.include,
+    exclude=config.exclude,
+    max_depth=config.max_depth,
     )
 
 # Create timing filter
-if not options.include_timing:
-    options.include_timing = ['*']
-time_filter_func = pycallgraph.GlobbingFilter(
-    include=options.include_timing,
-    exclude=options.exclude_timing,
-    fraction=float(options.time_fraction_threshhold),
+if not config.include_timing:
+    config.include_timing = ['*']
+time_filter_func = GlobbingFilter(
+    include=config.include_timing,
+    exclude=config.exclude_timing,
+    fraction=float(config.time_fraction_threshhold),
     )
 
-pycallgraph.settings['include_stdlib'] = options.include_stdlib
+# Insert the current working directory into the path so that
+# XXX: Not sure why this is so
+# sys.path.insert(0, os.getcwd())
 
-# Remove this script from the argument list so we don't break the Python
-# script we are calling.
-sys.argv = args
+if not config.quiet:
+    print('Starting Python Call Graph trace')
 
-# Sometimes scripts change "options", so use a secret one.
-# Also, this (kind of) allows pygc to call itself, since calling itself would
-# overwrite global variables in this file.
-try:
-    __pygc_options.append(options)
-except NameError:
-    __pygc_options = [options]
-
-# Insert the current working directory into the path
-sys.path.insert(0, os.getcwd())
-
-if not options.quiet:
-    print('Starting trace')
-
-reraise = False
+pycg = PyCallGraph(config=config)
+del config
 
 pycallgraph.start_trace(
     filter_func=filter_func,
@@ -115,14 +62,12 @@ except SystemExit:
     # Ignore it when the script calls os.exit() so we can still make the graph.
     pass
 
-options = __pygc_options.pop()
+if not config.quiet:
+    print('Creating %s' % config.output_file)
 
-if not options.quiet:
-    print('Creating %s' % options.output_file)
+pycallgraph.make_dot_graph(config.output_file, config.format, config.tool)
 
-pycallgraph.make_dot_graph(options.output_file, options.format, options.tool)
-    
-if not options.quiet:
+if not config.quiet:
     print('Done!')
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

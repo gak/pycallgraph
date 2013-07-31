@@ -52,20 +52,17 @@ class GraphvizOutput(Output):
         subparser = subparsers.add_parser('graphviz',
             help='Graphviz generation')
 
+        subparser.add_argument('-t', '--tool', dest='tool', default='dot',
+            help='The tool from Graphviz to use, e.g. dot, neato, etc.')
+
         subparser.add_argument('-o', '--output-file', type=str,
             default=defaults.output_file,
             help='The generated Graphviz file')
 
-        subparser.add_argument('-t', '--output-type', type=str,
+        subparser.add_argument('-f', '--output-format', type=str,
             default=defaults.output_type,
             help='Image format to produce, e.g. png, ps, dot, etc. '
                 'See http://www.graphviz.org/doc/info/output.html for more.')
-
-        cls.add_base_arguments(subparser)
-
-    @classmethod
-    def add_base_arguments(cls, subparser):
-        defaults = cls()
 
         subparser.add_argument('--font-name', type=str,
             default=defaults.font_name,

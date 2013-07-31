@@ -24,9 +24,6 @@ class Config(object):
         for outputter in outputters:
             outputter.add_arguments(subparsers)
 
-        # moo = subparsers.add_parser('d3', help='Generate a HTML file with embedded d3.js')
-        # moo.add_argument('moo', type=int, help='Modify the font size (default 7)')
-
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
 
@@ -35,13 +32,17 @@ class Config(object):
         arguments.
         '''
         self.parser = argparse.ArgumentParser(
-            usage='%(prog)s [options] -- pythonfile.py',
+            # usage='%(prog)s [options] pythonfile.py',
             description='Python Call Graph profiles a Python script and '
                 'generates a call graph visualisation.')
 
         self.add_ungrouped_arguments()
         self.add_filter_arguments()
         self.add_module_arguments()
+
+        # This needs to be at/near the end of the argument definitions
+        self.parser.add_argument('command', metavar='pythonfile.py',
+            help='The python script to profile')
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(
