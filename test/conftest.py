@@ -15,17 +15,15 @@ def pycg():
 def config():
     return Config()
 
-@pytest.fixture(scope='module')
-def graphviz_source():
-    output = GraphvizOutput()
-    output.fp = StringIO()
-    return output
+# @pytest.fixture(scope='module')
+# def graphviz_source():
+#     output = GraphvizOutput()
+#     output.fp = StringIO()
+#     return output
 
-@pytest.fixture(scope='module')
-def pickle_output():
-    output = PickleOutput()
-    output.fp = StringIO()
-    return output
+# @pytest.fixture(scope='module')
+# def pickle_output():
+#     output = PickleOutput()
+#     output.fp = StringIO()
+#     return output
 
-
-	

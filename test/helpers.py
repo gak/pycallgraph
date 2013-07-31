@@ -4,6 +4,7 @@ import pytest
 
 import fix_path
 from pycallgraph import *
+from pycallgraph.tracer import *
 from pycallgraph.output import *
 
 

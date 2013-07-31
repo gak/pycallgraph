@@ -33,7 +33,7 @@ class PyCallGraph(object):
     def __exit__(self, type, value, traceback):
         self.done()
 
-    def get_class(self):
+    def get_tracer_class(self):
         if self.config.threaded:
             return AsyncronousTracer
         else:
@@ -43,7 +43,7 @@ class PyCallGraph(object):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is initialized.
         '''
-        self.tracer = self.get_class()(self.outputs, config=self.config)
+        self.tracer = self.get_tracer_class()(self.outputs, config=self.config)
 
         for output in self.outputs:
             self.prepare_output(output)
