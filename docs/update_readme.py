@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 '''
 This script copies the index.rst page from the Sphinx documentation, modifies
 it slightly so refs point to the correct place.
