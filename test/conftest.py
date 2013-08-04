@@ -15,4 +15,3 @@ def pycg():
 @pytest.fixture(scope='module')
 def config():
     return Config()
-
