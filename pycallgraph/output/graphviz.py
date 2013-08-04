@@ -142,9 +142,9 @@ class GraphvizOutput(Output):
         groups = []
 
         # Define default attributes
-        for comp, comp_attr in self.graph_attributes.items():
+        for comp, comp_attr in self.graph_attributes.iteritems():
             attr = ', '.join('%s = "%s"' % (attr, val)
-                             for attr, val in comp_attr.items())
+                             for attr, val in comp_attr.iteritems())
             defaults.append('\t%(comp)s [ %(attr)s ];' % locals())
 
         # XXX: Refactor the following chunks of code so that:
@@ -153,7 +153,7 @@ class GraphvizOutput(Output):
         # - Their code visibility is better
 
         # Define groups
-        for group, funcs in self.processor.groups().items():
+        for group, funcs in self.processor.groups().iteritems():
             funcs = '" "'.join(funcs)
             group_color = self.group_border_color
             group_font_size = self.group_font_size
@@ -167,7 +167,7 @@ class GraphvizOutput(Output):
                 'color="%(group_color)s"; }' % locals())
 
         # Define nodes
-        for func, hits in self.processor.func_count.items():
+        for func, hits in self.processor.func_count.iteritems():
             # XXX: This line is pretty terrible. Maybe retur an object?
             calls_frac, total_time_frac, total_time, total_memory_in_frac, \
                 total_memory_in, total_memory_out_frac, total_memory_out = \
@@ -177,7 +177,7 @@ class GraphvizOutput(Output):
             total_memory_out = self.human_readable_size(total_memory_out)
 
             col = self.node_color_func(calls_frac, total_time_frac)
-            attribs = ['%s="%s"' % a for a in self.node_attributes.items()]
+            attribs = ['%s="%s"' % a for a in self.node_attributes.iteritems()]
             print(attribs)
             node_str = '"%s" [%s];' % (func, ', '.join(attribs))
             if self.time_filter is None or \
@@ -185,10 +185,10 @@ class GraphvizOutput(Output):
                 nodes.append(node_str % locals())
 
         # Define edges
-        for fr_key, fr_val in self.processor.call_dict.items():
+        for fr_key, fr_val in self.processor.call_dict.iteritems():
             if not fr_key:
                 continue
-            for to_key, to_val in fr_val.items():
+            for to_key, to_val in fr_val.iteritems():
                 calls_frac, total_time_frac, total_time, \
                     total_memory_in_frac, \
                     total_memory_in, total_memory_out_frac, \
