@@ -18,12 +18,31 @@ class GithubReadmeMaker(object):
         self.copy()
         rst = open('../README.rst').read()
         rst = self.fix_links(rst)
+        rst = self.fix_index(rst)
         open('../README.rst', 'w').write(rst)
 
     def copy(self):
         shutil.copy('index.rst', '../README.rst')
 
     def fix_links(self, rst):
+        prefix = 'https://pycallgraph.readthedocs.org/en/latest'
+        rst = rst.replace(
+            ':ref:`command-line interface <command_line_usage>`',
+            '`command-line interface <{}/guide/command_line_usage.html>`_'
+            .format(prefix)
+        )
+        rst = rst.replace(
+            ':ref:`pycallgraph module <pycallgraph>`',
+            '`pycallgraph module <{}/api/pycallgraph.html>`_'.format(prefix)
+        )
+        return rst
+
+    def fix_index(self, rst):
+        docidx_offset = rst.find('Documentation Index')
+        rst = rst[:docidx_offset]
+
+        rst += open('readme_extras.rst').read()
+
         return rst
 
 
