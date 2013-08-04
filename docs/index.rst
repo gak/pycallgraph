@@ -4,13 +4,13 @@ Python Call Graph
 Python Call Graph is a `Python <http://www.python.org>`_ module that creates `call graph <http://en.wikipedia.org/wiki/Call_graph>`_ visualisations for Python applications.
 
 .. image:: https://travis-ci.org/gak/pycallgraph.png
-	:target: https://travis-ci.org/gak/pycallgraph
+    :target: https://travis-ci.org/gak/pycallgraph
 .. image:: https://coveralls.io/repos/gak/pycallgraph/badge.png?branch=develop
-	:target: https://coveralls.io/r/gak/pycallgraph?branch=develop
+    :target: https://coveralls.io/r/gak/pycallgraph?branch=develop
 .. image:: https://pypip.in/v/pycallgraph/badge.png
-	:target: https://crate.io/packages/pycallgraph/
+    :target: https://crate.io/packages/pycallgraph/
 .. image:: https://pypip.in/d/pycallgraph/badge.png
-	:target: https://crate.io/packages/pycallgraph/
+    :target: https://crate.io/packages/pycallgraph/
 
 Screenshots
 ===========
@@ -41,24 +41,23 @@ The following examples specify graphviz as the outputter, so it's required to be
 
 The command-line method of running pycallgraph is::
 
-	$ pycallgraph graphviz -- ./mypythonscript.py
+    $ pycallgraph graphviz -- ./mypythonscript.py
 
 A simple use of the API is::
 
-	from pycallgraph import PyCallGraph
-	from pycallgraph.output import GraphvizImageOutput
+    from pycallgraph import PyCallGraph
+    from pycallgraph.output import GraphvizImageOutput
 
-	with PyCallGraph(outputs=GraphvizImageOutput):
-		code_to_profile()
+    with PyCallGraph(outputs=GraphvizImageOutput):
+        code_to_profile()
 
 
 Documentation Index
 ===================
 
 .. toctree::
-	:maxdepth: 3
+    :maxdepth: 3
 
-	guide/index
-	api/api
-	api/internal
-
+    guide/index
+    api/api
+    api/internal
