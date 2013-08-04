@@ -34,15 +34,18 @@ class Config(object):
         self.parser = argparse.ArgumentParser(
             # usage='%(prog)s [options] pythonfile.py',
             description='Python Call Graph profiles a Python script and '
-                'generates a call graph visualisation.')
+            'generates a call graph visualisation.'
+        )
 
         self.add_ungrouped_arguments()
         self.add_filter_arguments()
         self.add_module_arguments()
 
         # This needs to be at/near the end of the argument definitions
-        self.parser.add_argument('command', metavar='pythonfile.py',
-            help='The python script to profile')
+        self.parser.add_argument(
+            'command', metavar='pythonfile.py',
+            help='The python script to profile'
+        )
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(
@@ -66,16 +69,16 @@ class Config(object):
     def add_filter_arguments(self):
         group = self.parser.add_argument_group('filtering')
         group.add_argument(
-            '-i', '--include', dest='include', default=[],
-            action='append',
-            help='Wildcard pattern of modules to include in the output. ' \
-                'You can have multiple include arguments.')
+            '-i', '--include', dest='include', default=[], action='append',
+            help='Wildcard pattern of modules to include in the output. '
+            'You can have multiple include arguments.'
+        )
 
         group.add_argument(
-            '-e', '--exclude', dest='exclude', default=[],
-            action='append',
-            help='Wildcard pattern of modules to exclude in the output. ' \
-                'You can have multiple exclude arguments.')
+            '-e', '--exclude', dest='exclude', default=[], action='append',
+            help='Wildcard pattern of modules to exclude in the output. '
+            'You can have multiple exclude arguments.'
+        )
 
         group.add_argument(
             '-d', '--max-depth', dest='max_depth', default=None,
@@ -84,21 +87,24 @@ class Config(object):
         group.add_argument(
             '--include-timing', dest='include_timing', default=[],
             action='append',
-            help='Wildcard pattern of modules to include in time measurement. ' \
-                'You can have multiple include arguments.')
+            help='Wildcard pattern of modules to include in time measurement. '
+            'You can have multiple include arguments.',
+        )
 
         group.add_argument(
             '--exclude-timing', dest='exclude_timing', default=[],
             action='append',
-            help='Wildcard pattern of modules to exclude in time measurement. ' \
-                'You can have multiple exclude arguments.')
+            help='Wildcard pattern of modules to exclude in time '
+            'measurement. You can have multiple exclude arguments.',
+        )
 
         group.add_argument(
-            '--time_fraction_threshhold', dest='time_fraction_threshhold', default=0.05,
-            help='Set a threshhold for inclusion of functions in graphical output in terms ' \
-                'of fraction of total time used.')
+            '--time_fraction_threshhold', dest='time_fraction_threshhold',
+            default=0.05,
+            help='Set a threshhold for inclusion of functions '
+            'in graphical output in terms of fraction of total time used.',
+        )
 
 if __name__ == '__main__':
     c = Config()
     c.parse_args()
-

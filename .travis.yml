@@ -20,7 +20,7 @@ install:
  - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then 2to3 -wn pycallgraph; 2to3 -wn test; fi"
 
 script:
- - py.test --cov coveralls --cov-report term-missing --cov=pycallgraph --cov-config test/.coveragerc test
+ - py.test --cov coveralls --cov-report term-missing --cov=pycallgraph --cov-config test/.coveragerc --pep8 --ignore=pycallgraph/memory_profiler.py test pycallgraph
 
 after_success:
  - coveralls

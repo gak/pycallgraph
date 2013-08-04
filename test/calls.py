@@ -1,6 +1,6 @@
 def nop():
-	pass
+    pass
+
 
 def one_nop():
-	nop()
-
+    nop()

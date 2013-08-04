@@ -8,7 +8,8 @@ from pycallgraph.output import *
 
 
 def wait_100ms():
-	time.sleep(0.1)
-	
+    time.sleep(0.1)
+
+
 def wait_200ms():
-	time.sleep(0.2)
+    time.sleep(0.2)

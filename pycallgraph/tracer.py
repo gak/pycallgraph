@@ -139,7 +139,8 @@ class TraceProcessor(Thread):
         '''
 
         if memory is not None:
-            # Deal with memory when function has finished so local variables can be cleaned up
+            # Deal with memory when function has finished so local variables
+            # can be cleaned up
             if self.previous_event_return:
                 self.previous_event_return = False
 
@@ -148,22 +149,25 @@ class TraceProcessor(Thread):
                 else:
                     full_name, m = (None, None)
 
-                # NOTE: Call stack is no longer the call stack that may be expected. Potentially
-                # need to store a copy of it.
-                if full_name and m and self.mem_filter(stack=self.call_stack, full_name=full_name):
+                # NOTE: Call stack is no longer the call stack that may be
+                # expected. Potentially need to store a copy of it.
+                if full_name and m and self.mem_filter(
+                        stack=self.call_stack, full_name=full_name):
                     call_memory = memory - m
                     if full_name not in self.func_memory_out:
                         self.func_memory_out[full_name] = 0
                     else:
                         self.func_memory_out[full_name] += call_memory
-                    if self.func_memory_out[full_name] > self.func_memory_out_max:
-                        self.func_memory_out_max = self.func_memory_out[full_name]
+                    if self.func_memory_out[full_name] > \
+                            self.func_memory_out_max:
+                        self.func_memory_out_max = \
+                            self.func_memory_out[full_name]
 
         if event == 'call':
             keep = True
             code = frame.f_code
 
-            # Stores all the parts of a human readable name of the current call.
+            # Stores all the parts of a human readable name of the current call
             full_name_list = []
 
             # Work out the module name
@@ -198,11 +202,13 @@ class TraceProcessor(Thread):
             # Create a readable representation of the current call
             full_name = '.'.join(full_name_list)
 
-            # Load the trace filter, if any. 'keep' determines if we should ignore
-            # this call
+            # Load the trace filter, if any. 'keep' determines if we should
+            # ignore this call
             if keep and self.trace_filter:
-                keep = self.trace_filter(self.call_stack, module_name,
-                    class_name, func_name, full_name)
+                keep = self.trace_filter(
+                    self.call_stack, module_name, class_name, func_name,
+                    full_name
+                )
 
             # Store the call information
             if keep:
@@ -246,7 +252,8 @@ class TraceProcessor(Thread):
                 else:
                     t = None
 
-                if t and self.time_filter(stack=self.call_stack, full_name=full_name):
+                if t and self.time_filter(
+                        stack=self.call_stack, full_name=full_name):
                     if full_name not in self.func_time:
                         self.func_time[full_name] = 0
                     call_time = (time.time() - t)
@@ -260,13 +267,16 @@ class TraceProcessor(Thread):
                     else:
                         m = None
 
-                    if m and self.mem_filter(stack=self.call_stack, full_name=full_name):
+                    if m and self.mem_filter(
+                            stack=self.call_stack, full_name=full_name):
                         if full_name not in self.func_memory_in:
                             self.func_memory_in[full_name] = 0
                         call_memory = memory - m
                         self.func_memory_in[full_name] += call_memory
-                        if self.func_memory_in[full_name] > self.func_memory_in_max:
-                            self.func_memory_in_max = self.func_memory_in[full_name]
+                        if self.func_memory_in[full_name] > \
+                                self.func_memory_in_max:
+                            self.func_memory_in_max = \
+                                self.func_memory_in[full_name]
 
     def is_module_stdlib(self, file_name):
         '''Returns True if the file_name is in the lib directory.'''
@@ -292,13 +302,16 @@ class TraceProcessor(Thread):
             total_memory_out = 0
 
         try:
-            total_memory_in_frac = float(total_memory_in) / self.func_memory_in_max
-            total_memory_out_frac = float(total_memory_out) / self.func_memory_out_max
+            total_memory_in_frac = \
+                float(total_memory_in) / self.func_memory_in_max
+            total_memory_out_frac = \
+                float(total_memory_out) / self.func_memory_out_max
         except ZeroDivisionError:
             total_memory_in_frac = 0
             total_memory_out_frac = 0
 
-        return calls_frac, total_time_frac, total_time, total_memory_in_frac, total_memory_in, total_memory_out_frac, total_memory_out
+        return calls_frac, total_time_frac, total_time, total_memory_in_frac, \
+            total_memory_in, total_memory_out_frac, total_memory_out
 
     def __getstate__(self):
         '''Used for when creating a pickle. Certain instance variables can't
@@ -322,7 +335,7 @@ class TraceProcessor(Thread):
             name = func.split('.', 1)[0]
             grp[name].append(func)
         return grp
-        
+
 
 def simple_memoize(callable_object):
     '''Simple memoization for functions without keyword arguments.

@@ -29,7 +29,7 @@ class PyCallGraph(object):
 
     def __enter__(self):
         self.start()
-        
+
     def __exit__(self, type, value, traceback):
         self.done()
 
@@ -49,7 +49,7 @@ class PyCallGraph(object):
             self.prepare_output(output)
 
     def start(self, reset=True, filter_func=None, time_filter_func=None,
-            memory_filter_func=None):
+              memory_filter_func=None):
         '''Begins a trace.  Setting reset to True will reset all previously
         recorded trace data.  filter_func needs to point to a callable
         function that accepts the parameters (call_stack, module_name,
@@ -59,8 +59,10 @@ class PyCallGraph(object):
         and not included in the call graph.
         '''
         if not self.outputs:
-            raise PyCallGraphException('No outputs declared. Please see the '
-                'examples in the online documentation.')
+            raise PyCallGraphException(
+                'No outputs declared. Please see the '
+                'examples in the online documentation.'
+            )
 
         if reset:
             self.reset()
@@ -75,7 +77,9 @@ class PyCallGraph(object):
         self.tracer.stop()
 
     def done(self):
-        '''Stops the trace and tells the outputters to generate their output.'''
+        '''Stops the trace and tells the outputters to generate their
+        output.
+        '''
         self.stop()
 
         # If in threaded mode, wait for the processor thread to complete

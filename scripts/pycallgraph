@@ -70,4 +70,3 @@ pycallgraph.make_dot_graph(config.output_file, config.format, config.tool)
 if not config.quiet:
     print('Done!')
 
-# vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:

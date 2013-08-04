@@ -17,14 +17,17 @@ class GlobbingFilter(object):
             exclude = []
         self.include = include
         self.exclude = exclude
+
         if max_depth is None:
-           self.max_depth = max_depth or 9999
+            self.max_depth = max_depth or 9999
         else:
-           self.max_depth = max_depth
+            self.max_depth = max_depth
+
         if min_depth is None:
             self.min_depth = 0
         else:
             self.min_depth = min_depth or 0
+
         if fraction is None:
             self.fraction = 0
         else:
@@ -44,5 +47,3 @@ class GlobbingFilter(object):
             if fnmatch(full_name, pattern):
                 return True
         return False
-
-

@@ -3,7 +3,7 @@ import os
 from distutils.spawn import find_executable
 
 from ..exceptions import PyCallGraphException
-        
+
 
 class Output(object):
     '''Base class for all outputters.'''

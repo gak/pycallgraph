@@ -18,12 +18,12 @@ class UbigraphOutput(Output):
         self.graph = server.ubigraph
 
         # Create a graph
-        for i in range(0,10):
+        for i in range(0, 10):
             self.graph.new_vertex_w_id(i)
 
         # Make some edges
-        for i in range(0,10):
-            self.graph.new_edge(i, (i+1)%10)
+        for i in range(0, 10):
+            self.graph.new_edge(i, (i + 1) % 10)
 
     def should_update(self):
         return True
@@ -35,12 +35,15 @@ class UbigraphOutput(Output):
     def add_arguments(cls, subparsers):
         defaults = cls()
 
-        subparser = subparsers.add_parser('ubigraph',
-            help='Update an Ubigraph visualisation in real time')
+        subparser = subparsers.add_parser(
+            'ubigraph',
+            help='Update an Ubigraph visualisation in real time',
+        )
 
-        subparser.add_argument('-s', '--server-url', type=str,
-            default=defaults.server_url,
-            help='The Ubigraph server')
+        subparser.add_argument(
+            '-s', '--server-url', type=str, default=defaults.server_url,
+            help='The Ubigraph server',
+        )
 
     def done(self):
         pass
