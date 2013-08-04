@@ -35,7 +35,7 @@ Installation is easy as::
 
     pip install pycallgraph
 
-You can either use the :ref:`command-line interface <command_line_usage>` for a quick visualisation of your Python script, or the :ref:`pycallgraph module <pycallgraph>` for more fine-grained settings.
+You can either use the `command-line interface <https://pycallgraph.readthedocs.org/en/latest/guide/command_line_usage.html>`_ for a quick visualisation of your Python script, or the `pycallgraph module <https://pycallgraph.readthedocs.org/en/latest/api/pycallgraph.html>`_ for more fine-grained settings.
 
 The following examples specify graphviz as the outputter, so it's required to be installed. They will generate a file called **pycallgraph.png**.
 
@@ -52,12 +52,7 @@ A simple use of the API is::
         code_to_profile()
 
 
-Documentation Index
-===================
+Documentation
+=============
 
-.. toctree::
-    :maxdepth: 3
-
-    guide/index
-    api/api
-    api/internal
+Feel free to browse the `documentation of pycallgraph <https://pycallgraph.slowchop.com/en/latest/>`_ for the `usage guide <https://pycallgraph.slowchop.com/en/latest/guide/>`_ and `API reference <https://pycallgraph.slowchop.com/en/latest/api/>`_.
