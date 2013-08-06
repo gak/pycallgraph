@@ -1,88 +1,119 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.TH PYCALLGRAPH 1 "2008-07-08" "pycallgraph version 0.5.1" "User Commands"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.\" Man page generated from reStructuredText.
+.
+.TH "PYCALLGRAPH" "1" "August 05, 2013" "1.0.0" "Python Call Graph"
 .SH NAME
-pycallgraph \- command-line interface to pycallgraph
+pycallgraph \- Python Call Graph
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
 .SH SYNOPSIS
-.B pycallgraph
-[\fIOPTION\fR]... \fIpythonfile
+.sp
+pycallgraph [\fIOPTION\fP]... \fIOUTPUT_MODE\fP \fIpython_file.py\fP
 .SH DESCRIPTION
-This manual page documents \fBpycallgraph\fP.
-This manual page was originally written for the Debian distribution.
-.PP
-\fIpycallgraph\fP is a program that creates call graphs for Python programs.
-\fBpycallgraph\fP is the command line interface to \fIpycallgraph\fP's
-\fImake_dot_graph\fP method, which generates a call graph and stores it as an
-image in the specified image file.
-.HP
-\fB\-o\fR, \fB\-\-output-file
-.IP
-the file name of the output image. Default: pycallgraph.png
-.HP
-\fB\-f\fR, \fB\-\-image-format
-.IP
-the image format of imagefile. Default: png
-.HP
-\fB\-q\fR, \fB\-\-quiet
-.IP
-Suppress status output to the console.
-.HP
-\fB\-t\fR, \fB\-\-tool
-.IP
-the tool from \fIGraphViz\fP to use. Default: dot
-.HP
-\fB\-s\fR, \fB\-\-stdlib
-.IP
-include standard library functions in the trace. Default: False
-.HP
-\fB\-i\fR, \fB\-\-include
-.IP
-wildcard pattern of modules to include in the output. You can have multiple
-include arguments
-.HP
-\fB\-e\fR, \fB\-\-exclude
-.IP
-wildcard pattern of modules to exclude in the output. You can have multiple
-exclude arguments
-.HP
-\fB\-d\fR, \fB\-\-max\-depth
-.IP
-maximum stack depth to trace
-.HP
-\fB\-\-exclude\-timing
-.IP
-wildcard pattern of modules to exclude in time measurement. You can have
-multiple exclude arguments
-.HP
-\fB\-\-include\-timing
-.IP
-wildcard pattern of modules to include in time measurement. You can have
-multiple include arguments
+.sp
+pycallgraph is a program that creates call graph visualisation from Python scripts.
+.sp
+\fIOUTPUT_MODE\fP can be one of graphviz, gephi and ubigraph. \fIpython_file.py\fP is a python script that will be traced and afterwards, a call graph visualisation will be generated.
+.SH ARGUMENTS
+.INDENT 0.0
+.TP
+.B \-m <module>, \-\-module <module>
+Run a module as a script.
+.UNINDENT
 .SH EXAMPLES
-.PP
+.sp
 Create a call graph called pycallgraph.png on myprogram.py:
-.IP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
 pycallgraph ./myprogram.py
-.PP
-Create a call graph of a standard Python installation script with command line
-parameters:
-.IP
-pycallgraph \-\-output-file=setup.png \-\- setup.py \-\-dry\-run install
-.PP
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Create a call graph of a standard Python installation script with command line parameters:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+pycallgraph \-\-output\-file=setup.png \-\- setup.py \-\-dry\-run install
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
 Only see the module "distutils" within the execution of easy_install:
-.IP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
 pycallgraph \-\-include=distutils.* /usr/bin/easy_install
-.SH AUTHORS
-pycallgraph and pycallgraph were written by Gerald Kaszuba <pycallgraph@slowchop.com>.
-.LP
-This manual page was originally written by Jan Alonzo
-<jmalonzo@unpluggable.com>, for the Debian GNU/Linux system.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+pycallgraph was written by Gerald Kaszuba <pycallgraph@slowchop.com>.
+
+This manual page was originally written by Jan Alonzo <jmalonzo@unpluggable.com>, for the Debian GNU/Linux system.
+
+.SH COPYRIGHT
+2007-2013 Gerald Kaszuba, et al.
+.\" Generated by docutils manpage writer.
+.

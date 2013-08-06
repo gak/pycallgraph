@@ -34,7 +34,7 @@ setup(
     name='pycallgraph',
     version=pycg.__version__,
     description=pycg.__doc__.strip().replace('\n', ' '),
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author=pycg.__author__,
     author_email=pycg.__email__,
     license=open('LICENSE').read(),

@@ -13,12 +13,13 @@ class PickleOutput(Output):
         self.output_file = 'pycallgraph.dot'
 
     @classmethod
-    def add_arguments(cls, subparsers):
+    def add_arguments(cls, subparsers, parent_parser, usage):
         defaults = cls()
 
         subparser = subparsers.add_parser(
             'pickle',
             help='Dump to a cPickle file for generation later',
+            parents=[parent_parser], usage=usage,
         )
 
         subparser.add_argument(

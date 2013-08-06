@@ -18,11 +18,15 @@ class Config(object):
 
         self.create_parser()
 
-    def add_module_arguments(self):
-        subparsers = self.parser.add_subparsers(help='sub-command help')
+    def add_module_arguments(self, usage):
+        subparsers = self.parser.add_subparsers(help='OUTPUT_TYPE')
+        parent_parser = self.create_parent_parser()
 
-        for outputter in outputters:
-            outputter.add_arguments(subparsers)
+        for outputter in outputters.itervalues():
+            outputter.add_arguments(subparsers, parent_parser, usage)
+
+    def get_output(self):
+        return outputters[self.output_type].from_config(self)
 
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
@@ -31,21 +35,32 @@ class Config(object):
         '''Used by the pycallgraph command line interface to parse
         arguments.
         '''
+        usage = 'pycallgraph [options] OUTPUT_TYPE [output_options] -- ' \
+            'SCRIPT.py [ARG ...]'
+
         self.parser = argparse.ArgumentParser(
-            # usage='%(prog)s [options] pythonfile.py',
             description='Python Call Graph profiles a Python script and '
-            'generates a call graph visualisation.'
+            'generates a call graph visualisation.', usage=usage,
         )
 
         self.add_ungrouped_arguments()
         self.add_filter_arguments()
-        self.add_module_arguments()
+        self.add_module_arguments(usage)
 
-        # This needs to be at/near the end of the argument definitions
-        self.parser.add_argument(
-            'command', metavar='pythonfile.py',
-            help='The python script to profile'
+    def create_parent_parser(self):
+        '''Mixing subparsers with positional arguments can be done with a
+        parents option. Found via: http://stackoverflow.com/a/11109863/11125
+        '''
+        parent_parser = argparse.ArgumentParser(add_help=False)
+        parent_parser.add_argument(
+            'command', metavar='SCRIPT',
+            help='The Python script file to profile',
         )
+        parent_parser.add_argument(
+            'command_args', metavar='ARG', nargs='*',
+            help='Python script arguments.'
+        )
+        return parent_parser
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(

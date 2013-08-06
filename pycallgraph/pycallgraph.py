@@ -24,6 +24,9 @@ class PyCallGraph(object):
             self.outputs = outputs
 
         self.config = config or Config()
+        configured_ouput = self.config.get_output()
+        if configured_ouput:
+            self.outputs.append(configured_ouput)
 
         self.reset()
 

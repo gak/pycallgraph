@@ -18,7 +18,7 @@ config = Config()
 config.parse_args()
 
 if not config.quiet:
-    print('Python Call Graph v%s' % __version__)
+    print('Running with Python Call Graph v%s' % __version__)
 
 # Create filter
 if not config.include:
@@ -43,21 +43,23 @@ time_filter_func = GlobbingFilter(
 # sys.path.insert(0, os.getcwd())
 
 if not config.quiet:
-    print('Starting Python Call Graph trace')
+    print('Starting a trace with Python Call Graph')
 
 pycg = PyCallGraph(config=config)
 del config
 
-pycallgraph.start_trace(
-    filter_func=filter_func,
-    time_filter_func=time_filter_func,
-)
+# pycallgraph.start_trace(
+#     filter_func=filter_func,
+#     time_filter_func=time_filter_func,
+# )
 
+# Execute the user script
 try:
-    globals()['__file__'] = args[0]
-    with open(args[0]) as file_:
-        file_content = file_.read()
-    exec(file_content)
+    globals()['__file__'] = pycg.config.command
+    with open(pycg.config.command) as fp:
+        file_content = fp.read()
+    with pycg:
+        exec(file_content)
 except SystemExit:
     # Ignore it when the script calls os.exit() so we can still make the graph.
     pass
@@ -69,4 +71,3 @@ pycallgraph.make_dot_graph(config.output_file, config.format, config.tool)
 
 if not config.quiet:
     print('Done!')
-

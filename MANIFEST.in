@@ -1,3 +1,8 @@
+include Makefile
+include LICENSE
+include README.rst
+include requirements
+include test
+include docs
 include examples/*.py
 include man/pycallgraph.1
-include LICENSE

@@ -46,11 +46,12 @@ class GraphvizOutput(Output):
         self.time_filter = None
 
     @classmethod
-    def add_arguments(cls, subparsers):
+    def add_arguments(cls, subparsers, parent_parser, usage):
         defaults = cls()
 
         subparser = subparsers.add_parser(
             'graphviz', help='Graphviz generation',
+            parents=[parent_parser], usage=usage,
         )
 
         subparser.add_argument(

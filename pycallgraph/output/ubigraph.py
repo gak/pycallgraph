@@ -32,12 +32,13 @@ class UbigraphOutput(Output):
         pass
 
     @classmethod
-    def add_arguments(cls, subparsers):
+    def add_arguments(cls, subparsers, parent_parser, usage):
         defaults = cls()
 
         subparser = subparsers.add_parser(
             'ubigraph',
             help='Update an Ubigraph visualisation in real time',
+            parents=[parent_parser], usage=usage,
         )
 
         subparser.add_argument(
