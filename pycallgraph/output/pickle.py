@@ -27,6 +27,8 @@ class PickleOutput(Output):
             help='The generated cPickle file',
         )
 
+        return subparser
+
     def done(self):
         self.prepare_output_file()
         pickle.dump(self.tracer, self.fp, pickle.HIGHEST_PROTOCOL)

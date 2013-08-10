@@ -8,22 +8,19 @@ See http://pycallgraph.slowchop.com/ for more information.
 import sys
 import os
 
-from pycallgraph import Config
-from pycallgraph import PyCallGraph
-from pycallgraph import __version__
-from pycallgraph import GlobbingFilter
+import pycallgraph
 
 
-config = Config()
+config = pycallgraph.Config()
 config.parse_args()
 
 if not config.quiet:
-    print('Running with Python Call Graph v%s' % __version__)
+    print('Running with Python Call Graph v%s' % pycallgraph.__version__)
 
 # Create filter
 if not config.include:
     config.include = ['*']
-filter_func = GlobbingFilter(
+filter_func = pycallgraph.GlobbingFilter(
     include=config.include,
     exclude=config.exclude,
     max_depth=config.max_depth,
@@ -32,42 +29,20 @@ filter_func = GlobbingFilter(
 # Create timing filter
 if not config.include_timing:
     config.include_timing = ['*']
-time_filter_func = GlobbingFilter(
+time_filter_func = pycallgraph.GlobbingFilter(
     include=config.include_timing,
     exclude=config.exclude_timing,
     fraction=float(config.time_fraction_threshhold),
     )
 
-# Insert the current working directory into the path so that
-# XXX: Not sure why this is so
-# sys.path.insert(0, os.getcwd())
-
-if not config.quiet:
-    print('Starting a trace with Python Call Graph')
-
-pycg = PyCallGraph(config=config)
+pycg = pycallgraph.PyCallGraph(config=config)
 del config
 
-# pycallgraph.start_trace(
-#     filter_func=filter_func,
-#     time_filter_func=time_filter_func,
-# )
-
 # Execute the user script
-try:
-    globals()['__file__'] = pycg.config.command
-    with open(pycg.config.command) as fp:
-        file_content = fp.read()
-    with pycg:
-        exec(file_content)
-except SystemExit:
-    # Ignore it when the script calls os.exit() so we can still make the graph.
-    pass
 
-if not config.quiet:
-    print('Creating %s' % config.output_file)
+globals()['__file__'] = pycg.config.command
 
-pycallgraph.make_dot_graph(config.output_file, config.format, config.tool)
+file_content = open(pycg.config.command).read()
 
-if not config.quiet:
-    print('Done!')
+with pycg:
+    exec(file_content)

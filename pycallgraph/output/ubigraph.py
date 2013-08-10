@@ -46,5 +46,7 @@ class UbigraphOutput(Output):
             help='The Ubigraph server',
         )
 
+        return subparser
+
     def done(self):
         pass

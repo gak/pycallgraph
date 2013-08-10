@@ -175,6 +175,7 @@ class TraceProcessor(Thread):
             if module:
                 module_name = module.__name__
                 module_path = module.__file__
+
                 if not self.config.include_stdlib \
                         and self.is_module_stdlib(module_path):
                     keep = False
@@ -183,6 +184,7 @@ class TraceProcessor(Thread):
                     module_name = ''
             else:
                 module_name = ''
+
             if module_name:
                 full_name_list.append(module_name)
 

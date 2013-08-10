@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import warnings
 import sys
 import argparse
+
 from .output import outputters
 
 
@@ -19,14 +21,17 @@ class Config(object):
         self.create_parser()
 
     def add_module_arguments(self, usage):
-        subparsers = self.parser.add_subparsers(help='OUTPUT_TYPE')
+        subparsers = self.parser.add_subparsers(help='OUTPUT_TYPE',
+            dest='output')
         parent_parser = self.create_parent_parser()
 
-        for outputter in outputters.itervalues():
-            outputter.add_arguments(subparsers, parent_parser, usage)
+        for name, cls in outputters.iteritems():
+            cls.add_arguments(subparsers, parent_parser, usage)
 
     def get_output(self):
-        return outputters[self.output_type].from_config(self)
+        output = outputters[self.output]()
+        warnings.warn('output not configured')
+        return output
 
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
