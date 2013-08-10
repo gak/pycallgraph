@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import warnings
 import sys
 import argparse
@@ -13,6 +11,7 @@ class Config(object):
     '''
 
     def __init__(self):
+        self.output = None
         self.quiet = False
         self.threaded = False
         self.include_stdlib = True
@@ -21,14 +20,16 @@ class Config(object):
         self.create_parser()
 
     def add_module_arguments(self, usage):
-        subparsers = self.parser.add_subparsers(help='OUTPUT_TYPE',
-            dest='output')
+        subparsers = self.parser.add_subparsers(
+            help='OUTPUT_TYPE', dest='output')
         parent_parser = self.create_parent_parser()
 
         for name, cls in outputters.iteritems():
             cls.add_arguments(subparsers, parent_parser, usage)
 
     def get_output(self):
+        if not self.output:
+            return
         output = outputters[self.output]()
         warnings.warn('output not configured')
         return output
@@ -124,7 +125,3 @@ class Config(object):
             help='Set a threshhold for inclusion of functions '
             'in graphical output in terms of fraction of total time used.',
         )
-
-if __name__ == '__main__':
-    c = Config()
-    c.parse_args()

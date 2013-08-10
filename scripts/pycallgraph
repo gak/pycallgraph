@@ -5,44 +5,15 @@ This script is the command line interface to the pycallgraph Python library.
 
 See http://pycallgraph.slowchop.com/ for more information.
 """
-import sys
-import os
-
 import pycallgraph
 
 
-config = pycallgraph.Config()
-config.parse_args()
+pycg_cli = pycallgraph.CommandLine()
+pycg_cli.parse_args()
 
-if not config.quiet:
-    print('Running with Python Call Graph v%s' % pycallgraph.__version__)
+globals()['__file__'] = pycg_cli.config.command
 
-# Create filter
-if not config.include:
-    config.include = ['*']
-filter_func = pycallgraph.GlobbingFilter(
-    include=config.include,
-    exclude=config.exclude,
-    max_depth=config.max_depth,
-    )
+file_content = open(pycg_cli.config.command).read()
 
-# Create timing filter
-if not config.include_timing:
-    config.include_timing = ['*']
-time_filter_func = pycallgraph.GlobbingFilter(
-    include=config.include_timing,
-    exclude=config.exclude_timing,
-    fraction=float(config.time_fraction_threshhold),
-    )
-
-pycg = pycallgraph.PyCallGraph(config=config)
-del config
-
-# Execute the user script
-
-globals()['__file__'] = pycg.config.command
-
-file_content = open(pycg.config.command).read()
-
-with pycg:
+with pycg_cli.run():
     exec(file_content)
