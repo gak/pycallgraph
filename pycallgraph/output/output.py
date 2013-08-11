@@ -68,3 +68,10 @@ class Output(object):
                 return "%3.1f%s" % (num, x)
             num /= 1024.0
         return "%3.1f%s" % (num, 'TB')
+
+    @classmethod
+    def add_output_file(cls, subparser, defaults, help):
+        subparser.add_argument(
+            '-o', '--output-file', type=str, default=defaults.output_file,
+            help=help,
+        )

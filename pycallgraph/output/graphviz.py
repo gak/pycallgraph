@@ -18,6 +18,7 @@ def colorize_edge(calls, total_time):
 
 
 class GraphvizOutput(Output):
+
     def __init__(self):
         self.tool = 'dot'
         self.output_file = 'pycallgraph.png'
@@ -59,9 +60,8 @@ class GraphvizOutput(Output):
             help='The tool from Graphviz to use, e.g. dot, neato, etc.',
         )
 
-        subparser.add_argument(
-            '-o', '--output-file', type=str, default=defaults.output_file,
-            help='The generated Graphviz file',
+        cls.add_output_file(
+            subparser, defaults, 'The generated Graphviz file'
         )
 
         subparser.add_argument(
@@ -79,8 +79,6 @@ class GraphvizOutput(Output):
             '--font-size', type=int, default=defaults.font_size,
             help='Size of the font to be used',
         )
-
-        return subparser
 
     def sanity_check(self):
         self.ensure_binary(self.tool)
