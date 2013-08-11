@@ -2,8 +2,7 @@ import pycallgraph
 
 
 class CommandLine(object):
-    '''Used for the preparation of the command-line script.
-    '''
+    '''Used for the preparation of the command-line script.'''
 
     def __init__(self):
         self.config = pycallgraph.Config()
