@@ -12,12 +12,21 @@ class Config(object):
 
     def __init__(self):
         self.output = None
-        self.quiet = False
+        self.verbose = True
+        self.debug = False
         self.threaded = False
         self.include_stdlib = True
         self.track_memory = False
 
         self.create_parser()
+
+    def log_verbose(self, text):
+        if self.verbose:
+            print(text)
+
+    def log_debug(self, text):
+        if self.debug:
+            print(text)
 
     def add_module_arguments(self, usage):
         subparsers = self.parser.add_subparsers(
@@ -70,12 +79,20 @@ class Config(object):
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(
-            '-q', '--quiet', dest='quiet', action='store_true',
-            help='Suppress status output to the console')
+            '-v', '--verbose', action='store_true', default=True,
+            help='Display informative messages while running')
+
+        self.parser.add_argument(
+            '-d', '--debug', action='store_true', default=False,
+            help='Display debugging messages while running')
 
         self.parser.add_argument(
             '-t', '--threaded', action='store_true',
             help='Process traces asyncronously')
+
+        self.parser.add_argument(
+            '-g', '--groups', action='store_true', default=True,
+            help='When possible, group functions in module groups')
 
         self.parser.add_argument(
             '-s', '--stdlib', dest='include_stdlib', action='store_true',
@@ -102,7 +119,7 @@ class Config(object):
         )
 
         group.add_argument(
-            '-d', '--max-depth', dest='max_depth', default=None,
+            '--max-depth', dest='max_depth', default=None,
             help='Maximum stack depth to trace')
 
         group.add_argument(

@@ -69,6 +69,12 @@ class Output(object):
             num /= 1024.0
         return "%3.1f%s" % (num, 'TB')
 
+    def verbose(self, text):
+        self.processor.config.log_verbose(text)
+
+    def debug(self, text):
+        self.processor.config.log_debug(text)
+
     @classmethod
     def add_output_file(cls, subparser, defaults, help):
         subparser.add_argument(

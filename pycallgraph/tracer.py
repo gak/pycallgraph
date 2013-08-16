@@ -1,3 +1,5 @@
+from __future__ import division
+
 import inspect
 import sys
 import math
@@ -134,7 +136,7 @@ class TraceProcessor(Thread):
         self.keep_going = False
 
     def process(self, frame, event, arg, memory=None):
-        '''This function processes a trace result. keeps track of
+        '''This function processes a trace result. Keeps track of
         relationships between calls.
         '''
 
@@ -284,37 +286,6 @@ class TraceProcessor(Thread):
         '''Returns True if the file_name is in the lib directory.'''
         return file_name.lower().startswith(self.lib_path)
 
-    def frac_calculation(self, func, count):
-        calls_frac = float(count) / self.func_count_max
-        try:
-            total_time = self.func_time[func]
-
-        except KeyError:
-            total_time = 0
-        try:
-            total_time_frac = float(total_time) / self.func_time_max
-        except ZeroDivisionError:
-            total_time_frac = 0
-
-        try:
-            total_memory_in = self.func_memory_in[func]
-            total_memory_out = self.func_memory_out[func]
-        except KeyError:
-            total_memory_in = 0
-            total_memory_out = 0
-
-        try:
-            total_memory_in_frac = \
-                float(total_memory_in) / self.func_memory_in_max
-            total_memory_out_frac = \
-                float(total_memory_out) / self.func_memory_out_max
-        except ZeroDivisionError:
-            total_memory_in_frac = 0
-            total_memory_out_frac = 0
-
-        return calls_frac, total_time_frac, total_time, total_memory_in_frac, \
-            total_memory_in, total_memory_out_frac, total_memory_out
-
     def __getstate__(self):
         '''Used for when creating a pickle. Certain instance variables can't
         pickled and aren't used anyway.
@@ -336,7 +307,35 @@ class TraceProcessor(Thread):
         for func in self.func_count:
             name = func.split('.', 1)[0]
             grp[name].append(func)
-        return grp
+        for g in grp.iteritems():
+            yield g
+
+    def nodes(self):
+        for func, calls in self.func_count.iteritems():
+            node = Node()
+            node.name = func
+            node.calls = Stat(calls, self.func_count_max)
+            node.time = Stat(self.func_time.get(func, 0), self.func_time_max)
+            node.memory_in = Stat(
+                self.func_memory_in.get(func, 0), self.func_memory_in_max
+            )
+            node.memory_out = Stat(
+                self.func_memory_in.get(func, 0), self.func_memory_in_max
+            )
+            yield node
+
+
+class Stat(object):
+    def __init__(self, value, total):
+        self.value = value
+        self.total = total
+        try:
+            self.fraction = value / total
+        except ZeroDivisionError:
+            self.fraction = 0
+
+class Node(object):
+    pass
 
 
 def simple_memoize(callable_object):

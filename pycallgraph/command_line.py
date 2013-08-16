@@ -32,10 +32,8 @@ class CommandLine(object):
             )
 
     def run(self):
-        if not self.config.quiet:
-            print(
-                'Running trace with Python Call Graph v%s' %
-                __version__
-            )
+        self.config.log_verbose(
+            'Running trace with Python Call Graph v%s' % __version__
+        )
 
         return PyCallGraph(config=self.config)
