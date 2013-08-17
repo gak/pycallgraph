@@ -2,7 +2,7 @@ from __future__ import division
 
 
 class Util(object):
-    
+
     @staticmethod
     def human_readable_bibyte(num):
         for x in ['B', 'KiB', 'MiB', 'GiB']:
