@@ -19,6 +19,11 @@ class Config(object):
         self.include_stdlib = True
         self.memory = False
 
+        # Filters to determine which calls to keep
+        self.trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
+        self.time_filter = GlobbingFilter()
+        self.mem_filter = GlobbingFilter()
+
         self.create_parser()
 
     def log_verbose(self, text):
@@ -46,6 +51,10 @@ class Config(object):
 
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
+        self.convert_filter_args()
+
+    def convert_filter_args(self):
+
 
     def create_parser(self):
         '''Used by the pycallgraph command line interface to parse
@@ -107,13 +116,13 @@ class Config(object):
     def add_filter_arguments(self):
         group = self.parser.add_argument_group('filtering')
         group.add_argument(
-            '-i', '--include', dest='include', default=[], action='append',
+            '-i', '--include', default=[], action='append',
             help='Wildcard pattern of modules to include in the output. '
             'You can have multiple include arguments.'
         )
 
         group.add_argument(
-            '-e', '--exclude', dest='exclude', default=[], action='append',
+            '-e', '--exclude', default=[], action='append',
             help='Wildcard pattern of modules to exclude in the output. '
             'You can have multiple exclude arguments.'
         )
@@ -123,14 +132,14 @@ class Config(object):
             help='Maximum stack depth to trace')
 
         group.add_argument(
-            '--include-timing', dest='include_timing', default=[],
+            '--include-timing', default=[],
             action='append',
             help='Wildcard pattern of modules to include in time measurement. '
             'You can have multiple include arguments.',
         )
 
         group.add_argument(
-            '--exclude-timing', dest='exclude_timing', default=[],
+            '--exclude-timing', default=[],
             action='append',
             help='Wildcard pattern of modules to exclude in time '
             'measurement. You can have multiple exclude arguments.',

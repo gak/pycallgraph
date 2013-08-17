@@ -103,10 +103,6 @@ class TraceProcessor(Thread):
         self.call_stack_memory_in = []
         self.call_stack_memory_out = []
 
-        # Filters to determine which calls to keep
-        self.trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
-        self.time_filter = GlobbingFilter()
-        self.mem_filter = GlobbingFilter()
 
     def init_libpath(self):
         self.lib_path = sysconfig.get_python_lib()

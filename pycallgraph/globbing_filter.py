@@ -1,5 +1,4 @@
 class GlobbingFilter(object):
-
     '''Filter module names using a set of globs.
 
     Objects are matched against the exclude list first, then the include list.
