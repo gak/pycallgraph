@@ -88,6 +88,9 @@ class PyCallGraph(object):
         '''
         self.stop()
 
+        self.generate()
+
+    def generate(self):
         # If in threaded mode, wait for the processor thread to complete
         self.tracer.done()
 

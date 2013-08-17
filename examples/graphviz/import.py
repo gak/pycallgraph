@@ -4,7 +4,6 @@ This example shows the interals of certain Python modules when they are being
 imported.
 '''
 from pycallgraph import PyCallGraph
-from pycallgraph import Config
 from pycallgraph.output import GraphvizOutput
 
 
@@ -14,12 +13,11 @@ def main():
         'htmllib',
         'urllib2',
     )
-    config = Config()
     graphviz = GraphvizOutput()
 
     for module in import_list:
         graphviz.output_file = 'import-{}.png'.format(module)
-        with PyCallGraph(config=config, outputs=graphviz):
+        with PyCallGraph(outputs=graphviz):
             __import__(module)
 
 

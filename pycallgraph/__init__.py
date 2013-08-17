@@ -17,3 +17,4 @@ from .exceptions import PyCallGraphException
 from .config import Config
 from .command_line import CommandLine
 from .globbing_filter import GlobbingFilter
+from .color import Color

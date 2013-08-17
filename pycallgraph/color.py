@@ -10,6 +10,11 @@ class Color(object):
         self.a = a
         self.validate_all()
 
+    @classmethod
+    def hsv(cls, h, s, v, a=1):
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        return cls(r, g, b, a)
+
     def validate_all(self):
         self.validate('r')
         self.validate('g')
@@ -44,8 +49,3 @@ class Color(object):
     def rgba_web(self):
         '''Returns a string with the RGBA components as a HTML hex string.'''
         return '{0}{1.a255:02x}'.format(self.rgb_web(), self)
-
-    @classmethod
-    def hsv(cls, h, s, v, a=1):
-        r, g, b = colorsys.hsv_to_rgb(h, s, v)
-        return cls(r, g, b, a)
