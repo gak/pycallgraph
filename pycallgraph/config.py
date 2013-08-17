@@ -12,11 +12,12 @@ class Config(object):
 
     def __init__(self):
         self.output = None
-        self.verbose = True
+        self.verbose = False
         self.debug = False
+        self.groups = True
         self.threaded = False
         self.include_stdlib = True
-        self.track_memory = False
+        self.memory = False
 
         self.create_parser()
 
@@ -79,20 +80,20 @@ class Config(object):
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(
-            '-v', '--verbose', action='store_true', default=True,
+            '-v', '--verbose', action='store_true', default=self.verbose,
             help='Display informative messages while running')
 
         self.parser.add_argument(
-            '-d', '--debug', action='store_true', default=False,
+            '-d', '--debug', action='store_true', default=self.debug,
             help='Display debugging messages while running')
 
         self.parser.add_argument(
-            '-t', '--threaded', action='store_true',
+            '-t', '--threaded', action='store_true', default=self.threaded,
             help='Process traces asyncronously')
 
         self.parser.add_argument(
-            '-g', '--groups', action='store_true', default=True,
-            help='When possible, group functions in module groups')
+            '-ng', '--no-groups', dest='groups', action='store_false',
+            default=self.groups, help='Do not group functions by module')
 
         self.parser.add_argument(
             '-s', '--stdlib', dest='include_stdlib', action='store_true',
@@ -100,8 +101,7 @@ class Config(object):
             help='Include standard library functions in the trace')
 
         self.parser.add_argument(
-            '-m', '--track-memory', dest='track_memory', action='store_true',
-            default=self.track_memory,
+            '-m', '--memory', action='store_true', default=self.memory,
             help='(Experimental) Track memory usage')
 
     def add_filter_arguments(self):

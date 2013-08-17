@@ -6,43 +6,24 @@ import textwrap
 
 from ..metadata import __version__
 from ..exceptions import PyCallGraphException
+from ..color import Color
 from .output import Output
-
-
-# TODO: Move to base class or a helper image class
-def colorize_node(node):
-    value = float(node.time.fraction * 2 + node.calls.fraction) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.9)
-
-
-def colorize_edge(node):
-    value = float(node.time.fraction * 2 + node.calls.fraction) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.7)
 
 
 class GraphvizOutput(Output):
 
     def __init__(self):
+        Output.__init__(self)
+
+        self.node_color_func
+
         self.tool = 'dot'
         self.output_file = 'pycallgraph.png'
         self.output_type = 'png'
         self.font_name = 'Verdana'
         self.font_size = 7
         self.group_font_size = 10
-        self.group_border_color = '.5 0 .9'
-
-        self.node_label = r'\n'.join([
-            '%(func)s',
-            'calls: %(hits)i',
-            'total time: %(total_time)f',
-        ])
-
-        self.memory_node_label = \
-            r'\nmemory in: %(total_memory_in)s' \
-            r'\nmemory out: %(total_memory_out)s'
-
-        self.node_color_func = colorize_node
-        self.edge_color_func = colorize_edge
+        self.group_border_color = Color(0, 0, 0, 0.2)
 
         self.time_filter = None
 
@@ -96,20 +77,20 @@ class GraphvizOutput(Output):
                 'overlap': 'scalexy',
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'fontcolor': '0 0 0.5',
+                'fontcolor': Color(0, 0, 0, 0.5).rgba_web(),
                 'label': generated_message,
             },
             'node': {
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'color': '.5 0 .9',
+                'fontcolor': Color(0, 0, 0).rgba_web(),
                 'style': 'filled',
                 'shape': 'rect',
             },
             'edge': {
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'color': '0 0 0',
+                'fontcolor': Color(0, 0, 0).rgba_web(),
             }
         }
 
@@ -150,6 +131,11 @@ class GraphvizOutput(Output):
             key, self.attrs_from_dict(attr),
         )
 
+    def edge(self, edge, attr):
+        return '"{0.src_func}" -> "{0.dst_func}" [{1}];'.format(
+            edge, self.attrs_from_dict(attr),
+        )
+
     def generate_attributes(self):
         output = []
         for section, attrs in self.graph_attributes.iteritems():
@@ -165,70 +151,37 @@ class GraphvizOutput(Output):
         output = []
         for group, funcs in self.processor.groups():
             funcs = '" "'.join(funcs)
-            group_color = self.group_border_color
+            group_color = self.group_border_color.rgba_web()
             group_font_size = self.group_font_size
             output.append(
-                'subgraph "cluster_%(group)s" { '
-                '"%(funcs)s"; '
-                'label = "%(group)s"; '
-                'node [style=filled]; '
-                'fontsize = "%(group_font_size)s"; '
+                'subgraph "cluster_{group}" {{ '
+                '"{funcs}"; '
+                'label = "{group}"; '
+                'fontsize = "{group_font_size}"; '
                 'fontcolor = "black"; '
-                'color="%(group_color)s"; }' % locals())
+                'color="{group_color}"; }}'.format(**locals()))
         return output
 
     def generate_nodes(self):
         output = []
         for node in self.processor.nodes():
             attr = {
-                'color': self.node_color_func(node),
+                'color': self.node_color_func(node).rgba_web(),
+                'label': self.node_label_func(node),
             }
-            output.append(self.entry(node.name, attr))
+            output.append(self.node(node.name, attr))
 
         return output
-
-        # for func, hits in self.processor.func_count.iteritems():
-        #     # XXX: This line is pretty terrible. Maybe return an object?
-        #     calls_frac, total_time_frac, total_time, total_memory_in_frac, \
-        #         total_memory_in, total_memory_out_frac, total_memory_out = \
-        #         self.processor.frac_calculation(func, hits)
-
-        #     total_memory_in = self.human_readable_size(total_memory_in)
-        #     total_memory_out = self.human_readable_size(total_memory_out)
-
-        #     attribs = {
-        #         'color': self.node_color_func(calls_frac, total_time_frac),
-        #         # 'label': self.get_node_label()
-        #         'label': func,
-        #     }
-        #     # attribs_str = '{}={}'.format(*[a for a in attribs.iteritems()])
-        #     node_str = '"%s" [%s];' % (func, ' ')
-        #     if self.time_filter is None or \
-        #             self.time_filter.fraction <= total_time_frac:
-        #         output.append(node_str % locals())
-        # return output
 
     def generate_edges(self):
         output = []
 
-        # for edge in self.processor.edges():
-
-        for fr_key, fr_val in self.processor.call_dict.iteritems():
-            if not fr_key:
-                continue
-            for to_key, to_val in fr_val.iteritems():
-                # calls_frac, total_time_frac, total_time, \
-                #     total_memory_in_frac, \
-                #     total_memory_in, total_memory_out_frac, \
-                #     total_memory_out = \
-                #     self.processor.frac_calculation(to_key, to_val)
-                # col = self.edge_color_func(calls_frac, total_time_frac)
-                # edge = '[color = "%s", label="%s"]' % (col, to_val)
-                # if self.time_filter is None or \
-                #         self.time_filter.fraction < total_time_frac:
-                edge = '[]'
-                output.append(
-                    '"%s" -> "%s" %s;' % (fr_key, to_key, edge))
+        for edge in self.processor.edges():
+            attr = {
+                'color': self.edge_color_func(edge).rgba_web(),
+                'label': self.edge_label_func(edge),
+            }
+            output.append(self.edge(edge, attr))
 
         return output
 

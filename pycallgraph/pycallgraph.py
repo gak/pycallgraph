@@ -1,3 +1,4 @@
+import locale
 import warnings
 
 from .output import Output
@@ -16,6 +17,8 @@ class PyCallGraph(object):
 
         >>> PyCallGraph(output=[D3Output(), GephiOutput()])
         '''
+        locale.setlocale(locale.LC_ALL, '')
+
         if outputs is None:
             self.outputs = []
         elif isinstance(outputs, Output):

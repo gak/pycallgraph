@@ -1,5 +1,6 @@
 from __future__ import division
 
+import warnings
 import inspect
 import sys
 import math
@@ -16,6 +17,7 @@ except ImportError:
     from queue import Queue, Empty
 
 from .globbing_filter import GlobbingFilter
+from .util import Util
 
 
 class SyncronousTracer(object):
@@ -29,7 +31,7 @@ class SyncronousTracer(object):
         return self.tracer
 
     def memory(self):
-        if self.config.track_memory:
+        if self.config.memory:
             from .memory_profiler import memory_usage
             return int(memory_usage(-1, 0)[0] * 1000000)
 
@@ -310,22 +312,41 @@ class TraceProcessor(Thread):
         for g in grp.iteritems():
             yield g
 
+    def stat_group_from_func(self, func, calls):
+        stat_group = StatGroup()
+        stat_group.name = func
+        stat_group.calls = Stat(calls, self.func_count_max)
+        stat_group.time = Stat(self.func_time.get(func, 0), self.func_time_max)
+        stat_group.memory_in = Stat(
+            self.func_memory_in.get(func, 0), self.func_memory_in_max
+        )
+        stat_group.memory_out = Stat(
+            self.func_memory_in.get(func, 0), self.func_memory_in_max
+        )
+        return stat_group
+
     def nodes(self):
+        warnings.warn('TODO: Filtering')
         for func, calls in self.func_count.iteritems():
-            node = Node()
-            node.name = func
-            node.calls = Stat(calls, self.func_count_max)
-            node.time = Stat(self.func_time.get(func, 0), self.func_time_max)
-            node.memory_in = Stat(
-                self.func_memory_in.get(func, 0), self.func_memory_in_max
-            )
-            node.memory_out = Stat(
-                self.func_memory_in.get(func, 0), self.func_memory_in_max
-            )
-            yield node
+            yield self.stat_group_from_func(func, calls)
+
+    def edges(self):
+        for src_func, dests in self.call_dict.iteritems():
+            if not src_func:
+                continue
+            for dst_func, calls in dests.iteritems():
+                edge = self.stat_group_from_func(dst_func, calls)
+                edge.src_func = src_func
+                edge.dst_func = dst_func
+                yield edge
 
 
 class Stat(object):
+    '''Stores a "statistic" value, e.g. "time taken" along with the maximum
+    possible value of the value, which is used to calculate the fraction of 1.
+    The fraction is used for choosing colors.
+    '''
+
     def __init__(self, value, total):
         self.value = value
         self.total = total
@@ -334,7 +355,13 @@ class Stat(object):
         except ZeroDivisionError:
             self.fraction = 0
 
-class Node(object):
+    @property
+    def value_human_bibyte(self):
+        '''Mebibyte of the value in human readable a form.'''
+        return Util.human_readable_bibyte(self.value)
+
+
+class StatGroup(object):
     pass
 
 
