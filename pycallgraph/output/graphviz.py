@@ -145,10 +145,9 @@ class GraphvizOutput(Output):
             output.append('%s = "%s"' % (attr, val))
         return ', '.join(output)
 
-
-    def entry(self, key, attr)
-        return '"{0.name}" [{1}];'.format(
-            node, self.attrs_from_dict(attr),
+    def node(self, key, attr):
+        return '"{}" [{}];'.format(
+            key, self.attrs_from_dict(attr),
         )
 
     def generate_attributes(self):
