@@ -151,7 +151,7 @@ class TraceProcessor(Thread):
             # expected. Potentially need to store a copy of it.
             if full_name and m:
                 call_memory = memory - m
-                
+
                 if full_name not in self.func_memory_out:
                     self.func_memory_out[full_name] = 0
                 else:
@@ -201,6 +201,9 @@ class TraceProcessor(Thread):
             # Create a readable representation of the current call
             full_name = '.'.join(full_name_list)
 
+            if len(self.call_stack) > self.config.max_depth:
+                keep = False
+
             # Load the trace filter, if any. 'keep' determines if we should
             # ignore this call
             if keep and self.config.trace_filter:
@@ -213,10 +216,13 @@ class TraceProcessor(Thread):
                     fr = self.call_stack[-1]
                 else:
                     fr = None
+
                 if fr not in self.call_dict:
                     self.call_dict[fr] = {}
+
                 if full_name not in self.call_dict[fr]:
                     self.call_dict[fr][full_name] = 0
+
                 self.call_dict[fr][full_name] += 1
 
                 if full_name not in self.func_count:

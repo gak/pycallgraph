@@ -140,12 +140,12 @@ class Config(object):
         )
 
         group.add_argument(
-            '--max-depth', dest='max_depth', default=None,
+            '--max-depth', dest='max_depth', default=99999, type=int,
             help='Maximum stack depth to trace')
 
         group.add_argument(
             '--time-fraction-threshhold', dest='time_fraction_threshhold',
-            default=0.05,
+            default=0.05, type=float,
             help='Set a threshhold for inclusion of functions '
             'in graphical output in terms of fraction of total time used.',
         )
