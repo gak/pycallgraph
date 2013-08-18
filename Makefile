@@ -12,7 +12,7 @@ tests:
 		--cov-config test/.coveragerc \
 		--pep8 \
 		--ignore=pycallgraph/memory_profiler.py \
-		test pycallgraph
+		test pycallgraph examples
 
 doc:
 	make -C docs html man

@@ -1,3 +1,6 @@
+from __future__ import division
+
+import warnings
 import inspect
 import sys
 import math
@@ -13,7 +16,7 @@ try:
 except ImportError:
     from queue import Queue, Empty
 
-from .globbing_filter import GlobbingFilter
+from .util import Util
 
 
 class SyncronousTracer(object):
@@ -27,7 +30,7 @@ class SyncronousTracer(object):
         return self.tracer
 
     def memory(self):
-        if self.config.track_memory:
+        if self.config.memory:
             from .memory_profiler import memory_usage
             return int(memory_usage(-1, 0)[0] * 1000000)
 
@@ -73,25 +76,25 @@ class TraceProcessor(Thread):
         self.previous_event_return = False
 
         # A mapping of which function called which other function
-        self.call_dict = {}
+        self.call_dict = defaultdict(lambda: defaultdict(int))
 
         # Current call stack
         self.call_stack = ['__main__']
 
         # Counters for each function
-        self.func_count = {}
+        self.func_count = defaultdict(int)
         self.func_count_max = 0
 
         # Accumulative time per function
-        self.func_time = {}
+        self.func_time = defaultdict(float)
         self.func_time_max = 0
 
         # Accumulative memory addition per function
-        self.func_memory_in = {}
+        self.func_memory_in = defaultdict(int) 
         self.func_memory_in_max = 0
 
         # Accumulative memory addition per function once exited
-        self.func_memory_out = {}
+        self.func_memory_out = defaultdict(int)
         self.func_memory_out_max = 0
 
         # Keeps track of the start time of each call on the stack
@@ -99,10 +102,6 @@ class TraceProcessor(Thread):
         self.call_stack_memory_in = []
         self.call_stack_memory_out = []
 
-        # Filters to determine which calls to keep
-        self.trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
-        self.time_filter = GlobbingFilter()
-        self.mem_filter = GlobbingFilter()
 
     def init_libpath(self):
         self.lib_path = sysconfig.get_python_lib()
@@ -134,34 +133,29 @@ class TraceProcessor(Thread):
         self.keep_going = False
 
     def process(self, frame, event, arg, memory=None):
-        '''This function processes a trace result. keeps track of
+        '''This function processes a trace result. Keeps track of
         relationships between calls.
         '''
 
-        if memory is not None:
+        if memory is not None and self.previous_event_return:
             # Deal with memory when function has finished so local variables
             # can be cleaned up
-            if self.previous_event_return:
-                self.previous_event_return = False
+            self.previous_event_return = False
 
-                if self.call_stack_memory_out:
-                    full_name, m = self.call_stack_memory_out.pop(-1)
-                else:
-                    full_name, m = (None, None)
+            if self.call_stack_memory_out:
+                full_name, m = self.call_stack_memory_out.pop(-1)
+            else:
+                full_name, m = (None, None)
 
-                # NOTE: Call stack is no longer the call stack that may be
-                # expected. Potentially need to store a copy of it.
-                if full_name and m and self.mem_filter(
-                        stack=self.call_stack, full_name=full_name):
-                    call_memory = memory - m
-                    if full_name not in self.func_memory_out:
-                        self.func_memory_out[full_name] = 0
-                    else:
-                        self.func_memory_out[full_name] += call_memory
-                    if self.func_memory_out[full_name] > \
-                            self.func_memory_out_max:
-                        self.func_memory_out_max = \
-                            self.func_memory_out[full_name]
+            # NOTE: Call stack is no longer the call stack that may be
+            # expected. Potentially need to store a copy of it.
+            if full_name and m:
+                call_memory = memory - m
+
+                self.func_memory_out[full_name] += call_memory
+                self.func_memory_out_max = max(
+                    self.func_memory_out_max, self.func_memory_out[full_name]
+                )
 
         if event == 'call':
             keep = True
@@ -204,32 +198,28 @@ class TraceProcessor(Thread):
             # Create a readable representation of the current call
             full_name = '.'.join(full_name_list)
 
+            if len(self.call_stack) > self.config.max_depth:
+                keep = False
+
             # Load the trace filter, if any. 'keep' determines if we should
             # ignore this call
-            if keep and self.trace_filter:
-                keep = self.trace_filter(
-                    self.call_stack, module_name, class_name, func_name,
-                    full_name
-                )
+            if keep and self.config.trace_filter:
+                keep = self.config.trace_filter(full_name)
 
             # Store the call information
             if keep:
 
                 if self.call_stack:
-                    fr = self.call_stack[-1]
+                    src_func = self.call_stack[-1]
                 else:
-                    fr = None
-                if fr not in self.call_dict:
-                    self.call_dict[fr] = {}
-                if full_name not in self.call_dict[fr]:
-                    self.call_dict[fr][full_name] = 0
-                self.call_dict[fr][full_name] += 1
+                    src_func = None
 
-                if full_name not in self.func_count:
-                    self.func_count[full_name] = 0
+                self.call_dict[src_func][full_name] += 1
+
                 self.func_count[full_name] += 1
-                if self.func_count[full_name] > self.func_count_max:
-                    self.func_count_max = self.func_count[full_name]
+                self.func_count_max = max(
+                    self.func_count_max, self.func_count[full_name]
+                )
 
                 self.call_stack.append(full_name)
                 self.call_stack_timer.append(time.time())
@@ -250,70 +240,36 @@ class TraceProcessor(Thread):
                 full_name = self.call_stack.pop(-1)
 
                 if self.call_stack_timer:
-                    t = self.call_stack_timer.pop(-1)
+                    start_time = self.call_stack_timer.pop(-1)
                 else:
-                    t = None
+                    start_time = None
 
-                if t and self.time_filter(
-                        stack=self.call_stack, full_name=full_name):
-                    if full_name not in self.func_time:
-                        self.func_time[full_name] = 0
-                    call_time = (time.time() - t)
+                if start_time:
+                    call_time = time.time() - start_time
+
                     self.func_time[full_name] += call_time
-                    if self.func_time[full_name] > self.func_time_max:
-                        self.func_time_max = self.func_time[full_name]
+                    self.func_time_max = max(
+                        self.func_time_max, self.func_time[full_name]
+                    )
 
                 if memory is not None:
                     if self.call_stack_memory_in:
-                        m = self.call_stack_memory_in.pop(-1)
+                        start_mem = self.call_stack_memory_in.pop(-1)
                     else:
-                        m = None
+                        start_mem = None
 
-                    if m and self.mem_filter(
-                            stack=self.call_stack, full_name=full_name):
-                        if full_name not in self.func_memory_in:
-                            self.func_memory_in[full_name] = 0
-                        call_memory = memory - m
+                    if start_mem:
+                        call_memory = memory - start_mem
                         self.func_memory_in[full_name] += call_memory
-                        if self.func_memory_in[full_name] > \
-                                self.func_memory_in_max:
-                            self.func_memory_in_max = \
-                                self.func_memory_in[full_name]
+
+                        self.func_memory_in_max = max(
+                            self.func_memory_in_max,
+                            self.func_memory_in[full_name],
+                        )
 
     def is_module_stdlib(self, file_name):
         '''Returns True if the file_name is in the lib directory.'''
         return file_name.lower().startswith(self.lib_path)
-
-    def frac_calculation(self, func, count):
-        calls_frac = float(count) / self.func_count_max
-        try:
-            total_time = self.func_time[func]
-
-        except KeyError:
-            total_time = 0
-        try:
-            total_time_frac = float(total_time) / self.func_time_max
-        except ZeroDivisionError:
-            total_time_frac = 0
-
-        try:
-            total_memory_in = self.func_memory_in[func]
-            total_memory_out = self.func_memory_out[func]
-        except KeyError:
-            total_memory_in = 0
-            total_memory_out = 0
-
-        try:
-            total_memory_in_frac = \
-                float(total_memory_in) / self.func_memory_in_max
-            total_memory_out_frac = \
-                float(total_memory_out) / self.func_memory_out_max
-        except ZeroDivisionError:
-            total_memory_in_frac = 0
-            total_memory_out_frac = 0
-
-        return calls_frac, total_time_frac, total_time, total_memory_in_frac, \
-            total_memory_in, total_memory_out_frac, total_memory_out
 
     def __getstate__(self):
         '''Used for when creating a pickle. Certain instance variables can't
@@ -336,7 +292,60 @@ class TraceProcessor(Thread):
         for func in self.func_count:
             name = func.split('.', 1)[0]
             grp[name].append(func)
-        return grp
+        for g in grp.iteritems():
+            yield g
+
+    def stat_group_from_func(self, func, calls):
+        stat_group = StatGroup()
+        stat_group.name = func
+        stat_group.calls = Stat(calls, self.func_count_max)
+        stat_group.time = Stat(self.func_time.get(func, 0), self.func_time_max)
+        stat_group.memory_in = Stat(
+            self.func_memory_in.get(func, 0), self.func_memory_in_max
+        )
+        stat_group.memory_out = Stat(
+            self.func_memory_in.get(func, 0), self.func_memory_in_max
+        )
+        return stat_group
+
+    def nodes(self):
+        warnings.warn('TODO: Filtering')
+        for func, calls in self.func_count.iteritems():
+            yield self.stat_group_from_func(func, calls)
+
+    def edges(self):
+        for src_func, dests in self.call_dict.iteritems():
+            if not src_func:
+                continue
+            for dst_func, calls in dests.iteritems():
+                edge = self.stat_group_from_func(dst_func, calls)
+                edge.src_func = src_func
+                edge.dst_func = dst_func
+                yield edge
+
+
+class Stat(object):
+    '''Stores a "statistic" value, e.g. "time taken" along with the maximum
+    possible value of the value, which is used to calculate the fraction of 1.
+    The fraction is used for choosing colors.
+    '''
+
+    def __init__(self, value, total):
+        self.value = value
+        self.total = total
+        try:
+            self.fraction = value / total
+        except ZeroDivisionError:
+            self.fraction = 0
+
+    @property
+    def value_human_bibyte(self):
+        '''Mebibyte of the value in human readable a form.'''
+        return Util.human_readable_bibyte(self.value)
+
+
+class StatGroup(object):
+    pass
 
 
 def simple_memoize(callable_object):

@@ -1,50 +1,33 @@
+from __future__ import division
+
 import tempfile
 import os
+import textwrap
 
 from ..metadata import __version__
 from ..exceptions import PyCallGraphException
+from ..color import Color
 from .output import Output
-
-
-# TODO: Move to base class or a helper image class
-def colorize_node(calls, total_time):
-    value = float(total_time * 2 + calls) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.9)
-
-
-def colorize_edge(calls, total_time):
-    value = float(total_time * 2 + calls) / 3
-    return '%f %f %f' % (value / 2 + .5, value, 0.7)
 
 
 class GraphvizOutput(Output):
 
     def __init__(self):
+        Output.__init__(self)
+
+        self.node_color_func
+
         self.tool = 'dot'
         self.output_file = 'pycallgraph.png'
         self.output_type = 'png'
         self.font_name = 'Verdana'
         self.font_size = 7
         self.group_font_size = 10
-        self.group_border_color = '.5 0 .9'
-
-        self.node_attributes = {
-            'color': '%(col)s',
-            'label': r'\n'.join([
-                '%(func)s',
-                'calls: %(hits)i',
-                'total time: %(total_time)f',
-            ]),
-        }
-
-        self.memory_node_label = \
-            r'\nmemory in: %(total_memory_in)s' \
-            r'\nmemory out: %(total_memory_out)s'
-
-        self.node_color_func = colorize_node
-        self.edge_color_func = colorize_edge
+        self.group_border_color = Color(0, 0, 0, 0.2)
 
         self.time_filter = None
+
+        self.prepare_graph_attributes()
 
     @classmethod
     def add_arguments(cls, subparsers, parent_parser, usage):
@@ -94,28 +77,27 @@ class GraphvizOutput(Output):
                 'overlap': 'scalexy',
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'fontcolor': '0 0 0.5',
+                'fontcolor': Color(0, 0, 0, 0.5).rgba_web(),
                 'label': generated_message,
             },
             'node': {
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'color': '.5 0 .9',
+                'fontcolor': Color(0, 0, 0).rgba_web(),
                 'style': 'filled',
                 'shape': 'rect',
             },
             'edge': {
                 'fontname': self.font_name,
                 'fontsize': self.font_size,
-                'color': '0 0 0',
+                'fontcolor': Color(0, 0, 0).rgba_web(),
             }
         }
 
-        if self.processor.config.track_memory:
-            self.node_attributes['label'] += self.memory_node_label
-
     def done(self):
         source = self.generate()
+
+        self.debug(source)
 
         fd, temp_name = tempfile.mkstemp()
         with os.fdopen(fd, 'w') as f:
@@ -134,83 +116,97 @@ class GraphvizOutput(Output):
         finally:
             os.unlink(temp_name)
 
-    def generate(self):
-        self.prepare_graph_attributes()
+        self.verbose('Generated {} with {} nodes.'.format(
+            self.output_file, len(self.processor.func_count),
+        ))
 
-        defaults = []
-        nodes = []
-        edges = []
-        groups = []
+    def attrs_from_dict(self, d):
+        output = []
+        for attr, val in d.iteritems():
+            output.append('%s = "%s"' % (attr, val))
+        return ', '.join(output)
 
-        # Define default attributes
-        for comp, comp_attr in self.graph_attributes.iteritems():
-            attr = ', '.join('%s = "%s"' % (attr, val)
-                             for attr, val in comp_attr.iteritems())
-            defaults.append('\t%(comp)s [ %(attr)s ];' % locals())
-
-        # XXX: Refactor the following chunks of code so that:
-        # - There is a standard way to add attributes to a block
-        # - They're extracted into separate methods
-        # - Their code visibility is better
-
-        # Define groups
-        for group, funcs in self.processor.groups().iteritems():
-            funcs = '" "'.join(funcs)
-            group_color = self.group_border_color
-            group_font_size = self.group_font_size
-            groups.append(
-                'subgraph "cluster_%(group)s" { '
-                '"%(funcs)s"; '
-                'label = "%(group)s"; '
-                'node [style=filled]; '
-                'fontsize = "%(group_font_size)s"; '
-                'fontcolor = "black"; '
-                'color="%(group_color)s"; }' % locals())
-
-        # Define nodes
-        for func, hits in self.processor.func_count.iteritems():
-            # XXX: This line is pretty terrible. Maybe retur an object?
-            calls_frac, total_time_frac, total_time, total_memory_in_frac, \
-                total_memory_in, total_memory_out_frac, total_memory_out = \
-                self.processor.frac_calculation(func, hits)
-
-            total_memory_in = self.human_readable_size(total_memory_in)
-            total_memory_out = self.human_readable_size(total_memory_out)
-
-            col = self.node_color_func(calls_frac, total_time_frac)
-            attribs = ['%s="%s"' % a for a in self.node_attributes.iteritems()]
-            node_str = '"%s" [%s];' % (func, ', '.join(attribs))
-            if self.time_filter is None or \
-                    self.time_filter.fraction <= total_time_frac:
-                nodes.append(node_str % locals())
-
-        # Define edges
-        for fr_key, fr_val in self.processor.call_dict.iteritems():
-            if not fr_key:
-                continue
-            for to_key, to_val in fr_val.iteritems():
-                calls_frac, total_time_frac, total_time, \
-                    total_memory_in_frac, \
-                    total_memory_in, total_memory_out_frac, \
-                    total_memory_out = \
-                    self.processor.frac_calculation(to_key, to_val)
-                col = self.edge_color_func(calls_frac, total_time_frac)
-                edge = '[color = "%s", label="%s"]' % (col, to_val)
-                if self.time_filter is None or \
-                        self.time_filter.fraction < total_time_frac:
-                    edges.append(
-                        '"%s" -> "%s" %s;' % (fr_key, to_key, edge))
-
-        defaults = '\n\t'.join(defaults)
-        groups = '\n\t'.join(groups)
-        nodes = '\n\t'.join(nodes)
-        edges = '\n\t'.join(edges)
-
-        dot_fmt = (
-            "digraph G {\n"
-            "\t%(defaults)s\n\n"
-            "\t%(groups)s\n\n"
-            "\t%(nodes)s\n\n"
-            "\t%(edges)s\n}\n"
+    def node(self, key, attr):
+        return '"{}" [{}];'.format(
+            key, self.attrs_from_dict(attr),
         )
-        return dot_fmt % locals()
+
+    def edge(self, edge, attr):
+        return '"{0.src_func}" -> "{0.dst_func}" [{1}];'.format(
+            edge, self.attrs_from_dict(attr),
+        )
+
+    def generate_attributes(self):
+        output = []
+        for section, attrs in self.graph_attributes.iteritems():
+            output.append('{} [ {} ];'.format(
+                section, self.attrs_from_dict(attrs),
+            ))
+        return output
+
+    def generate_groups(self):
+        if not self.processor.config.groups:
+            return ''
+
+        output = []
+        for group, funcs in self.processor.groups():
+            funcs = '" "'.join(funcs)
+            group_color = self.group_border_color.rgba_web()
+            group_font_size = self.group_font_size
+            output.append(
+                'subgraph "cluster_{group}" {{ '
+                '"{funcs}"; '
+                'label = "{group}"; '
+                'fontsize = "{group_font_size}"; '
+                'fontcolor = "black"; '
+                'color="{group_color}"; }}'.format(**locals()))
+        return output
+
+    def generate_nodes(self):
+        output = []
+        for node in self.processor.nodes():
+            attr = {
+                'color': self.node_color_func(node).rgba_web(),
+                'label': self.node_label_func(node),
+            }
+            output.append(self.node(node.name, attr))
+
+        return output
+
+    def generate_edges(self):
+        output = []
+
+        for edge in self.processor.edges():
+            attr = {
+                'color': self.edge_color_func(edge).rgba_web(),
+                'label': self.edge_label_func(edge),
+            }
+            output.append(self.edge(edge, attr))
+
+        return output
+
+    def generate(self):
+        indent_join = '\n' + ' ' * 12
+
+        return textwrap.dedent('''\
+        digraph G {{
+
+            // Attributes
+            {}
+
+            // Groups
+            {}
+
+            // Nodes
+            {}
+
+            // Edges
+            {}
+
+        }}
+        '''.format(
+            indent_join.join(self.generate_attributes()),
+            indent_join.join(self.generate_groups()),
+            indent_join.join(self.generate_nodes()),
+            indent_join.join(self.generate_edges()),
+        ))

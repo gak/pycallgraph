@@ -3,10 +3,43 @@ import os
 from distutils.spawn import find_executable
 
 from ..exceptions import PyCallGraphException
+from ..color import Color
 
 
 class Output(object):
     '''Base class for all outputters.'''
+
+    def __init__(self):
+        self.node_color_func = self.node_color
+        self.edge_color_func = self.edge_color
+        self.node_label_func = self.node_label
+        self.edge_label_func = self.edge_label
+
+    def node_color(self, node):
+        value = float(node.time.fraction * 2 + node.calls.fraction) / 3
+        return Color.hsv(value / 2 + .5, value, 0.9)
+
+    def edge_color(self, edge):
+        value = float(edge.time.fraction * 2 + edge.calls.fraction) / 3
+        return Color.hsv(value / 2 + .5, value, 0.7)
+
+    def node_label(self, node):
+        parts = [
+            '{0.name}',
+            'calls: {0.calls.value:n}',
+            'time: {0.time.value:f}s',
+        ]
+
+        if self.processor.config.memory:
+            parts += [
+                'memory in: {0.memory_in.value_human_bibyte}',
+                'memory out: {0.memory_out.value_human_bibyte}',
+            ]
+
+        return r'\n'.join(parts).format(node)
+
+    def edge_label(self, edge):
+        return '{}'.format(edge.calls.value)
 
     def sanity_check(self):
         '''Basic checks for certain libraries or external applications.  Raise
@@ -62,12 +95,11 @@ class Output(object):
             self.output_file = self.normalize_path(self.output_file)
             self.fp = open(self.output_file, 'wb')
 
-    def human_readable_size(self, num):
-        for x in ['B', 'KB', 'MB', 'GB']:
-            if num < 1024.0 and num > -1024.0:
-                return "%3.1f%s" % (num, x)
-            num /= 1024.0
-        return "%3.1f%s" % (num, 'TB')
+    def verbose(self, text):
+        self.processor.config.log_verbose(text)
+
+    def debug(self, text):
+        self.processor.config.log_debug(text)
 
     @classmethod
     def add_output_file(cls, subparser, defaults, help):

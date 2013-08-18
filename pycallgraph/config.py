@@ -3,21 +3,33 @@ import sys
 import argparse
 
 from .output import outputters
+from .globbing_filter import GlobbingFilter
 
 
 class Config(object):
-    '''Handles configuration settings for pycallgraph and each output module.
-    It also handles command line arguments.
+    '''Handles configuration settings for pycallgraph, tracer, and each output
+    module.  It also handles command line arguments.
     '''
 
     def __init__(self):
         self.output = None
-        self.quiet = False
+        self.verbose = False
+        self.debug = False
+        self.groups = True
         self.threaded = False
         self.include_stdlib = True
-        self.track_memory = False
+        self.include_pycallgraph = False
+        self.memory = False
 
         self.create_parser()
+
+    def log_verbose(self, text):
+        if self.verbose:
+            print(text)
+
+    def log_debug(self, text):
+        if self.debug:
+            print(text)
 
     def add_module_arguments(self, usage):
         subparsers = self.parser.add_subparsers(
@@ -36,6 +48,19 @@ class Config(object):
 
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
+        self.convert_filter_args()
+
+    def convert_filter_args(self):
+        if not self.include:
+            self.include = ['*']
+
+        if not self.include_pycallgraph:
+            self.exclude.append('pycallgraph.*')
+
+        self.trace_filter = GlobbingFilter(
+            include=self.include,
+            exclude=self.exclude,
+        )
 
     def create_parser(self):
         '''Used by the pycallgraph command line interface to parse
@@ -70,12 +95,20 @@ class Config(object):
 
     def add_ungrouped_arguments(self):
         self.parser.add_argument(
-            '-q', '--quiet', dest='quiet', action='store_true',
-            help='Suppress status output to the console')
+            '-v', '--verbose', action='store_true', default=self.verbose,
+            help='Display informative messages while running')
 
         self.parser.add_argument(
-            '-t', '--threaded', action='store_true',
+            '-d', '--debug', action='store_true', default=self.debug,
+            help='Display debugging messages while running')
+
+        self.parser.add_argument(
+            '-t', '--threaded', action='store_true', default=self.threaded,
             help='Process traces asyncronously')
+
+        self.parser.add_argument(
+            '-ng', '--no-groups', dest='groups', action='store_false',
+            default=self.groups, help='Do not group functions by module')
 
         self.parser.add_argument(
             '-s', '--stdlib', dest='include_stdlib', action='store_true',
@@ -83,45 +116,36 @@ class Config(object):
             help='Include standard library functions in the trace')
 
         self.parser.add_argument(
-            '-m', '--track-memory', dest='track_memory', action='store_true',
-            default=self.track_memory,
+            '-m', '--memory', action='store_true', default=self.memory,
             help='(Experimental) Track memory usage')
 
     def add_filter_arguments(self):
         group = self.parser.add_argument_group('filtering')
         group.add_argument(
-            '-i', '--include', dest='include', default=[], action='append',
+            '-i', '--include', default=[], action='append',
             help='Wildcard pattern of modules to include in the output. '
             'You can have multiple include arguments.'
         )
 
         group.add_argument(
-            '-e', '--exclude', dest='exclude', default=[], action='append',
+            '-e', '--exclude', default=[], action='append',
             help='Wildcard pattern of modules to exclude in the output. '
             'You can have multiple exclude arguments.'
         )
 
         group.add_argument(
-            '-d', '--max-depth', dest='max_depth', default=None,
+            '--include-pycallgraph', default=self.include_pycallgraph,
+            action='store_true',
+            help='Do not automatically filter out pycallgraph',
+        )
+
+        group.add_argument(
+            '--max-depth', dest='max_depth', default=99999, type=int,
             help='Maximum stack depth to trace')
 
         group.add_argument(
-            '--include-timing', dest='include_timing', default=[],
-            action='append',
-            help='Wildcard pattern of modules to include in time measurement. '
-            'You can have multiple include arguments.',
-        )
-
-        group.add_argument(
-            '--exclude-timing', dest='exclude_timing', default=[],
-            action='append',
-            help='Wildcard pattern of modules to exclude in time '
-            'measurement. You can have multiple exclude arguments.',
-        )
-
-        group.add_argument(
-            '--time_fraction_threshhold', dest='time_fraction_threshhold',
-            default=0.05,
+            '--time-fraction-threshhold', dest='time_fraction_threshhold',
+            default=0.05, type=float,
             help='Set a threshhold for inclusion of functions '
             'in graphical output in terms of fraction of total time used.',
         )
