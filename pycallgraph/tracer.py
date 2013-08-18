@@ -90,7 +90,7 @@ class TraceProcessor(Thread):
         self.func_time_max = 0
 
         # Accumulative memory addition per function
-        self.func_memory_in = defaultdict(int) 
+        self.func_memory_in = defaultdict(int)
         self.func_memory_in_max = 0
 
         # Accumulative memory addition per function once exited
@@ -101,7 +101,6 @@ class TraceProcessor(Thread):
         self.call_stack_timer = []
         self.call_stack_memory_in = []
         self.call_stack_memory_out = []
-
 
     def init_libpath(self):
         self.lib_path = sysconfig.get_python_lib()

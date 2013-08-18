@@ -31,6 +31,7 @@ def pycg(name, trace_filter, comment=None):
 
     return PyCallGraph(config=config, outputs=graphviz)
 
+
 def filter_exclude():
     trace_filter = GlobbingFilter(exclude=[
         'pycallgraph.*',

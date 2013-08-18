@@ -56,7 +56,7 @@ class PyCallGraph(object):
 
     def start(self, reset=True):
         '''Begins a trace.  Setting reset to True will reset all previously
-        recorded trace data.  
+        recorded trace data.
         '''
         if not self.outputs:
             raise PyCallGraphException(

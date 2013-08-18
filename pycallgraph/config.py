@@ -17,9 +17,18 @@ class Config(object):
         self.debug = False
         self.groups = True
         self.threaded = False
+        self.memory = False
+
+        # Filtering
         self.include_stdlib = True
         self.include_pycallgraph = False
-        self.memory = False
+        self.max_depth = 99999
+        self.time_fraction_threshhold = 0.05
+
+        self.trace_filter = GlobbingFilter(
+            exclude=['pycallgraph.*'],
+            include=['*'],
+        )
 
         self.create_parser()
 
@@ -140,12 +149,13 @@ class Config(object):
         )
 
         group.add_argument(
-            '--max-depth', dest='max_depth', default=99999, type=int,
-            help='Maximum stack depth to trace')
+            '--max-depth', default=self.max_depth, type=int,
+            help='Maximum stack depth to trace',
+        )
 
         group.add_argument(
             '--time-fraction-threshhold', dest='time_fraction_threshhold',
-            default=0.05, type=float,
+            default=self.time_fraction_threshhold, type=float,
             help='Set a threshhold for inclusion of functions '
             'in graphical output in terms of fraction of total time used.',
         )

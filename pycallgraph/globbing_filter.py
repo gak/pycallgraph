@@ -16,7 +16,7 @@ class GlobbingFilter(object):
             include = ['*']
         elif exclude is None:
             exclude = []
-            
+
         self.include = include
         self.exclude = exclude
 
