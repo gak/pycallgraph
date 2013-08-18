@@ -76,25 +76,25 @@ class TraceProcessor(Thread):
         self.previous_event_return = False
 
         # A mapping of which function called which other function
-        self.call_dict = {}
+        self.call_dict = defaultdict(lambda: defaultdict(int))
 
         # Current call stack
         self.call_stack = ['__main__']
 
         # Counters for each function
-        self.func_count = {}
+        self.func_count = defaultdict(int)
         self.func_count_max = 0
 
         # Accumulative time per function
-        self.func_time = {}
+        self.func_time = defaultdict(float)
         self.func_time_max = 0
 
         # Accumulative memory addition per function
-        self.func_memory_in = {}
+        self.func_memory_in = defaultdict(int) 
         self.func_memory_in_max = 0
 
         # Accumulative memory addition per function once exited
-        self.func_memory_out = {}
+        self.func_memory_out = defaultdict(int)
         self.func_memory_out_max = 0
 
         # Keeps track of the start time of each call on the stack
@@ -152,13 +152,10 @@ class TraceProcessor(Thread):
             if full_name and m:
                 call_memory = memory - m
 
-                if full_name not in self.func_memory_out:
-                    self.func_memory_out[full_name] = 0
-                else:
-                    self.func_memory_out[full_name] += call_memory
-
-                if self.func_memory_out[full_name] > self.func_memory_out_max:
-                    self.func_memory_out_max = self.func_memory_out[full_name]
+                self.func_memory_out[full_name] += call_memory
+                self.func_memory_out_max = max(
+                    self.func_memory_out_max, self.func_memory_out[full_name]
+                )
 
         if event == 'call':
             keep = True
@@ -213,23 +210,16 @@ class TraceProcessor(Thread):
             if keep:
 
                 if self.call_stack:
-                    fr = self.call_stack[-1]
+                    src_func = self.call_stack[-1]
                 else:
-                    fr = None
+                    src_func = None
 
-                if fr not in self.call_dict:
-                    self.call_dict[fr] = {}
+                self.call_dict[src_func][full_name] += 1
 
-                if full_name not in self.call_dict[fr]:
-                    self.call_dict[fr][full_name] = 0
-
-                self.call_dict[fr][full_name] += 1
-
-                if full_name not in self.func_count:
-                    self.func_count[full_name] = 0
                 self.func_count[full_name] += 1
-                if self.func_count[full_name] > self.func_count_max:
-                    self.func_count_max = self.func_count[full_name]
+                self.func_count_max = max(
+                    self.func_count_max, self.func_count[full_name]
+                )
 
                 self.call_stack.append(full_name)
                 self.call_stack_timer.append(time.time())
@@ -255,12 +245,12 @@ class TraceProcessor(Thread):
                     start_time = None
 
                 if start_time:
-                    if full_name not in self.func_time:
-                        self.func_time[full_name] = 0
-                    call_time = (time.time() - start_time)
+                    call_time = time.time() - start_time
+
                     self.func_time[full_name] += call_time
-                    if self.func_time[full_name] > self.func_time_max:
-                        self.func_time_max = self.func_time[full_name]
+                    self.func_time_max = max(
+                        self.func_time_max, self.func_time[full_name]
+                    )
 
                 if memory is not None:
                     if self.call_stack_memory_in:
@@ -269,14 +259,13 @@ class TraceProcessor(Thread):
                         start_mem = None
 
                     if start_mem:
-                        if full_name not in self.func_memory_in:
-                            self.func_memory_in[full_name] = 0
                         call_memory = memory - start_mem
                         self.func_memory_in[full_name] += call_memory
-                        if self.func_memory_in[full_name] > \
-                                self.func_memory_in_max:
-                            self.func_memory_in_max = \
-                                self.func_memory_in[full_name]
+
+                        self.func_memory_in_max = max(
+                            self.func_memory_in_max,
+                            self.func_memory_in[full_name],
+                        )
 
     def is_module_stdlib(self, file_name):
         '''Returns True if the file_name is in the lib directory.'''
