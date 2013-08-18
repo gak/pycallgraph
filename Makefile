@@ -21,3 +21,7 @@ doc:
 	make -C docs html man
 	cp docs/_build/man/pycallgraph.1 man/
 	docs/update_readme.py
+
+2to3:
+	for a in pycallgraph test examples scripts; do 2to3 -wn $$a; done
+
