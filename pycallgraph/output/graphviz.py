@@ -23,7 +23,7 @@ class GraphvizOutput(Output):
         self.font_name = 'Verdana'
         self.font_size = 7
         self.group_font_size = 10
-        self.group_border_color = Color(0, 0, 0, 0.2)
+        self.group_border_color = Color(0, 0, 0, 0.8)
 
         self.time_filter = None
 
@@ -159,6 +159,7 @@ class GraphvizOutput(Output):
                 'label = "{group}"; '
                 'fontsize = "{group_font_size}"; '
                 'fontcolor = "black"; '
+                'style = "bold"; '
                 'color="{group_color}"; }}'.format(**locals()))
         return output
 

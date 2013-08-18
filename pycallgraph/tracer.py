@@ -3,10 +3,7 @@ from __future__ import division
 import warnings
 import inspect
 import sys
-import math
 import os
-import re
-import tempfile
 import time
 from distutils import sysconfig
 from collections import defaultdict

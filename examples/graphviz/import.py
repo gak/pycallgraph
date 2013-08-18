@@ -17,7 +17,7 @@ def main():
 
     for module in import_list:
         graphviz.output_file = 'import-{}.png'.format(module)
-        with PyCallGraph(outputs=graphviz):
+        with PyCallGraph(output=graphviz):
             __import__(module)
 
 

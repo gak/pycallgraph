@@ -32,7 +32,7 @@ def main():
     graphviz = GraphvizOutput()
     graphviz.output_file = 'basic.png'
 
-    with PyCallGraph(outputs=graphviz):
+    with PyCallGraph(output=graphviz):
         person = Person()
         for a in xrange(10):
             person.add_banana(Banana())

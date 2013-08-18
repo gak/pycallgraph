@@ -1,5 +1,4 @@
 import warnings
-import sys
 import argparse
 
 from .output import outputters

@@ -4,15 +4,19 @@ This example is trying to make a large graph. You'll need some internet access
 for this to work.
 '''
 
-import pycallgraph
+from pycallgraph import PyCallGraph
+from pycallgraph.output import GraphvizOutput
 
 
 def main():
-    pycallgraph.start_trace()
-    import urllib
-    from xml.dom.minidom import parse, parseString
-    parseString(urllib.urlopen('http://w3.org/').read())
-    pycallgraph.make_dot_graph('large.png')
+    graphviz = GraphvizOutput()
+    graphviz.output_file = 'large.png'
+
+    with PyCallGraph(output=graphviz):
+        import urllib
+        from xml.dom.minidom import parse, parseString  # noqa
+        parseString(urllib.urlopen('http://w3.org/').read())
+
 
 if __name__ == '__main__':
     main()

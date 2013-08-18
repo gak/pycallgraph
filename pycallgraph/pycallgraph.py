@@ -1,5 +1,4 @@
 import locale
-import warnings
 
 from .output import Output
 from .config import Config
@@ -9,27 +8,26 @@ from .exceptions import PyCallGraphException
 
 class PyCallGraph(object):
 
-    def __init__(self, outputs=None, config=None):
+    def __init__(self, output=None, config=None):
         '''outputs can be a single Output instance or an iterable with many
-        of them.  Some examples:
+        of them.  Example usage:
 
-        >>> PyCallGraph(output=GraphvizOutput())
-
-        >>> PyCallGraph(output=[D3Output(), GephiOutput()])
+            PyCallGraph(config=Config(), output=GraphvizOutput())
         '''
         locale.setlocale(locale.LC_ALL, '')
 
-        if outputs is None:
-            self.outputs = []
-        elif isinstance(outputs, Output):
-            self.outputs = [outputs]
+        if output is None:
+            self.output = []
+        elif isinstance(output, Output):
+            self.output = [output]
         else:
-            self.outputs = outputs
+            self.output = output
 
         self.config = config or Config()
+
         configured_ouput = self.config.get_output()
         if configured_ouput:
-            self.outputs.append(configured_ouput)
+            self.output.append(configured_ouput)
 
         self.reset()
 
@@ -49,16 +47,16 @@ class PyCallGraph(object):
         '''Resets all collected statistics.  This is run automatically by
         start(reset=True) and when the class is initialized.
         '''
-        self.tracer = self.get_tracer_class()(self.outputs, config=self.config)
+        self.tracer = self.get_tracer_class()(self.output, config=self.config)
 
-        for output in self.outputs:
+        for output in self.output:
             self.prepare_output(output)
 
     def start(self, reset=True):
         '''Begins a trace.  Setting reset to True will reset all previously
         recorded trace data.
         '''
-        if not self.outputs:
+        if not self.output:
             raise PyCallGraphException(
                 'No outputs declared. Please see the '
                 'examples in the online documentation.'
@@ -67,7 +65,7 @@ class PyCallGraph(object):
         if reset:
             self.reset()
 
-        for output in self.outputs:
+        for output in self.output:
             output.start()
 
         self.tracer.start()
@@ -88,11 +86,11 @@ class PyCallGraph(object):
         # If in threaded mode, wait for the processor thread to complete
         self.tracer.done()
 
-        for output in self.outputs:
+        for output in self.output:
             output.done()
 
     def add_output(self, output):
-        self.outputs.append(output)
+        self.output.append(output)
         self.prepare_output(output)
 
     def prepare_output(self, output):

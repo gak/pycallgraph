@@ -47,20 +47,12 @@ def rand(node):
     )
 
 
-class WithName(object):
-
-    def __enter__(self):
-
-        with PyCallGraph(outputs=graphviz):
-            yield
-
-
 def main():
     graphviz = GraphvizOutput()
-    pycallgraph = PyCallGraph(outputs=graphviz)
+    pycallgraph = PyCallGraph(output=graphviz)
 
     pycallgraph.start()
-    import HTMLParser
+    import HTMLParser  # noqa
     pycallgraph.stop()
 
     # Set the edge colour to black for all examples

@@ -13,6 +13,9 @@ tests:
 		--pep8 \
 		--ignore=pycallgraph/memory_profiler.py \
 		test pycallgraph examples
+		flake8 --exclude=__init__.py,memory_profiler.py pycallgraph
+		flake8 --ignore=F403 test
+		flake8 examples
 
 doc:
 	make -C docs html man

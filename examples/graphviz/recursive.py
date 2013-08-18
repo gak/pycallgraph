@@ -16,7 +16,7 @@ def main():
     graphviz = GraphvizOutput()
     graphviz.output_file = 'recursive.png'
 
-    with PyCallGraph(outputs=graphviz):
+    with PyCallGraph(output=graphviz):
         for a in xrange(1, 10):
             factorial(a)
 

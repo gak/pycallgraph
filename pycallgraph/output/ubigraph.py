@@ -4,7 +4,7 @@ except ImportError:
     from xmlrpc.client import Server
 
 
-from ..exceptions import PyCallGraphException
+# from ..exceptions import PyCallGraphException
 from .output import Output
 
 
