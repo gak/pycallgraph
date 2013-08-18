@@ -3,11 +3,12 @@ import sys
 import argparse
 
 from .output import outputters
+from .globbing_filter import GlobbingFilter
 
 
 class Config(object):
-    '''Handles configuration settings for pycallgraph and each output module.
-    It also handles command line arguments.
+    '''Handles configuration settings for pycallgraph, tracer, and each output
+    module.  It also handles command line arguments.
     '''
 
     def __init__(self):
@@ -17,12 +18,8 @@ class Config(object):
         self.groups = True
         self.threaded = False
         self.include_stdlib = True
+        self.include_pycallgraph = False
         self.memory = False
-
-        # Filters to determine which calls to keep
-        self.trace_filter = GlobbingFilter(exclude=['pycallgraph.*'])
-        self.time_filter = GlobbingFilter()
-        self.mem_filter = GlobbingFilter()
 
         self.create_parser()
 
@@ -54,7 +51,16 @@ class Config(object):
         self.convert_filter_args()
 
     def convert_filter_args(self):
+        if not self.include:
+            self.include = ['*']
 
+        if not self.include_pycallgraph:
+            self.exclude.append('pycallgraph.*')
+
+        self.trace_filter = GlobbingFilter(
+            include=self.include,
+            exclude=self.exclude,
+        )
 
     def create_parser(self):
         '''Used by the pycallgraph command line interface to parse
@@ -128,25 +134,17 @@ class Config(object):
         )
 
         group.add_argument(
+            '--include-pycallgraph', default=self.include_pycallgraph,
+            action='store_true',
+            help='Do not automatically filter out pycallgraph',
+        )
+
+        group.add_argument(
             '--max-depth', dest='max_depth', default=None,
             help='Maximum stack depth to trace')
 
         group.add_argument(
-            '--include-timing', default=[],
-            action='append',
-            help='Wildcard pattern of modules to include in time measurement. '
-            'You can have multiple include arguments.',
-        )
-
-        group.add_argument(
-            '--exclude-timing', default=[],
-            action='append',
-            help='Wildcard pattern of modules to exclude in time '
-            'measurement. You can have multiple exclude arguments.',
-        )
-
-        group.add_argument(
-            '--time_fraction_threshhold', dest='time_fraction_threshhold',
+            '--time-fraction-threshhold', dest='time_fraction_threshhold',
             default=0.05,
             help='Set a threshhold for inclusion of functions '
             'in graphical output in terms of fraction of total time used.',

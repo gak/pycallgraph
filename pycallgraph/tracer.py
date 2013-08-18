@@ -16,7 +16,6 @@ try:
 except ImportError:
     from queue import Queue, Empty
 
-from .globbing_filter import GlobbingFilter
 from .util import Util
 
 
@@ -138,30 +137,28 @@ class TraceProcessor(Thread):
         relationships between calls.
         '''
 
-        if memory is not None:
+        if memory is not None and self.previous_event_return:
             # Deal with memory when function has finished so local variables
             # can be cleaned up
-            if self.previous_event_return:
-                self.previous_event_return = False
+            self.previous_event_return = False
 
-                if self.call_stack_memory_out:
-                    full_name, m = self.call_stack_memory_out.pop(-1)
+            if self.call_stack_memory_out:
+                full_name, m = self.call_stack_memory_out.pop(-1)
+            else:
+                full_name, m = (None, None)
+
+            # NOTE: Call stack is no longer the call stack that may be
+            # expected. Potentially need to store a copy of it.
+            if full_name and m:
+                call_memory = memory - m
+                
+                if full_name not in self.func_memory_out:
+                    self.func_memory_out[full_name] = 0
                 else:
-                    full_name, m = (None, None)
+                    self.func_memory_out[full_name] += call_memory
 
-                # NOTE: Call stack is no longer the call stack that may be
-                # expected. Potentially need to store a copy of it.
-                if full_name and m and self.mem_filter(
-                        stack=self.call_stack, full_name=full_name):
-                    call_memory = memory - m
-                    if full_name not in self.func_memory_out:
-                        self.func_memory_out[full_name] = 0
-                    else:
-                        self.func_memory_out[full_name] += call_memory
-                    if self.func_memory_out[full_name] > \
-                            self.func_memory_out_max:
-                        self.func_memory_out_max = \
-                            self.func_memory_out[full_name]
+                if self.func_memory_out[full_name] > self.func_memory_out_max:
+                    self.func_memory_out_max = self.func_memory_out[full_name]
 
         if event == 'call':
             keep = True
@@ -206,11 +203,8 @@ class TraceProcessor(Thread):
 
             # Load the trace filter, if any. 'keep' determines if we should
             # ignore this call
-            if keep and self.trace_filter:
-                keep = self.trace_filter(
-                    self.call_stack, module_name, class_name, func_name,
-                    full_name
-                )
+            if keep and self.config.trace_filter:
+                keep = self.config.trace_filter(full_name)
 
             # Store the call information
             if keep:
@@ -250,30 +244,28 @@ class TraceProcessor(Thread):
                 full_name = self.call_stack.pop(-1)
 
                 if self.call_stack_timer:
-                    t = self.call_stack_timer.pop(-1)
+                    start_time = self.call_stack_timer.pop(-1)
                 else:
-                    t = None
+                    start_time = None
 
-                if t and self.time_filter(
-                        stack=self.call_stack, full_name=full_name):
+                if start_time:
                     if full_name not in self.func_time:
                         self.func_time[full_name] = 0
-                    call_time = (time.time() - t)
+                    call_time = (time.time() - start_time)
                     self.func_time[full_name] += call_time
                     if self.func_time[full_name] > self.func_time_max:
                         self.func_time_max = self.func_time[full_name]
 
                 if memory is not None:
                     if self.call_stack_memory_in:
-                        m = self.call_stack_memory_in.pop(-1)
+                        start_mem = self.call_stack_memory_in.pop(-1)
                     else:
-                        m = None
+                        start_mem = None
 
-                    if m and self.mem_filter(
-                            stack=self.call_stack, full_name=full_name):
+                    if start_mem:
                         if full_name not in self.func_memory_in:
                             self.func_memory_in[full_name] = 0
-                        call_memory = memory - m
+                        call_memory = memory - start_mem
                         self.func_memory_in[full_name] += call_memory
                         if self.func_memory_in[full_name] > \
                                 self.func_memory_in_max:

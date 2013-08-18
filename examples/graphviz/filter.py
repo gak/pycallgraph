@@ -17,48 +17,55 @@ class Banana:
         self.secret_function()
 
     def secret_function(self):
-        pass
+        time.sleep(0.2)
 
 
-def pycg(name, filter_func):
+def pycg(name, trace_filter, comment=None):
     config = Config()
-    config.filter_func = filter_func
+    config.trace_filter = trace_filter
+
     graphviz = GraphvizOutput()
     graphviz.output_file = 'filter-{}.png'.format(name)
+    if comment:
+        graphviz.graph_attributes['graph']['label'] = comment
+
     return PyCallGraph(config=config, outputs=graphviz)
 
 def filter_exclude():
-    filter_func = GlobbingFilter(exclude=[
+    trace_filter = GlobbingFilter(exclude=[
+        'pycallgraph.*',
         '*.secret_function',
     ])
 
-    with pycg('exclude', filter_func):
+    with pycg('exclude', trace_filter, 'Should not include secret_function.'):
         banana = Banana()
         banana.eat()
 
 
 def filter_include():
-    filter_func = GlobbingFilter(include=[
-        '*.secret_function', 'Banana.__init__',
+    trace_filter = GlobbingFilter(include=[
+        '*.secret_function',
+        'Banana.eat',
     ])
-    pycallgraph.start_trace(filter_func=filter_func)
-    banana = Banana()
-    banana.eat()
-    pycallgraph.make_dot_graph('filter-include.png')
+    with pycg('include', trace_filter, 'Should show secret_function.'):
+        banana = Banana()
+        banana.eat()
 
 
-def filter_max_depth():
-    filter_func = GlobbingFilter(max_depth=1)
-    pycallgraph.start_trace(filter_func=filter_func)
-    banana = Banana()
-    banana.eat()
-    pycallgraph.make_dot_graph('filter-max-depth.png')
+def filter_include():
+    trace_filter = GlobbingFilter(include=[
+        '*.secret_function',
+        'Banana.eat',
+    ])
+    with pycg('include', trace_filter, 'Should show secret_function.'):
+        banana = Banana()
+        banana.eat()
 
 
 def main():
     filter_exclude()
-    # filter_include()
-    # filter_max_depth()
+    filter_include()
+
 
 if __name__ == '__main__':
     main()

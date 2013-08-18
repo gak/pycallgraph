@@ -54,15 +54,9 @@ class PyCallGraph(object):
         for output in self.outputs:
             self.prepare_output(output)
 
-    def start(self, reset=True, filter_func=None, time_filter_func=None,
-              memory_filter_func=None):
+    def start(self, reset=True):
         '''Begins a trace.  Setting reset to True will reset all previously
-        recorded trace data.  filter_func needs to point to a callable
-        function that accepts the parameters (call_stack, module_name,
-        class_name, func_name, full_name). Every call will be passed into
-        this function and it is up to the function to decide if it should be
-        included or not.  Returning False means the call will be filtered out
-        and not included in the call graph.
+        recorded trace data.  
         '''
         if not self.outputs:
             raise PyCallGraphException(

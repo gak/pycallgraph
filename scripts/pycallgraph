@@ -5,15 +5,15 @@ This script is the command line interface to the pycallgraph Python library.
 
 See http://pycallgraph.slowchop.com/ for more information.
 """
-import pycallgraph
+import pycallgraph as __pycallgraph
 
 
-pycg_cli = pycallgraph.CommandLine()
-pycg_cli.parse_args()
+__config = __pycallgraph.Config()
+__config.parse_args()
 
-globals()['__file__'] = pycg_cli.config.command
+globals()['__file__'] = __config.command
 
-file_content = open(pycg_cli.config.command).read()
+__file_content = open(__config.command).read()
 
-with pycg_cli.run():
-    exec(file_content)
+with __pycallgraph.PyCallGraph(config=__config):
+    exec(__file_content)
