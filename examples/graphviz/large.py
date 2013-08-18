@@ -13,9 +13,9 @@ def main():
     graphviz.output_file = 'large.png'
 
     with PyCallGraph(output=graphviz):
-        import urllib2
+        from urllib2 import urlopen
         from xml.dom.minidom import parseString
-        parseString(urllib2.urlopen('http://w3.org/').read())
+        parseString(urlopen('http://w3.org/').read())
 
 
 if __name__ == '__main__':
