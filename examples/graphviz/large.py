@@ -13,8 +13,8 @@ def main():
     graphviz.output_file = 'large.png'
 
     with PyCallGraph(output=graphviz):
-        import urllib
-        from xml.dom.minidom import parse # noqa
+        import urllib  # noqa
+        from xml.dom.minidom import parse  # noqa
         from xml.dom.minidom import parseString  # noqa
         parseString(urllib.urlopen('http://w3.org/').read())
 
