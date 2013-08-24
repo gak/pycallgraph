@@ -6,7 +6,7 @@ Command-line Usage
 Synopsis
 --------
 
-pycallgraph [*OPTION*]... *OUTPUT_MODE* *python_file.py*
+pycallgraph [*OPTION*]... *OUTPUT_MODE* [*OUTPUT_OPTIONS*] *python_file.py*
 
 Description
 -----------
@@ -29,12 +29,12 @@ Examples
 
 Create a call graph called pycallgraph.png on myprogram.py::
 
-    pycallgraph ./myprogram.py
+    pycallgraph graphviz ./myprogram.py
 
 Create a call graph of a standard Python installation script with command line parameters::
 
-    pycallgraph --output-file=setup.png -- setup.py --dry-run install
+    pycallgraph graphviz --output-file=setup.png -- setup.py --dry-run install
 
 Only see the module "distutils" within the execution of easy_install::
 
-    pycallgraph --include=distutils.* /usr/bin/easy_install
+    pycallgraph --include=distutils.* graphviz /usr/bin/easy_install

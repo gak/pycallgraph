@@ -59,7 +59,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 ..
 .SH SYNOPSIS
 .sp
-pycallgraph [\fIOPTION\fP]... \fIOUTPUT_MODE\fP \fIpython_file.py\fP
+pycallgraph [\fIOPTION\fP]... \fIOUTPUT_MODE\fP [\fIOUTPUT_OPTIONS\fP] \fIpython_file.py\fP
 .SH DESCRIPTION
 .sp
 pycallgraph is a program that creates call graph visualisation from Python scripts.
@@ -79,7 +79,7 @@ Create a call graph called pycallgraph.png on myprogram.py:
 .sp
 .nf
 .ft C
-pycallgraph ./myprogram.py
+pycallgraph graphviz ./myprogram.py
 .ft P
 .fi
 .UNINDENT
@@ -91,7 +91,7 @@ Create a call graph of a standard Python installation script with command line p
 .sp
 .nf
 .ft C
-pycallgraph \-\-output\-file=setup.png \-\- setup.py \-\-dry\-run install
+pycallgraph graphviz \-\-output\-file=setup.png \-\- setup.py \-\-dry\-run install
 .ft P
 .fi
 .UNINDENT
@@ -103,7 +103,7 @@ Only see the module "distutils" within the execution of easy_install:
 .sp
 .nf
 .ft C
-pycallgraph \-\-include=distutils.* /usr/bin/easy_install
+pycallgraph \-\-include=distutils.* graphviz /usr/bin/easy_install
 .ft P
 .fi
 .UNINDENT
