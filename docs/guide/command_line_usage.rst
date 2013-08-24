@@ -27,7 +27,7 @@ Arguments
 Examples
 --------
 
-Create a call graph called pycallgraph.png on myprogram.py::
+Create a call graph image called pycallgraph.png on myprogram.py::
 
     pycallgraph graphviz ./myprogram.py
 

@@ -1,6 +1,5 @@
 from __future__ import division
 
-import warnings
 import inspect
 import sys
 import os
@@ -305,7 +304,6 @@ class TraceProcessor(Thread):
         return stat_group
 
     def nodes(self):
-        warnings.warn('TODO: Filtering')
         for func, calls in self.func_count.iteritems():
             yield self.stat_group_from_func(func, calls)
 
