@@ -44,7 +44,7 @@ class Config(object):
             help='OUTPUT_TYPE', dest='output')
         parent_parser = self.create_parent_parser()
 
-        for name, cls in outputters.iteritems():
+        for name, cls in outputters.items():
             cls.add_arguments(subparsers, parent_parser, usage)
 
     def get_output(self):

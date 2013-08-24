@@ -29,7 +29,7 @@ Features
 Quick Start
 ===========
 
-Welcome to the Python Call Graph (pycallgraph) documentation. The latest version is **1.0.0** and is a backwards incompatbile from the previous release.
+Welcome to the Python Call Graph documentation. The latest version is **1.0.0** and is a backwards incompatbile from the previous release.
 
 Installation is easy as::
 
@@ -46,11 +46,10 @@ The command-line method of running pycallgraph is::
 A simple use of the API is::
 
     from pycallgraph import PyCallGraph
-    from pycallgraph.output import GraphvizImageOutput
+    from pycallgraph.output import GraphvizOutput
 
-    with PyCallGraph(outputs=GraphvizImageOutput):
+    with PyCallGraph(output=GraphvizOutput()):
         code_to_profile()
-
 
 Documentation Index
 ===================
