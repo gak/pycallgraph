@@ -1,5 +1,8 @@
 all: deps tests doc
 
+run_examples:
+	cd examples/graphviz; ./all.py 
+
 deps:
 	pip install -r requirements/development.txt
 	pip install -r requirements/documentation.txt

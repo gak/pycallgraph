@@ -20,7 +20,7 @@ Click on the images below to see a larger version and the source code that gener
 Features
 ========
 
-* Support for Python 2.7+, Python 3.0+
+* Support for Python 2.7+, Python 3.3+
 * Static and interactive visualisations of the call graph using various tools such as Graphviz, Gephi, Ubigraph.
 * Modules can be visually grouped together.
 * Easily extendable to create your own output formats.
