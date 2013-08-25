@@ -15,8 +15,6 @@ class GraphvizOutput(Output):
     def __init__(self):
         Output.__init__(self)
 
-        self.node_color_func
-
         self.tool = 'dot'
         self.output_file = 'pycallgraph.png'
         self.output_type = 'png'
@@ -120,6 +118,35 @@ class GraphvizOutput(Output):
             self.output_file, len(self.processor.func_count),
         ))
 
+    def generate(self):
+        '''Returns a string with the contents of a DOT file for Graphviz to
+        parse.
+        '''
+        indent_join = '\n' + ' ' * 12
+
+        return textwrap.dedent('''\
+        digraph G {{
+
+            // Attributes
+            {}
+
+            // Groups
+            {}
+
+            // Nodes
+            {}
+
+            // Edges
+            {}
+
+        }}
+        '''.format(
+            indent_join.join(self.generate_attributes()),
+            indent_join.join(self.generate_groups()),
+            indent_join.join(self.generate_nodes()),
+            indent_join.join(self.generate_edges()),
+        ))
+
     def attrs_from_dict(self, d):
         output = []
         for attr, val in d.iteritems():
@@ -149,7 +176,8 @@ class GraphvizOutput(Output):
             return ''
 
         output = []
-        for group, funcs in self.processor.groups():
+        for group, nodes in self.processor.groups():
+            funcs = [node.name for node in nodes]
             funcs = '" "'.join(funcs)
             group_color = self.group_border_color.rgba_web()
             group_font_size = self.group_font_size
@@ -185,29 +213,3 @@ class GraphvizOutput(Output):
             output.append(self.edge(edge, attr))
 
         return output
-
-    def generate(self):
-        indent_join = '\n' + ' ' * 12
-
-        return textwrap.dedent('''\
-        digraph G {{
-
-            // Attributes
-            {}
-
-            // Groups
-            {}
-
-            // Nodes
-            {}
-
-            // Edges
-            {}
-
-        }}
-        '''.format(
-            indent_join.join(self.generate_attributes()),
-            indent_join.join(self.generate_groups()),
-            indent_join.join(self.generate_nodes()),
-            indent_join.join(self.generate_edges()),
-        ))
