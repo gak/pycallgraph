@@ -66,7 +66,7 @@ class GephiOutput(Output):
         return '\n'.join(output)
 
     def node_size(self, node):
-        return math.log(node.time.fraction * (math.e - 1) + 1) * 2 + 1,
+        return math.log(node.time.fraction * (math.e - 1) + 1) * 2 + 1
 
     def generate_edges(self):
         output = []
