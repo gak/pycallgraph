@@ -50,7 +50,6 @@ class GephiOutput(Output):
         output.append(u'nodedef> {}'.format(fields))
 
         for node in self.processor.nodes():
-            print(node.time.value)
             fields = u','.join([str(a) for a in [
                 node.name,
                 node.name,
