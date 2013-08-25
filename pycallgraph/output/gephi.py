@@ -30,7 +30,7 @@ class GephiOutput(Output):
 
         return u'\n\n'.join([
             self.generate_nodes(),
-            # self.generate_edges(),
+            self.generate_edges(),
         ]) + '\n'
 
     def generate_nodes(self):
@@ -63,24 +63,33 @@ class GephiOutput(Output):
 
         return '\n'.join(output)
 
-        # ret.append('edgedef>node1 VARCHAR, node2 VARCHAR, color VARCHAR')
-        # for fr_key, fr_val in self.processor.call_dict.items():
-        #     if fr_key == '':
-        #         continue
-        #     for to_key, to_val in fr_val.items():
-        #         calls_frac, total_time_frac, total_time,total_memory_in_frac,
-        # total_memory_in, total_memory_out_frac, total_memory_out =
-        # self.processor.frac_calculation(to_key, to_val)
-        #         # col = settings['edge_colour'](calls_frac, total_time_frac)
-        #         # color = ','.join([str(round(float(c) * 255))
-        #         #for c in col.split()])
-        #         color = '255,127,127'
+    def generate_edges(self):
+        output = []
 
-        #    if time_filter==None or time_filter.fraction < total_time_frac:
-        #         ret.append('%s,%s,\'%s\'' % (fr_key, to_key, color))
+        fields = u', '.join([
+            u'node1 VARCHAR',
+            u'node2 VARCHAR',
+            u'label VARCHAR',
+            u'labelvisible VARCHAR',
+            u'directed BOOLEAN',
+            u'color VARCHAR',
+            u'width DOUBLE',
+        ])
+        output.append(u'edgedef> {}'.format(fields))
 
-        # ret = '\n'.join(ret)
-        # return ret
+        for edge in self.processor.edges():
+            fields = u','.join([str(a) for a in [
+                edge.src_func,
+                edge.dst_func,
+                self.edge_label(edge),
+                'true',
+                'true',
+                u"'{}'".format(self.edge_color_func(edge).rgb_csv()),
+                math.log(edge.calls.value),
+            ]])
+            output.append(fields)
+
+        return '\n'.join(output)
 
     def done(self):
         source = self.generate()
