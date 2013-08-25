@@ -1,7 +1,5 @@
 import math
 
-# from ..metadata import __version__
-# from ..exceptions import PyCallGraphException
 from .output import Output
 
 
