@@ -49,3 +49,7 @@ class Color(object):
     def rgba_web(self):
         '''Returns a string with the RGBA components as a HTML hex string.'''
         return '{0}{1.a255:02x}'.format(self.rgb_web(), self)
+
+    def rgb_csv(self):
+        '''Returns a string with the RGB components as CSV.'''
+        return '{0.r255},{0.g255},{0.b255}'.format(self)

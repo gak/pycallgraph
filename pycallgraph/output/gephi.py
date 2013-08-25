@@ -1,3 +1,5 @@
+import math
+
 # from ..metadata import __version__
 # from ..exceptions import PyCallGraphException
 from .output import Output
@@ -5,6 +7,8 @@ from .output import Output
 
 class GephiOutput(Output):
     def __init__(self):
+        Output.__init__(self)
+
         self.fp = None
         self.output_file = 'pycallgraph.gdf'
 
@@ -22,25 +26,42 @@ class GephiOutput(Output):
         )
 
     def generate(self):
-        '''Returns a string containing a GDF file.'''
-        # ret = ['nodedef>name VARCHAR, label VARCHAR, hits INTEGER, ' + \
-        #         'calls_frac DOUBLE, total_time_frac DOUBLE, ' + \
-        #         'total_time DOUBLE, color VARCHAR, width DOUBLE,' + \
-        #         'total_memory_in_frac DOUBLE, total_memory_in DOUBLE']
+        '''Returns a string with the contents of a GDF file.'''
 
-        # for func, hits in self.processor.func_count.iteritems():
-        #     calls_frac, total_time_frac, total_time, total_memory_in_frac, \
-        #         total_memory_in, total_memory_out_frac, total_memory_out = \
-        #         self.processor.frac_calculation(func, hits)
+        return u'\n\n'.join([
+            self.generate_nodes(),
+            # self.generate_edges(),
+        ]) + '\n'
 
-        # # col = settings['node_colour'](calls_frac, total_time_frac)
-        # # color = ','.join([str(round(float(c) * 255)) for c in col.split()])
-        # color = '255,0,255'
-        # # if time_filter==None or time_filter.fraction < total_time_frac:
-        # ret.append('%s,%s,%s,%s,%s,%s,%s,%s,%s,\'%s\',%s' % (
-        #     func, func, hits, calls_frac, total_time_frac, total_time,
-        # total_memory_in_frac, total_memory_in, total_memory_out, color,
-        # math.log(hits * 10)))
+    def generate_nodes(self):
+        output = []
+
+        fields = u', '.join([
+            u'name VARCHAR',
+            u'label VARCHAR',
+            u'calls INTEGER',
+            u'time DOUBLE',
+            u'memory_in INTEGER',
+            u'memory_out INTEGER',
+            u'color VARCHAR',
+            u'width DOUBLE',
+        ])
+        output.append(u'nodedef> {}'.format(fields))
+
+        for node in self.processor.nodes():
+            fields = u','.join([str(a) for a in [
+                node.name,
+                node.name,
+                node.calls.value,
+                node.time.value,
+                node.memory_in.value,
+                node.memory_out.value,
+                u"'{}'".format(self.node_color_func(node).rgb_csv()),
+                math.log(node.calls.value * 100),
+            ]])
+            output.append(fields)
+
+        return '\n'.join(output)
 
         # ret.append('edgedef>node1 VARCHAR, node2 VARCHAR, color VARCHAR')
         # for fr_key, fr_val in self.processor.call_dict.items():
