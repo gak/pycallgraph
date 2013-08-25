@@ -80,6 +80,7 @@ class TraceProcessor(Thread):
         # Counters for each function
         self.func_count = defaultdict(int)
         self.func_count_max = 0
+        self.func_count['__main__'] = 1
 
         # Accumulative time per function
         self.func_time = defaultdict(float)
@@ -282,11 +283,13 @@ class TraceProcessor(Thread):
 
         return odict
 
+    def group(self, node):
+        return node.name.split('.', 1)[0]
+
     def groups(self):
         grp = defaultdict(list)
-        for func in self.func_count:
-            name = func.split('.', 1)[0]
-            grp[name].append(func)
+        for node in self.nodes:
+            grp[self.group(node)].append(node)
         for g in grp.iteritems():
             yield g
 
@@ -305,7 +308,9 @@ class TraceProcessor(Thread):
 
     def nodes(self):
         for func, calls in self.func_count.iteritems():
-            yield self.stat_group_from_func(func, calls)
+            node = self.stat_group_from_func(func, calls)
+            node.group = self.group(node)
+            yield node
 
     def edges(self):
         for src_func, dests in self.call_dict.iteritems():

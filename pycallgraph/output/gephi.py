@@ -28,7 +28,7 @@ class GephiOutput(Output):
     def generate(self):
         '''Returns a string with the contents of a GDF file.'''
 
-        return u'\n\n'.join([
+        return u'\n'.join([
             self.generate_nodes(),
             self.generate_edges(),
         ]) + '\n'
@@ -39,6 +39,7 @@ class GephiOutput(Output):
         fields = u', '.join([
             u'name VARCHAR',
             u'label VARCHAR',
+            u'group VARCHAR',
             u'calls INTEGER',
             u'time DOUBLE',
             u'memory_in INTEGER',
@@ -49,19 +50,24 @@ class GephiOutput(Output):
         output.append(u'nodedef> {}'.format(fields))
 
         for node in self.processor.nodes():
+            print(node.time.value)
             fields = u','.join([str(a) for a in [
                 node.name,
                 node.name,
+                node.group,
                 node.calls.value,
                 node.time.value,
                 node.memory_in.value,
                 node.memory_out.value,
                 u"'{}'".format(self.node_color_func(node).rgb_csv()),
-                math.log(node.calls.value * 100),
+                self.node_size(node),
             ]])
             output.append(fields)
 
         return '\n'.join(output)
+
+    def node_size(self, node):
+        return math.log(node.time.fraction * (math.e - 1) + 1) * 2 + 1,
 
     def generate_edges(self):
         output = []
@@ -85,7 +91,7 @@ class GephiOutput(Output):
                 'true',
                 'true',
                 u"'{}'".format(self.edge_color_func(edge).rgb_csv()),
-                math.log(edge.calls.value),
+                edge.calls.fraction * 2,
             ]])
             output.append(fields)
 

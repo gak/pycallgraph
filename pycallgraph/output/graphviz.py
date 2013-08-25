@@ -176,7 +176,8 @@ class GraphvizOutput(Output):
             return ''
 
         output = []
-        for group, funcs in self.processor.groups():
+        for group, nodes in self.processor.groups():
+            funcs = [node.name for node in nodes]
             funcs = '" "'.join(funcs)
             group_color = self.group_border_color.rgba_web()
             group_font_size = self.group_font_size
