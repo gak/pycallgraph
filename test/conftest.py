@@ -1,3 +1,5 @@
+import tempfile
+
 from helpers import *
 
 
@@ -9,3 +11,8 @@ def pycg():
 @pytest.fixture(scope='module')
 def config():
     return Config()
+
+
+@pytest.fixture(scope='module')
+def temp():
+    return tempfile.mkstemp()[1]

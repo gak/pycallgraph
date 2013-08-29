@@ -22,7 +22,7 @@ XXX TODO XXX
 Project Status
 ==============
 
-The latest version is **1.0.0** and is a backwards incompatbile from the previous release.
+The latest version is **1.0.0** which is currently in heavy development, and is a backwards incompatbile from the previous release.
 
 Features
 ========
