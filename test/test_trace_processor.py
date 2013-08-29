@@ -38,3 +38,7 @@ def test_one_nop(trace_processor):
         '__main__': {'calls.one_nop': 1},
         'calls.one_nop': {'calls.nop': 1},
     }
+
+
+def test_groups(trace_processor):
+    [a for a in trace_processor.groups()]

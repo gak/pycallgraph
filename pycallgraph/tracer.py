@@ -288,7 +288,7 @@ class TraceProcessor(Thread):
 
     def groups(self):
         grp = defaultdict(list)
-        for node in self.nodes:
+        for node in self.nodes():
             grp[self.group(node)].append(node)
         for g in grp.iteritems():
             yield g
