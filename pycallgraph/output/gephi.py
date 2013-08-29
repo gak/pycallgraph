@@ -96,4 +96,6 @@ class GephiOutput(Output):
 
     def done(self):
         source = self.generate()
-        open(self.output_file, 'w').write(source)
+        f = open(self.output_file, 'w')
+        f.write(source)
+        f.close()
