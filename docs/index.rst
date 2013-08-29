@@ -1,7 +1,7 @@
 Python Call Graph
 #################
 
-Python Call Graph is a `Python <http://www.python.org>`_ module that creates `call graph <http://en.wikipedia.org/wiki/Call_graph>`_ visualisations for Python applications.
+Welcome! Python Call Graph is a `Python <http://www.python.org>`_ module that creates `call graph <http://en.wikipedia.org/wiki/Call_graph>`_ visualisations for Python applications.
 
 .. image:: https://travis-ci.org/gak/pycallgraph.png
     :target: https://travis-ci.org/gak/pycallgraph
@@ -17,19 +17,23 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
+XXX TODO XXX
+
+Project Status
+==============
+
+The latest version is **1.0.0** which is currently in heavy development, and is a backwards incompatbile from the previous release.
+
 Features
 ========
 
-* Support for Python 2.7+, Python 3.3+
-* Static and interactive visualisations of the call graph using various tools such as Graphviz, Gephi, Ubigraph.
+* Support for Python 2.7+ and Python 3.3+.
+* Static visualisations of the call graph using various tools such as Graphviz and Gephi.
 * Modules can be visually grouped together.
 * Easily extendable to create your own output formats.
-* (The beginnings of) automated unit testing and a goal for 100% code coverage.
 
 Quick Start
 ===========
-
-Welcome to the Python Call Graph documentation. The latest version is **1.0.0** and is a backwards incompatbile from the previous release.
 
 Installation is easy as::
 
