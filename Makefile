@@ -28,4 +28,3 @@ doc:
 
 2to3:
 	for a in pycallgraph test examples scripts; do 2to3 -wn $$a; done
-

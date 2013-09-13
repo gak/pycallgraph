@@ -9,3 +9,6 @@ dist/
 *.png
 *.gdf
 __pycache__
+
+examples/**/*.json
+examples/**/*.gdf

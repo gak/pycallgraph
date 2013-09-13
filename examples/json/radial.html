@@ -1,62 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link type="text/css" rel="stylesheet" href="style.css"/>
-    <style type="text/css">
-
-path.arc {
-  cursor: move;
-  fill: #fff;
-}
-
-.node {
-  font-size: 10px;
-}
-
-.node:hover {
-  fill: #1f77b4;
-}
-
-.link {
-  fill: none;
-  stroke: #1f77b4;
-  stroke-opacity: .4;
-  pointer-events: none;
-}
-
-.link.source, .link.target {
-  stroke-opacity: 1;
-  stroke-width: 2px;
-}
-
-.node.target {
-  fill: #d62728 !important;
-}
-
-.link.source {
-  stroke: #d62728;
-}
-
-.node.source {
-  fill: #2ca02c;
-}
-
-.link.target {
-  stroke: #2ca02c;
-}
-
-    </style>
   </head>
   <body>
     <h2>
-      Flare imports<br>
-      hierarchical edge bundling
+      Python Call Graph<br>
     </h2>
     <div style="position:absolute;bottom:0;font-size:18px;">tension: <input style="position:relative;top:3px;" type="range" min="0" max="100" value="85"></div>
-    <script type="text/javascript" src="d3/d3.js"></script>
-    <script type="text/javascript" src="d3/d3.layout.js"></script>
-    <script type="text/javascript" src="packages.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript">
 
 var w = 1280,
@@ -100,19 +53,19 @@ svg.append("svg:path")
     .attr("d", d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
     .on("mousedown", mousedown);
 
-d3.json("flare-imports.json", function(classes) {
-  var nodes = cluster.nodes(packages.root(classes)),
-      links = packages.imports(nodes),
-      splines = bundle(links);
+d3.json("large.json", function(items) {
+  var nodes = items.nodes
+  // links = packages.imports(nodes),
+  // splines = bundle(links);
 
-  var path = svg.selectAll("path.link")
-      .data(links)
-    .enter().append("svg:path")
-      .attr("class", function(d) { return "link source-" + d.source.key + " target-" + d.target.key; })
-      .attr("d", function(d, i) { return line(splines[i]); });
+  // var path = svg.selectAll("path.link")
+  //     .data(links)
+  //   .enter().append("svg:path")
+  //     .attr("class", function(d) { return "link source-" + d.source.key + " target-" + d.target.key; })
+  //     .attr("d", function(d, i) { return line(splines[i]); });
 
   svg.selectAll("g.node")
-      .data(nodes.filter(function(n) { return !n.children; }))
+      .data(nodes)
     .enter().append("svg:g")
       .attr("class", "node")
       .attr("id", function(d) { return "node-" + d.key; })
