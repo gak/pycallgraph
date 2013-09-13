@@ -62,5 +62,6 @@ Documentation Index
     :maxdepth: 3
 
     guide/index
+    examples/index
     api/api
     api/internal
