@@ -8,3 +8,4 @@ dist/
 *.pyc
 *.png
 *.gdf
+__pycache__
