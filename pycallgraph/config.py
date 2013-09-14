@@ -10,7 +10,10 @@ class Config(object):
     module.  It also handles command line arguments.
     '''
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        '''
+        You can set defaults in the constructor, e.g. Config(verbose=True)
+        '''
         self.output = None
         self.verbose = False
         self.debug = False
@@ -28,6 +31,11 @@ class Config(object):
             exclude=['pycallgraph.*'],
             include=['*'],
         )
+
+        self.did_init = True
+
+        # Update the defaults with anything from kwargs
+        [setattr(self, k, v) for k, v in kwargs.iteritems()]
 
         self.create_parser()
 

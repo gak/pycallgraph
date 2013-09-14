@@ -4,6 +4,17 @@ import subprocess
 import yaml
 
 
+INDEX_TEMPLATE = '''
+Examples
+========
+
+.. toctree::
+   :maxdepth: 3
+
+   {}
+'''
+
+
 IMAGE_TEMPLATE = '''
 .. _{0[name]}_example:
 
@@ -12,25 +23,40 @@ IMAGE_TEMPLATE = '''
 
 {0[description]}
 
-.. literalinclude:: {0[name]}.py
+Source Code
+-----------
 
-:download:`Direct link to image <{0[name]}.png>`
+.. literalinclude:: {0[script]}
+
+Generated Image
+---------------
+
+Below is the generated image from the code above. If you're having issues with the image below, try the :download:`direct link to image <{0[name]}.png>`.
 
 .. container:: example-image
 
     .. image:: {0[name]}.png
+        :target: ../_downloads/{0[name]}.png
 
 '''
 
 
+index = []
+
+
 for info in yaml.load(open('examples.yml')):
     open('{}.rst'.format(info['name']), 'w').write(
-        IMAGE_TEMPLATE.format(info)
+        IMAGE_TEMPLATE.format(info).strip()
     )
 
-    subprocess.call('./{}.py'.format(info['name']))
+    print(info['run'])
+    subprocess.call(info['run'], shell=True)
 
     if 'execute_after' in info:
         print('Running {}'.format(info['execute_after']))
         subprocess.call(info['execute_after'], shell=True)
 
+    index.append(info['name'])
+
+
+open('index.rst', 'w').write(INDEX_TEMPLATE.format('\n   '.join(index)))

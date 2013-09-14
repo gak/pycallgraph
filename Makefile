@@ -2,6 +2,10 @@ export PYTHONPATH=$(shell pwd)
 
 all: deps tests doc
 
+clean:
+	make -C docs clean
+	-rm .coverage
+
 run_examples:
 	cd examples/graphviz; ./all.py
 	cd examples/gephi; ./all.py

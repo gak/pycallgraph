@@ -1,4 +1,13 @@
+#screenshots img {
+    border-bottom: 5px #eee solid;
+    margin-right: 10px;
+    padding-bottom: 5px;
+}
+
+#screenshots img:hover {
+    border-bottom: 5px #aaa solid;
+}
+
 .example-image img {
     max-width: 100%
 }
-

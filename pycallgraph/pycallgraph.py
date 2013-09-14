@@ -9,7 +9,7 @@ from .exceptions import PyCallGraphException
 class PyCallGraph(object):
 
     def __init__(self, output=None, config=None):
-        '''outputs can be a single Output instance or an iterable with many
+        '''output can be a single Output instance or an iterable with many
         of them.  Example usage:
 
             PyCallGraph(config=Config(), output=GraphvizOutput())

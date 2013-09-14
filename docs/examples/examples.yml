@@ -1,5 +1,13 @@
-- name: regexp
-  title: Regular Expressions
-  description: See how a regular expression is constructed and matched.
-  execute_after: convert regexp.png -resize 300x regexp.thumb.png
+- name: regexp_grouped
+  script: regexp.py
+  run: ./regexp.py --grouped
+  title: Regular Expressions (Grouped)
+  description: See how a regular expression is constructed and matched. The example also shows the comparison between creating a regular expression object before matching, versus matching a "new" regular expression every iteration.
+  execute_after: convert regexp_grouped.png -resize 300x regexp_grouped_thumb.png
 
+- name: regexp_ungrouped
+  script: regexp.py
+  run: ./regexp.py
+  title: Regular Expressions (Ungrouped)
+  description: Similar to the :ref:`regexp_grouped_example` example, but without grouping turned on.
+  execute_after: convert regexp_ungrouped.png -resize 300x regexp_ungrouped_thumb.png

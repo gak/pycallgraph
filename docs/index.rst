@@ -17,8 +17,11 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-.. image:: examples/regexp.thumb.png
-    :target: examples/regexp.html
+.. image:: examples/regexp_grouped_thumb.png
+    :target: examples/regexp_grouped.html
+
+.. image:: examples/regexp_ungrouped_thumb.png
+    :target: examples/regexp_ungrouped.html
 
 Project Status
 ==============

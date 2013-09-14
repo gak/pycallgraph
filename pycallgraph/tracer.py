@@ -283,19 +283,20 @@ class TraceProcessor(Thread):
 
         return odict
 
-    def group(self, node):
-        return node.name.split('.', 1)[0]
+    def group(self, name):
+        return name.split('.', 1)[0]
 
     def groups(self):
         grp = defaultdict(list)
         for node in self.nodes():
-            grp[self.group(node)].append(node)
+            grp[self.group(node.name)].append(node)
         for g in grp.iteritems():
             yield g
 
     def stat_group_from_func(self, func, calls):
         stat_group = StatGroup()
         stat_group.name = func
+        stat_group.group = self.group(func)
         stat_group.calls = Stat(calls, self.func_count_max)
         stat_group.time = Stat(self.func_time.get(func, 0), self.func_time_max)
         stat_group.memory_in = Stat(
@@ -308,9 +309,7 @@ class TraceProcessor(Thread):
 
     def nodes(self):
         for func, calls in self.func_count.iteritems():
-            node = self.stat_group_from_func(func, calls)
-            node.group = self.group(node)
-            yield node
+            yield self.stat_group_from_func(func, calls)
 
     def edges(self):
         for src_func, dests in self.call_dict.iteritems():
