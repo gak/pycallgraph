@@ -17,19 +17,19 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/basic_thumb.png
-    :target: https://pycallgraph.readthedocs.org/en/develop/examples/basic.html
-.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/regexp_grouped_thumb.png
-    :target: https://pycallgraph.readthedocs.org/en/develop/examples/regexp_grouped.html
-.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/regexp_ungrouped_thumb.png
-    :target: https://pycallgraph.readthedocs.org/en/develop/examples/regexp_ungrouped.html
+.. image:: https://pycallgraph.slowchop.com/en/develop/_images/basic_thumb.png
+    :target: https://pycallgraph.slowchop.com/en/develop/examples/basic.html
+.. image:: https://pycallgraph.slowchop.com/en/develop/_images/regexp_grouped_thumb.png
+    :target: https://pycallgraph.slowchop.com/en/develop/examples/regexp_grouped.html
+.. image:: https://pycallgraph.slowchop.com/en/develop/_images/regexp_ungrouped_thumb.png
+    :target: https://pycallgraph.slowchop.com/en/develop/examples/regexp_ungrouped.html
 
 Project Status
 ==============
 
 The latest version is **1.0.0** which is currently near release (*probably* around the 16th of September 2013), and is a backwards incompatbile from the previous release.
 
-The project lives on GitHub, so you can `report issues <https://github.com/gak/pycallgraph/issues>`_, contribute to the project by `forking the project <https://help.github.com/articles/fork-a-repo>`_ and creating a `pull request <https://help.github.com/articles/using-pull-requests>`_, or just `browse the source code <https://github.com/gak/pycallgraph/>`_.
+The `project lives on GitHub <https://github.com/gak/pycallgraph/#python-call-graph>`_, where you can `report issues <https://github.com/gak/pycallgraph/issues>`_, contribute to the project by `forking the project <https://help.github.com/articles/fork-a-repo>`_ then creating a `pull request <https://help.github.com/articles/using-pull-requests>`_, or just `browse the source code <https://github.com/gak/pycallgraph/>`_.
 
 Features
 ========
@@ -46,7 +46,7 @@ Installation is easy as::
 
     pip install pycallgraph
 
-You can either use the `command-line interface <https://pycallgraph.readthedocs.org/en/develop/guide/command_line_usage.html>`_ for a quick visualization of your Python script, or the `pycallgraph module <https://pycallgraph.readthedocs.org/en/develop/api/pycallgraph.html>`_ for more fine-grained settings.
+You can either use the `command-line interface <https://pycallgraph.slowchop.com/en/develop/guide/command_line_usage.html>`_ for a quick visualization of your Python script, or the `pycallgraph module <https://pycallgraph.slowchop.com/en/develop/api/pycallgraph.html>`_ for more fine-grained settings.
 
 The following examples specify graphviz as the outputter, so it's required to be installed. They will generate a file called **pycallgraph.png**.
 
@@ -65,4 +65,4 @@ A simple use of the API is::
 Documentation
 =============
 
-Feel free to browse the `documentation of pycallgraph <https://pycallgraph.slowchop.com/en/latest/>`_ for the `usage guide <https://pycallgraph.slowchop.com/en/latest/guide/>`_ and `API reference <https://pycallgraph.slowchop.com/en/latest/api/>`_.
+Feel free to browse the `documentation of pycallgraph <https://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <https://pycallgraph.slowchop.com/en/develop/guide/>`_ and `API reference <https://pycallgraph.slowchop.com/en/develop/api/>`_.

@@ -3,7 +3,7 @@
 pycallgraph
 This script is the command line interface to the pycallgraph Python library.
 
-See http://pycallgraph.slowchop.com/ for more information.
+See https://pycallgraph.slowchop.com/ for more information.
 """
 import pycallgraph as __pycallgraph
 
