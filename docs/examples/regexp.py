@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+'''
+Runs a regular expression over the first few hundred words in a dictionary to
+find if any words start and end with the same letter, and having two of the
+same letters in a row.
+'''
 import argparse
 import re
 
