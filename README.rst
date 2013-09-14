@@ -18,6 +18,7 @@ Screenshots
 Click on the images below to see a larger version and the source code that generated them.
 
 .. image:: examples/regexp.thumb.png
+    :target: examples/regexp.html
 
 Project Status
 ==============
