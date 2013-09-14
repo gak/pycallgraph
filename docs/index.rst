@@ -17,9 +17,10 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
+.. image:: examples/basic_thumb.png
+    :target: examples/basic.html
 .. image:: examples/regexp_grouped_thumb.png
     :target: examples/regexp_grouped.html
-
 .. image:: examples/regexp_ungrouped_thumb.png
     :target: examples/regexp_ungrouped.html
 

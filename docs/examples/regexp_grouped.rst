@@ -3,7 +3,7 @@
 Regular Expressions (Grouped)
 ===================
 
-See how a regular expression is constructed and matched. The example also shows the comparison between creating a regular expression object before matching, versus matching a "new" regular expression every iteration.
+See how a regular expression is constructed and matched. The example also shows the comparison between creating a regular expression object before matching, versus matching a "new" regular expression every iteration. See also :ref:`regexp_ungrouped_example`.
 
 Source Code
 -----------

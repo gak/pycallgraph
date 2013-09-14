@@ -17,11 +17,12 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-.. image:: examples/regexp_grouped_thumb.png
-    :target: examples/regexp_grouped.html
-
-.. image:: examples/regexp_ungrouped_thumb.png
-    :target: examples/regexp_ungrouped.html
+.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/basic_thumb.png
+    :target: https://pycallgraph.readthedocs.org/en/develop/examples/basic.html
+.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/regexp_grouped_thumb.png
+    :target: https://pycallgraph.readthedocs.org/en/develop/examples/regexp_grouped.html
+.. image:: https://pycallgraph.readthedocs.org/en/develop/_images/regexp_ungrouped_thumb.png
+    :target: https://pycallgraph.readthedocs.org/en/develop/examples/regexp_ungrouped.html
 
 Project Status
 ==============
@@ -43,7 +44,7 @@ Installation is easy as::
 
     pip install pycallgraph
 
-You can either use the `command-line interface <https://pycallgraph.readthedocs.org/en/latest/guide/command_line_usage.html>`_ for a quick visualisation of your Python script, or the `pycallgraph module <https://pycallgraph.readthedocs.org/en/latest/api/pycallgraph.html>`_ for more fine-grained settings.
+You can either use the `command-line interface <https://pycallgraph.readthedocs.org/en/develop/guide/command_line_usage.html>`_ for a quick visualisation of your Python script, or the `pycallgraph module <https://pycallgraph.readthedocs.org/en/develop/api/pycallgraph.html>`_ for more fine-grained settings.
 
 The following examples specify graphviz as the outputter, so it's required to be installed. They will generate a file called **pycallgraph.png**.
 

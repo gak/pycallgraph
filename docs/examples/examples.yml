@@ -1,3 +1,10 @@
+- name: basic
+  script: basic.py
+  run: ./basic.py
+  title: Basic
+  description: A simple Python example with two classes.
+  execute_after: convert basic.png -resize 300x basic_thumb.png
+
 - name: regexp_grouped
   script: regexp.py
   run: ./regexp.py --grouped
