@@ -17,12 +17,12 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-.. image:: https://pycallgraph.slowchop.com/en/develop/_images/basic_thumb.png
-    :target: https://pycallgraph.slowchop.com/en/develop/examples/basic.html
-.. image:: https://pycallgraph.slowchop.com/en/develop/_images/regexp_grouped_thumb.png
-    :target: https://pycallgraph.slowchop.com/en/develop/examples/regexp_grouped.html
-.. image:: https://pycallgraph.slowchop.com/en/develop/_images/regexp_ungrouped_thumb.png
-    :target: https://pycallgraph.slowchop.com/en/develop/examples/regexp_ungrouped.html
+.. image:: http://pycallgraph.slowchop.com/en/develop/_images/basic_thumb.png
+    :target: http://pycallgraph.slowchop.com/en/develop/examples/basic.html
+.. image:: http://pycallgraph.slowchop.com/en/develop/_images/regexp_grouped_thumb.png
+    :target: http://pycallgraph.slowchop.com/en/develop/examples/regexp_grouped.html
+.. image:: http://pycallgraph.slowchop.com/en/develop/_images/regexp_ungrouped_thumb.png
+    :target: http://pycallgraph.slowchop.com/en/develop/examples/regexp_ungrouped.html
 
 Project Status
 ==============
@@ -46,7 +46,7 @@ Installation is easy as::
 
     pip install pycallgraph
 
-You can either use the `command-line interface <https://pycallgraph.slowchop.com/en/develop/guide/command_line_usage.html>`_ for a quick visualization of your Python script, or the `pycallgraph module <https://pycallgraph.slowchop.com/en/develop/api/pycallgraph.html>`_ for more fine-grained settings.
+You can either use the `command-line interface <http://pycallgraph.slowchop.com/en/develop/guide/command_line_usage.html>`_ for a quick visualization of your Python script, or the `pycallgraph module <http://pycallgraph.slowchop.com/en/develop/api/pycallgraph.html>`_ for more fine-grained settings.
 
 The following examples specify graphviz as the outputter, so it's required to be installed. They will generate a file called **pycallgraph.png**.
 
@@ -65,4 +65,4 @@ A simple use of the API is::
 Documentation
 =============
 
-Feel free to browse the `documentation of pycallgraph <https://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <https://pycallgraph.slowchop.com/en/develop/guide/>`_ and `API reference <https://pycallgraph.slowchop.com/en/develop/api/>`_.
+Feel free to browse the `documentation of pycallgraph <http://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <http://pycallgraph.slowchop.com/en/develop/guide/>`_ and `API reference <http://pycallgraph.slowchop.com/en/develop/api/>`_.

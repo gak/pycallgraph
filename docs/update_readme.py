@@ -26,7 +26,7 @@ class GithubReadmeMaker(object):
         shutil.copy('index.rst', '../README.rst')
 
     def fix_links(self, rst):
-        prefix = 'https://pycallgraph.slowchop.com/en/develop'
+        prefix = 'http://pycallgraph.slowchop.com/en/develop'
         rst = rst.replace(
             ':ref:`command-line interface <command_line_usage>`',
             '`command-line interface <{}/guide/command_line_usage.html>`_'

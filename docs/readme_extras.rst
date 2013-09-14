@@ -1,4 +1,4 @@
 Documentation
 =============
 
-Feel free to browse the `documentation of pycallgraph <https://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <https://pycallgraph.slowchop.com/en/develop/guide/>`_ and `API reference <https://pycallgraph.slowchop.com/en/develop/api/>`_.
+Feel free to browse the `documentation of pycallgraph <http://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <http://pycallgraph.slowchop.com/en/develop/guide/>`_ and `API reference <http://pycallgraph.slowchop.com/en/develop/api/>`_.

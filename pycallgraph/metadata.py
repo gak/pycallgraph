@@ -5,7 +5,7 @@ __copyright__ = 'Copyright Gerald Kaszuba 2007-2013'
 __license__ = 'GPLv2'
 __author__ = 'Gerald Kaszuba'
 __email__ = 'pycallgraph@gakman.com'
-__url__ = 'https://pycallgraph.slowchop.com/'
+__url__ = 'http://pycallgraph.slowchop.com/'
 __credits__ = [
     'Gerald Kaszuba',
 ]
