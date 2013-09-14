@@ -37,7 +37,7 @@ class UbigraphOutput(Output):
 
         subparser = subparsers.add_parser(
             'ubigraph',
-            help='Update an Ubigraph visualisation in real time',
+            help='Update an Ubigraph visualization in real time',
             parents=[parent_parser], usage=usage,
         )
 

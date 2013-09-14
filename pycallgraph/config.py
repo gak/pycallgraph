@@ -87,7 +87,7 @@ class Config(object):
 
         self.parser = argparse.ArgumentParser(
             description='Python Call Graph profiles a Python script and '
-            'generates a call graph visualisation.', usage=usage,
+            'generates a call graph visualization.', usage=usage,
         )
 
         self.add_ungrouped_arguments()

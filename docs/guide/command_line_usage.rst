@@ -13,9 +13,9 @@ Description
 
 .. only:: man
 
-	pycallgraph is a program that creates call graph visualisation from Python scripts.
+	pycallgraph is a program that creates call graph visualization from Python scripts.
 
-*OUTPUT_MODE* can be one of graphviz, gephi and ubigraph. *python_file.py* is a python script that will be traced and afterwards, a call graph visualisation will be generated.
+*OUTPUT_MODE* can be one of graphviz, gephi and ubigraph. *python_file.py* is a python script that will be traced and afterwards, a call graph visualization will be generated.
 
 Arguments
 ---------
