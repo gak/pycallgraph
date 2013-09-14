@@ -17,7 +17,7 @@ Screenshots
 
 Click on the images below to see a larger version and the source code that generated them.
 
-XXX TODO XXX
+.. image:: examples/regexp.thumb.png
 
 Project Status
 ==============

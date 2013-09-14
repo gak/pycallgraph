@@ -1,15 +1,16 @@
-.. _re:
+
+.. _regexp_example:
 
 Regular Expressions
 ===================
 
 See how a regular expression is constructed and matched.
 
-.. literalinclude:: re.py
+.. literalinclude:: regexp.py
 
-:download:`Show full size image <re.png>`
+:download:`Direct link to image <regexp.png>`
 
 .. container:: example-image
 
-    .. image:: re.png
+    .. image:: regexp.png
 

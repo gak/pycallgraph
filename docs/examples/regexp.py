@@ -7,7 +7,7 @@ from pycallgraph.output import GraphvizOutput
 
 def main():
     graphviz = GraphvizOutput()
-    graphviz.output_file = 're.png'
+    graphviz.output_file = 'regexp.png'
 
     with PyCallGraph(output=graphviz):
         match(re.compile('^....$'))

@@ -1,3 +1,5 @@
+export PYTHONPATH=$(shell pwd)
+
 all: deps tests doc
 
 run_examples:
@@ -22,6 +24,7 @@ tests:
 	flake8 examples
 
 doc:
+	cd docs/examples && ./generate.py
 	make -C docs html man
 	cp docs/_build/man/pycallgraph.1 man/
 	docs/update_readme.py

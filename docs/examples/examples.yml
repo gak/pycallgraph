@@ -1,4 +1,5 @@
 - name: regexp
   title: Regular Expressions
   description: See how a regular expression is constructed and matched.
+  execute_after: convert regexp.png -resize 300x regexp.thumb.png
 
