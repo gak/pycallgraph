@@ -24,6 +24,10 @@ Arguments
 
    Run a module as a script.
 
+.. cmdoption:: -m <module>, --module <module>
+
+   Run a module as a script.
+
 Examples
 --------
 
