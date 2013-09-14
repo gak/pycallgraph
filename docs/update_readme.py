@@ -35,6 +35,11 @@ class GithubReadmeMaker(object):
             ':ref:`pycallgraph module <pycallgraph>`',
             '`pycallgraph module <{}/api/pycallgraph.html>`_'.format(prefix)
         )
+        #rst = re.sub(
+        #    'image:: examples/(.*).thumb',
+        #    'image:: {}/
+        #)
+
         return rst
 
     def fix_index(self, rst):
