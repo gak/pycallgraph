@@ -65,7 +65,7 @@ pycallgraph [\fIOPTION\fP]... \fIOUTPUT_MODE\fP [\fIOUTPUT_OPTIONS\fP] \fIpython
 pycallgraph is a program that creates call graph visualization from Python scripts.
 .sp
 \fIOUTPUT_MODE\fP can be one of graphviz, gephi and json. \fIpython_file.py\fP is a python script that will be traced and afterwards, a call graph visualization will be generated.
-.SH ARGUMENTS
+.SH GENERAL ARGUMENTS
 .INDENT 0.0
 .TP
 .B <OUTPUT_MODE>
@@ -106,6 +106,33 @@ An experimental option which includes memory tracking in the trace.
 .B \-t, \-\-threaded
 An experimental option which processes the trace in another thread. This may or may not be faster.
 .UNINDENT
+.SH FILTERING ARGUMENTS
+.INDENT 0.0
+.TP
+.B \-i, \-\-include <pattern>
+Wildcard pattern of modules to include in the output. You can have multiple include arguments.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-e, \-\-exclude <pattern>
+Wildcard pattern of modules to exclude in the output. You can have multiple include arguments.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-include\-pycallgraph
+By default pycallgraph filters itself out of the trace. Enabling this will include pycallgraph in the trace.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-max\-depth
+Maximum stack depth to trace. Any calls made past this stack depth are not included in the trace.
+.UNINDENT
+.SH GRAPHVIZ ARGUMENTS
+.INDENT 0.0
+.TP
+.B \-l <tool>, \-\-tool <tool>
+Modify the default Graphviz tool used by pycallgraph. It uses "dot", but can be changed to either neato, fdp, sfdp, twopi, or circo.
+.UNINDENT
 .SH EXAMPLES
 .sp
 Create a call graph image called pycallgraph.png on myprogram.py:
@@ -132,13 +159,13 @@ pycallgraph graphviz \-\-output\-file=setup.png \-\- setup.py \-\-dry\-run insta
 .UNINDENT
 .UNINDENT
 .sp
-Only see the module "distutils" within the execution of easy_install:
+Run Djano\(aqs manage.py script, but since there are so much functionality in Django, and will cause a massively sized generated image, filter it to only trace the core Django modules:
 .INDENT 0.0
 .INDENT 3.5
 .sp
 .nf
 .ft C
-pycallgraph \-\-include=distutils.* graphviz /usr/bin/easy_install
+pycallgraph \-v \-\-stdlib \-\-include "django.core.*" graphviz \-\- ./manage.py syncdb \-\-noinput
 .ft P
 .fi
 .UNINDENT

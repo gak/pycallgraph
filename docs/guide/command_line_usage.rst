@@ -90,6 +90,6 @@ Create a call graph of a standard Python installation script with command line p
 
     pycallgraph graphviz --output-file=setup.png -- setup.py --dry-run install
 
-Only see the module "distutils" within the execution of easy_install::
+Run Djano's manage.py script, but since there are so much functionality in Django, and will cause a massively sized generated image, filter it to only trace the core Django modules::
 
-    pycallgraph --include=distutils.* graphviz /usr/bin/easy_install
+    pycallgraph -v --stdlib --include "django.core.*" graphviz -- ./manage.py syncdb --noinput
