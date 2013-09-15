@@ -5,12 +5,12 @@ from .graphviz import GraphvizOutput
 from .gephi import GephiOutput
 from .ubigraph import UbigraphOutput
 from .pickle import PickleOutput
-from .json import JsonOutput
+from .json_output import JsonOutput
 
 
 outputters = collections.OrderedDict([
     ('graphviz', GraphvizOutput),
     ('gephi', GephiOutput),
-    ('ubigraph', UbigraphOutput),
+    # ('ubigraph', UbigraphOutput),
     ('json', JsonOutput),
 ])
