@@ -20,7 +20,7 @@ tests:
 		--ignore=pycallgraph/memory_profiler.py \
 		test pycallgraph examples
 
-	coverage run --source test,pycallgraph,scripts -m py.test
+	coverage run --source pycallgraph,scripts -m py.test
 	coverage report -m
 
 	flake8 --exclude=__init__.py,memory_profiler.py pycallgraph

@@ -16,4 +16,6 @@ from .pycallgraph import PyCallGraph
 from .exceptions import PyCallGraphException
 from .config import Config
 from .globbing_filter import GlobbingFilter
+from .util import Util
 from .color import Color
+from .color import ColorException
