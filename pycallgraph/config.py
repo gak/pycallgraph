@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from .output import outputters
 from .globbing_filter import GlobbingFilter
@@ -63,6 +64,9 @@ class Config(object):
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
         self.convert_filter_args()
+
+    def strip_argv(self):
+        sys.argv = [self.command] + self.command_args
 
     def convert_filter_args(self):
         if not self.include:
