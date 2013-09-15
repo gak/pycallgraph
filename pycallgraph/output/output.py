@@ -14,10 +14,9 @@ class Output(object):
         self.edge_color_func = self.edge_color
         self.node_label_func = self.node_label
         self.edge_label_func = self.edge_label
-        
+
         # Update the defaults with anything from kwargs
         [setattr(self, k, v) for k, v in kwargs.iteritems()]
-
 
     def set_config(self, config):
         '''
@@ -25,7 +24,8 @@ class Output(object):
         the output module config variables.
         '''
         for k, v in config.__dict__.iteritems():
-            if hasattr(self, k) and callable(getattr(self, k)):
+            is_fun = callable(getattr(self, k))
+            if hasattr(self, k) and is_fun:
                 continue
             setattr(self, k, v)
 
