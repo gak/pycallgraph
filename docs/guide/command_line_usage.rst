@@ -90,6 +90,6 @@ Create a call graph of a standard Python installation script with command line p
 
     pycallgraph graphviz --output-file=setup.png -- setup.py --dry-run install
 
-Run Djano's manage.py script, but since there are so much functionality in Django, and will cause a massively sized generated image, filter it to only trace the core Django modules::
+Run Django's *manage.py* script, but since there are many calls within Django, and will cause a massively sized generated image, we can filter it to only trace the core Django modules::
 
     pycallgraph -v --stdlib --include "django.core.*" graphviz -- ./manage.py syncdb --noinput

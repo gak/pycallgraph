@@ -8,9 +8,10 @@ from .output import Output
 
 class PickleOutput(Output):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.fp = None
         self.output_file = 'pycallgraph.dot'
+        Output.__init__(self, **kwargs)
 
     @classmethod
     def add_arguments(cls, subparsers, parent_parser, usage):
