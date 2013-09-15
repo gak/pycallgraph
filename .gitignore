@@ -1,3 +1,7 @@
+examples/**/*.png
+examples/**/*.gdf
+examples/**/*.json
+
 docs/_build/
 build/
 .cache/
@@ -6,8 +10,6 @@ dist/
 *.egg-info
 
 *.pyc
-*.png
-*.gdf
 __pycache__
 
 examples/**/*.json

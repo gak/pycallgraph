@@ -1,4 +1,10 @@
+export PYTHONPATH=$(shell pwd)
+
 all: deps tests doc
+
+clean:
+	make -C docs clean
+	-rm .coverage
 
 run_examples:
 	cd examples/graphviz; ./all.py
@@ -14,7 +20,7 @@ tests:
 		--ignore=pycallgraph/memory_profiler.py \
 		test pycallgraph examples
 
-	coverage run --source test,pycallgraph,scripts -m py.test
+	coverage run --source pycallgraph,scripts -m py.test
 	coverage report -m
 
 	flake8 --exclude=__init__.py,memory_profiler.py pycallgraph
@@ -22,6 +28,9 @@ tests:
 	flake8 examples
 
 doc:
+	cd docs/examples && ./generate.py
+	cd docs/guide/filtering && ./generate.py
+
 	make -C docs html man
 	cp docs/_build/man/pycallgraph.1 man/
 	docs/update_readme.py

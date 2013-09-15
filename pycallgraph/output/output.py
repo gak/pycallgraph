@@ -9,11 +9,25 @@ from ..color import Color
 class Output(object):
     '''Base class for all outputters.'''
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.node_color_func = self.node_color
         self.edge_color_func = self.edge_color
         self.node_label_func = self.node_label
         self.edge_label_func = self.edge_label
+
+        # Update the defaults with anything from kwargs
+        [setattr(self, k, v) for k, v in kwargs.iteritems()]
+
+    def set_config(self, config):
+        '''
+        This is a quick hack to move the config variables set in Config into
+        the output module config variables.
+        '''
+        for k, v in config.__dict__.iteritems():
+            is_fun = callable(getattr(self, k))
+            if hasattr(self, k) and is_fun:
+                continue
+            setattr(self, k, v)
 
     def node_color(self, node):
         value = float(node.time.fraction * 2 + node.calls.fraction) / 3

@@ -1,3 +1,2 @@
 [run]
 omit=pycallgraph/memory_profiler.py
-

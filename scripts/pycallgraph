@@ -5,11 +5,18 @@ This script is the command line interface to the pycallgraph Python library.
 
 See http://pycallgraph.slowchop.com/ for more information.
 """
+import sys
+import os
+
 import pycallgraph as __pycallgraph
 
 
+# Inject the current working directory so modules can be imported.
+sys.path.insert(0, os.getcwd())
+
 __config = __pycallgraph.Config()
 __config.parse_args()
+__config.strip_argv()
 
 globals()['__file__'] = __config.command
 

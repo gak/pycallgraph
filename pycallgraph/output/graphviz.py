@@ -12,9 +12,7 @@ from .output import Output
 
 class GraphvizOutput(Output):
 
-    def __init__(self):
-        Output.__init__(self)
-
+    def __init__(self, **kwargs):
         self.tool = 'dot'
         self.output_file = 'pycallgraph.png'
         self.output_type = 'png'
@@ -23,7 +21,7 @@ class GraphvizOutput(Output):
         self.group_font_size = 10
         self.group_border_color = Color(0, 0, 0, 0.8)
 
-        self.time_filter = None
+        Output.__init__(self, **kwargs)
 
         self.prepare_graph_attributes()
 
@@ -37,7 +35,7 @@ class GraphvizOutput(Output):
         )
 
         subparser.add_argument(
-            '-t', '--tool', dest='tool', default='dot',
+            '-l', '--tool', dest='tool', default=defaults.tool,
             help='The tool from Graphviz to use, e.g. dot, neato, etc.',
         )
 
@@ -105,6 +103,7 @@ class GraphvizOutput(Output):
             self.tool, self.output_type, self.output_file, temp_name
         )
 
+        self.verbose('Executing: {}'.format(cmd))
         try:
             ret = os.system(cmd)
             if ret:

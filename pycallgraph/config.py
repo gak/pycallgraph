@@ -1,5 +1,5 @@
-import warnings
 import argparse
+import sys
 
 from .output import outputters
 from .globbing_filter import GlobbingFilter
@@ -10,7 +10,10 @@ class Config(object):
     module.  It also handles command line arguments.
     '''
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        '''
+        You can set defaults in the constructor, e.g. Config(verbose=True)
+        '''
         self.output = None
         self.verbose = False
         self.debug = False
@@ -19,15 +22,19 @@ class Config(object):
         self.memory = False
 
         # Filtering
-        self.include_stdlib = True
+        self.include_stdlib = False
         self.include_pycallgraph = False
         self.max_depth = 99999
-        self.time_fraction_threshhold = 0.05
 
         self.trace_filter = GlobbingFilter(
             exclude=['pycallgraph.*'],
             include=['*'],
         )
+
+        self.did_init = True
+
+        # Update the defaults with anything from kwargs
+        [setattr(self, k, v) for k, v in kwargs.iteritems()]
 
         self.create_parser()
 
@@ -51,12 +58,15 @@ class Config(object):
         if not self.output:
             return
         output = outputters[self.output]()
-        warnings.warn('output not configured')
+        output.set_config(self)
         return output
 
     def parse_args(self, args=None):
         self.parser.parse_args(args, namespace=self)
         self.convert_filter_args()
+
+    def strip_argv(self):
+        sys.argv = [self.command] + self.command_args
 
     def convert_filter_args(self):
         if not self.include:
@@ -79,7 +89,7 @@ class Config(object):
 
         self.parser = argparse.ArgumentParser(
             description='Python Call Graph profiles a Python script and '
-            'generates a call graph visualisation.', usage=usage,
+            'generates a call graph visualization.', usage=usage,
         )
 
         self.add_ungrouped_arguments()
@@ -112,7 +122,7 @@ class Config(object):
 
         self.parser.add_argument(
             '-t', '--threaded', action='store_true', default=self.threaded,
-            help='Process traces asyncronously')
+            help='Process traces asyncronously (Experimental)')
 
         self.parser.add_argument(
             '-ng', '--no-groups', dest='groups', action='store_false',
@@ -150,11 +160,4 @@ class Config(object):
         group.add_argument(
             '--max-depth', default=self.max_depth, type=int,
             help='Maximum stack depth to trace',
-        )
-
-        group.add_argument(
-            '--time-fraction-threshhold', dest='time_fraction_threshhold',
-            default=self.time_fraction_threshhold, type=float,
-            help='Set a threshhold for inclusion of functions '
-            'in graphical output in terms of fraction of total time used.',
         )

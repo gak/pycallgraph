@@ -1,6 +1,10 @@
 import colorsys
 
 
+class ColorException(Exception):
+    pass
+
+
 class Color(object):
 
     def __init__(self, r, g, b, a=1):
@@ -15,6 +19,9 @@ class Color(object):
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         return cls(r, g, b, a)
 
+    def __str__(self):
+        return '<Color {}>'.format(self.rgba_web())
+
     def validate_all(self):
         self.validate('r')
         self.validate('g')
@@ -24,7 +31,7 @@ class Color(object):
     def validate(self, attr):
         v = getattr(self, attr)
         if not 0 <= v <= 1:
-            raise Exception('{} out of range 0 to 1: {}'.format(attr, v))
+            raise ColorException('{} out of range 0 to 1: {}'.format(attr, v))
 
     @property
     def r255(self):

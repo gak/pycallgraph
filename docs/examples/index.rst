@@ -1,7 +1,10 @@
+
 Examples
 ========
 
 .. toctree::
    :maxdepth: 3
 
-   re
+   basic
+   regexp_grouped
+   regexp_ungrouped

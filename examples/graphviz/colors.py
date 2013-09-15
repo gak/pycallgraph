@@ -8,8 +8,9 @@ how to return colour formats to Graphviz.
 import random
 
 from pycallgraph import PyCallGraph
-from pycallgraph.output import GraphvizOutput
+from pycallgraph import Config
 from pycallgraph import Color
+from pycallgraph.output import GraphvizOutput
 
 
 def rainbow(node):
@@ -49,7 +50,10 @@ def rand(node):
 
 def main():
     graphviz = GraphvizOutput()
-    pycallgraph = PyCallGraph(output=graphviz)
+    pycallgraph = PyCallGraph(
+        output=graphviz,
+        config=Config(include_stdlib=True)
+    )
 
     pycallgraph.start()
     import HTMLParser  # noqa

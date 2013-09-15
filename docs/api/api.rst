@@ -6,3 +6,4 @@ API Classes
 
    pycallgraph
    output
+   globbing_filter

@@ -56,6 +56,10 @@ class AsyncronousTracer(SyncronousTracer):
 
 
 class TraceProcessor(Thread):
+    '''
+    Contains a callback used by sys.settrace, which collects information about
+    function call count, time taken, etc.
+    '''
 
     def __init__(self, outputs, config):
         Thread.__init__(self)
@@ -264,7 +268,10 @@ class TraceProcessor(Thread):
                         )
 
     def is_module_stdlib(self, file_name):
-        '''Returns True if the file_name is in the lib directory.'''
+        '''
+        Returns True if the file_name is in the lib directory. Used to check
+        if a function is in the standard library or not.
+        '''
         return file_name.lower().startswith(self.lib_path)
 
     def __getstate__(self):
@@ -283,19 +290,20 @@ class TraceProcessor(Thread):
 
         return odict
 
-    def group(self, node):
-        return node.name.split('.', 1)[0]
+    def group(self, name):
+        return name.split('.', 1)[0]
 
     def groups(self):
         grp = defaultdict(list)
         for node in self.nodes():
-            grp[self.group(node)].append(node)
+            grp[self.group(node.name)].append(node)
         for g in grp.iteritems():
             yield g
 
     def stat_group_from_func(self, func, calls):
         stat_group = StatGroup()
         stat_group.name = func
+        stat_group.group = self.group(func)
         stat_group.calls = Stat(calls, self.func_count_max)
         stat_group.time = Stat(self.func_time.get(func, 0), self.func_time_max)
         stat_group.memory_in = Stat(
@@ -308,9 +316,7 @@ class TraceProcessor(Thread):
 
     def nodes(self):
         for func, calls in self.func_count.iteritems():
-            node = self.stat_group_from_func(func, calls)
-            node.group = self.group(node)
-            yield node
+            yield self.stat_group_from_func(func, calls)
 
     def edges(self):
         for src_func, dests in self.call_dict.iteritems():

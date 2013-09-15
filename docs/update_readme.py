@@ -3,6 +3,7 @@
 This script copies the index.rst page from the Sphinx documentation, modifies
 it slightly so refs point to the correct place.
 '''
+import re
 import os
 import sys
 import shutil
@@ -25,7 +26,7 @@ class GithubReadmeMaker(object):
         shutil.copy('index.rst', '../README.rst')
 
     def fix_links(self, rst):
-        prefix = 'https://pycallgraph.readthedocs.org/en/latest'
+        prefix = 'http://pycallgraph.slowchop.com/en/develop'
         rst = rst.replace(
             ':ref:`command-line interface <command_line_usage>`',
             '`command-line interface <{}/guide/command_line_usage.html>`_'
@@ -35,6 +36,19 @@ class GithubReadmeMaker(object):
             ':ref:`pycallgraph module <pycallgraph>`',
             '`pycallgraph module <{}/api/pycallgraph.html>`_'.format(prefix)
         )
+
+        # Thumbnail URL
+        rst = re.sub(
+            r'image:: examples/(.*_thumb)',
+            r'image:: {}/_images/\g<1>'.format(prefix),
+            rst,
+        )
+        rst = re.sub(
+            r'target: (examples/.*)',
+            r'target: {}/\g<1>'.format(prefix),
+            rst,
+        )
+
         return rst
 
     def fix_index(self, rst):
