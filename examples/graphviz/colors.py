@@ -49,7 +49,10 @@ def rand(node):
 
 def main():
     graphviz = GraphvizOutput()
-    pycallgraph = PyCallGraph(output=graphviz)
+    pycallgraph = PyCallGraph(
+        output=graphviz,
+        config=Config(include_stdlib=True)
+    )
 
     pycallgraph.start()
     import HTMLParser  # noqa

@@ -37,7 +37,7 @@ class GraphvizOutput(Output):
         )
 
         subparser.add_argument(
-            '-t', '--tool', dest='tool', default='dot',
+            '-l', '--tool', dest='tool', default=defaults.tool,
             help='The tool from Graphviz to use, e.g. dot, neato, etc.',
         )
 
@@ -105,6 +105,7 @@ class GraphvizOutput(Output):
             self.tool, self.output_type, self.output_file, temp_name
         )
 
+        self.verbose('Executing: {}'.format(cmd))
         try:
             ret = os.system(cmd)
             if ret:

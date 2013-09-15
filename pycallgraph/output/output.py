@@ -15,6 +15,16 @@ class Output(object):
         self.node_label_func = self.node_label
         self.edge_label_func = self.edge_label
 
+    def set_config(self, config):
+        '''
+        This is a quick hack to move the config variables set in Config into
+        the output module config variables.
+        '''
+        for k, v in config.__dict__.iteritems():
+            if hasattr(self, k) and callable(getattr(self, k)):
+                continue
+            setattr(self, k, v)
+
     def node_color(self, node):
         value = float(node.time.fraction * 2 + node.calls.fraction) / 3
         return Color.hsv(value / 2 + .5, value, 0.9)

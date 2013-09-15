@@ -56,6 +56,10 @@ class AsyncronousTracer(SyncronousTracer):
 
 
 class TraceProcessor(Thread):
+    '''
+    Contains a callback used by sys.settrace, which collects information about
+    function call count, time taken, etc.
+    '''
 
     def __init__(self, outputs, config):
         Thread.__init__(self)
@@ -264,7 +268,10 @@ class TraceProcessor(Thread):
                         )
 
     def is_module_stdlib(self, file_name):
-        '''Returns True if the file_name is in the lib directory.'''
+        '''
+        Returns True if the file_name is in the lib directory. Used to check
+        if a function is in the standard library or not.
+        '''
         return file_name.lower().startswith(self.lib_path)
 
     def __getstate__(self):

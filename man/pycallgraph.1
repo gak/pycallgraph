@@ -64,17 +64,47 @@ pycallgraph [\fIOPTION\fP]... \fIOUTPUT_MODE\fP [\fIOUTPUT_OPTIONS\fP] \fIpython
 .sp
 pycallgraph is a program that creates call graph visualization from Python scripts.
 .sp
-\fIOUTPUT_MODE\fP can be one of graphviz, gephi and ubigraph. \fIpython_file.py\fP is a python script that will be traced and afterwards, a call graph visualization will be generated.
+\fIOUTPUT_MODE\fP can be one of graphviz, gephi and json. \fIpython_file.py\fP is a python script that will be traced and afterwards, a call graph visualization will be generated.
 .SH ARGUMENTS
 .INDENT 0.0
 .TP
-.B \-m <module>, \-\-module <module>
-Run a module as a script.
+.B <OUTPUT_MODE>
+A choice of graphviz, gephi and json.
 .UNINDENT
 .INDENT 0.0
 .TP
-.B \-m <module>, \-\-module <module>
-Run a module as a script.
+.B \-h, \-\-help
+Shows a list of possible options for the command line.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v, \-\-verbose
+Turns on verbose mode which will print out information of pycallgraph\(aqs state and processing.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d, \-\-debug
+Turns on debug mode which will print out debugging information such as the raw Graphviz generated files.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-ng, \-\-no\-groups
+Do not group modules in the results. By default this is turned on and will visually group together methods of the same module. The technique of grouping does rely on the type of output used.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-s, \-\-stdlib
+When running a trace, also include the Python standard library.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-m, \-\-memory
+An experimental option which includes memory tracking in the trace.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-t, \-\-threaded
+An experimental option which processes the trace in another thread. This may or may not be faster.
 .UNINDENT
 .SH EXAMPLES
 .sp
@@ -84,7 +114,7 @@ Create a call graph image called pycallgraph.png on myprogram.py:
 .sp
 .nf
 .ft C
-pycallgraph graphviz ./myprogram.py
+pycallgraph graphviz \-\- ./myprogram.py
 .ft P
 .fi
 .UNINDENT

@@ -1,4 +1,3 @@
-import warnings
 import argparse
 
 from .output import outputters
@@ -22,10 +21,9 @@ class Config(object):
         self.memory = False
 
         # Filtering
-        self.include_stdlib = True
+        self.include_stdlib = False
         self.include_pycallgraph = False
         self.max_depth = 99999
-        self.time_fraction_threshhold = 0.05
 
         self.trace_filter = GlobbingFilter(
             exclude=['pycallgraph.*'],
@@ -59,7 +57,7 @@ class Config(object):
         if not self.output:
             return
         output = outputters[self.output]()
-        warnings.warn('output not configured')
+        output.set_config(self)
         return output
 
     def parse_args(self, args=None):
@@ -120,7 +118,7 @@ class Config(object):
 
         self.parser.add_argument(
             '-t', '--threaded', action='store_true', default=self.threaded,
-            help='Process traces asyncronously')
+            help='Process traces asyncronously (Experimental)')
 
         self.parser.add_argument(
             '-ng', '--no-groups', dest='groups', action='store_false',
@@ -158,11 +156,4 @@ class Config(object):
         group.add_argument(
             '--max-depth', default=self.max_depth, type=int,
             help='Maximum stack depth to trace',
-        )
-
-        group.add_argument(
-            '--time-fraction-threshhold', dest='time_fraction_threshhold',
-            default=self.time_fraction_threshhold, type=float,
-            help='Set a threshhold for inclusion of functions '
-            'in graphical output in terms of fraction of total time used.',
         )
