@@ -27,7 +27,7 @@ Click on the images below to see a larger version and the source code that gener
 Project Status
 ==============
 
-The latest version is **1.0.0** which was released on 2013-09-17, and is a backwards incompatbile from the previous release.
+The latest version is **1.0.1** which was released on 2013-09-17, and is a backwards incompatbile from the previous release.
 
 The `project lives on GitHub <https://github.com/gak/pycallgraph/#python-call-graph>`_, where you can `report issues <https://github.com/gak/pycallgraph/issues>`_, contribute to the project by `forking the project <https://help.github.com/articles/fork-a-repo>`_ then creating a `pull request <https://help.github.com/articles/using-pull-requests>`_, or just `browse the source code <https://github.com/gak/pycallgraph/>`_.
 
@@ -69,4 +69,4 @@ A simple use of the API is::
 Documentation
 =============
 
-Feel free to browse the `documentation of pycallgraph <http://pycallgraph.slowchop.com/en/develop/>`_ for the `usage guide <http://pycallgraph.slowchop.com/en/develop/guide/index.html>`_ and `API reference <http://pycallgraph.slowchop.com/en/develop/api/api.html>`_.
+Feel free to browse the `documentation of pycallgraph <http://pycallgraph.slowchop.com/en/master/>`_ for the `usage guide <http://pycallgraph.slowchop.com/en/master/guide/index.html>`_ and `API reference <http://pycallgraph.slowchop.com/en/master/api/api.html>`_.
