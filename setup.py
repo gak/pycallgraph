@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 from os import path
-from distutils.core import setup
+from setuptools import setup
+import sys
 
-from pycallgraph import __version__
+from setuptools.command.test import test as TestCommand
+
+import pycallgraph
 
 # Only install the man page if the correct directory exists
 # XXX: Commented because easy_install doesn't like it
@@ -15,24 +18,41 @@ from pycallgraph import __version__
 
 data_files=None
 
+class PyTest(TestCommand):
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
 setup(
     name='pycallgraph',
-    version=__version__,
-    description='Python Call Graph uses GraphViz to generate call graphs ' \
-        'from one execution of your Python code.',
-    author='Gerald Kaszuba',
-    author_email='pycallgraph@slowchop.com',
-    url='http://pycallgraph.slowchop.com/',
-    py_modules=['pycallgraph'],
+    version=pycallgraph.__version__,
+    description=pycallgraph.__doc__.strip().replace('\n', ' '),
+    long_description=open('README.rst').read(),
+    author=pycallgraph.__author__,
+    author_email=pycallgraph.__email__,
+    license=open('LICENSE').read(),
+    url=pycallgraph.__url__,
+    packages=['pycallgraph', 'pycallgraph.output'],
     scripts=['scripts/pycallgraph'],
     data_files=data_files,
-    long_description = \
-'''Python Call Graph uses GraphViz to generate call graphs from one execution
-of your Python code. It's very easy to use and can point out possible problems
-with your code execution.''',
+    use_2to3=True,
+
+    # TODO: Update download_url
     download_url =
     'http://pycallgraph.slowchop.com/files/download/pycallgraph-%s.tar.gz' % \
-        __version__,
+        pycallgraph.__version__,
+
+    # Testing
+    tests_require=['pytest'],
+    cmdclass = {'test': PyTest},
+
     classifiers = [
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -40,9 +60,12 @@ with your code execution.''',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Debuggers',
-        ],
+    ],
 )
-# vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
+

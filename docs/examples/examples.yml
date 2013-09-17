@@ -1,0 +1,25 @@
+- description: A simple Python example with two classes.
+  execute_after: convert basic.png -resize 300x basic_thumb.png
+  md5: 9d19787f83ff90614a6eac068bb6e4a0
+  name: basic
+  run: ./basic.py
+  script: basic.py
+  title: Basic
+- description: See how a regular expression is constructed and matched. The example
+    also shows the comparison between creating a regular expression object before
+    matching, versus matching a "new" regular expression every iteration. See also
+    :ref:`regexp_ungrouped_example`.
+  execute_after: convert regexp_grouped.png -resize 300x regexp_grouped_thumb.png
+  md5: 315d1ef9bea154a54c6be377a0e81747
+  name: regexp_grouped
+  run: ./regexp.py --grouped
+  script: regexp.py
+  title: Regular Expressions (Grouped)
+- description: Similar to the :ref:`regexp_grouped_example` example, but without grouping
+    turned on.
+  execute_after: convert regexp_ungrouped.png -resize 300x regexp_ungrouped_thumb.png
+  md5: 315d1ef9bea154a54c6be377a0e81747
+  name: regexp_ungrouped
+  run: ./regexp.py
+  script: regexp.py
+  title: Regular Expressions (Ungrouped)

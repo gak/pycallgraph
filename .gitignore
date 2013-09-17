@@ -1,0 +1,13 @@
+examples/**/*.png
+examples/**/*.gdf
+examples/**/*.json
+
+docs/_build/
+build/
+.cache/
+.coverage
+dist/
+*.egg-info
+
+*.pyc
+__pycache__
