@@ -24,7 +24,8 @@ class Output(object):
         the output module config variables.
         '''
         for k, v in config.__dict__.iteritems():
-            if hasattr(self, k) and callable(getattr(self, k)):
+            if hasattr(self, k) and \
+                    callable(getattr(self, k)):
                 continue
             setattr(self, k, v)
 
