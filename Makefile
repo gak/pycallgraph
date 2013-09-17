@@ -2,6 +2,9 @@ export PYTHONPATH=$(shell pwd)
 
 all: deps tests doc
 
+pypi:
+	python setup.py sdist upload
+
 clean:
 	make -C docs clean
 	-rm .coverage
