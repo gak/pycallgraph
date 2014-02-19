@@ -3,6 +3,7 @@ import sys
 
 from .output import outputters
 from .globbing_filter import GlobbingFilter
+from .grouper import Grouper
 
 
 class Config(object):
@@ -30,6 +31,9 @@ class Config(object):
             exclude=['pycallgraph.*'],
             include=['*'],
         )
+
+        # Grouping
+        self.trace_grouper = Grouper()
 
         self.did_init = True
 
