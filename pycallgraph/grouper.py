@@ -1,5 +1,6 @@
 from fnmatch import fnmatch
 
+
 class Grouper(object):
     '''Group module names.
 
