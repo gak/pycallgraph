@@ -4,8 +4,8 @@ class Grouper(object):
     '''Group module names.
 
     By default, objects are grouped by their top-level module name. Additional
-    groups can be specified with the groups list and all objects will be matched
-    against it.
+    groups can be specified with the groups list and all objects will be
+    matched against it.
     '''
 
     def __init__(self, groups=None):
