@@ -2,8 +2,6 @@
 '''
 This example demonstrates the use of grouping.
 '''
-import time
-
 from pycallgraph import PyCallGraph
 from pycallgraph import Config
 from pycallgraph import GlobbingFilter
