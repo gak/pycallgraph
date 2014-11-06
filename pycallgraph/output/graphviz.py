@@ -99,11 +99,11 @@ class GraphvizOutput(Output):
         with os.fdopen(fd, 'w') as f:
             f.write(source)
 
-        cmd = '{} -T{} -o{} {}'.format(
+        cmd = '{0} -T{1} -o{2} {3}'.format(
             self.tool, self.output_type, self.output_file, temp_name
         )
 
-        self.verbose('Executing: {}'.format(cmd))
+        self.verbose('Executing: {0}'.format(cmd))
         try:
             ret = os.system(cmd)
             if ret:
@@ -113,7 +113,7 @@ class GraphvizOutput(Output):
         finally:
             os.unlink(temp_name)
 
-        self.verbose('Generated {} with {} nodes.'.format(
+        self.verbose('Generated {0} with {1} nodes.'.format(
             self.output_file, len(self.processor.func_count),
         ))
 
@@ -127,16 +127,16 @@ class GraphvizOutput(Output):
         digraph G {{
 
             // Attributes
-            {}
+            {0}
 
             // Groups
-            {}
+            {1}
 
             // Nodes
-            {}
+            {2}
 
             // Edges
-            {}
+            {3}
 
         }}
         '''.format(
@@ -153,7 +153,7 @@ class GraphvizOutput(Output):
         return ', '.join(output)
 
     def node(self, key, attr):
-        return '"{}" [{}];'.format(
+        return '"{0}" [{1}];'.format(
             key, self.attrs_from_dict(attr),
         )
 
@@ -165,7 +165,7 @@ class GraphvizOutput(Output):
     def generate_attributes(self):
         output = []
         for section, attrs in self.graph_attributes.iteritems():
-            output.append('{} [ {} ];'.format(
+            output.append('{0} [ {1} ];'.format(
                 section, self.attrs_from_dict(attrs),
             ))
         return output
