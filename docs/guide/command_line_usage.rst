@@ -15,14 +15,14 @@ Description
 
 	pycallgraph is a program that creates call graph visualization from Python scripts.
 
-*OUTPUT_MODE* can be one of graphviz, gephi and json. *python_file.py* is a python script that will be traced and afterwards, a call graph visualization will be generated.
+*OUTPUT_MODE* can be one of graphviz or gephi. *python_file.py* is a python script that will be traced and afterwards, a call graph visualization will be generated.
 
 General Arguments
 -----------------
 
 .. cmdoption:: <OUTPUT_MODE>
 
-    A choice of graphviz, gephi and json.
+    A choice of graphviz or gephi.
 
 .. cmdoption:: -h, --help
 
