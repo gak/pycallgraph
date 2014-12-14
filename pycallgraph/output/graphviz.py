@@ -45,6 +45,7 @@ class GraphvizOutput(Output):
 
         subparser.add_argument(
             '-f', '--output-format', type=str, default=defaults.output_type,
+            dest='output_type',
             help='Image format to produce, e.g. png, ps, dot, etc. '
             'See http://www.graphviz.org/doc/info/output.html for more.',
         )
