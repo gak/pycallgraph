@@ -11,3 +11,5 @@ dist/
 
 *.pyc
 __pycache__
+.idea
+
