@@ -4,6 +4,16 @@ language:
 python:
   - "2.7"
   - "3.3"
+  - "3.4"
+  - "pypy"
+  - "nightly"
+
+matrix:
+  allow_failures:
+    - python:
+       - "pypy"
+    - python:
+       - "nigthly"
 
 env:
   global:
