@@ -26,7 +26,7 @@ before_install:
 
 install:
  - "pip install -r requirements/development.txt --use-mirrors"
- - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then make 2to3; fi"
+ - "if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]] || [[ $TRAVIS_PYTHON_VERSION == '3.4' ]] || [[ $TRAVIS_PYTHON_VERSION == 'nightly' ]]; then make 2to3; fi"
 
 script:
  - make tests
