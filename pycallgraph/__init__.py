@@ -14,7 +14,7 @@ from .metadata import __credits__
 
 from .pycallgraph import PyCallGraph
 from .exceptions import PyCallGraphException
-from .decorators import pycall_profile
+from . import decorators
 from .config import Config
 from .globbing_filter import GlobbingFilter
 from .grouper import Grouper

@@ -7,12 +7,11 @@ from .exceptions import PyCallGraphException
 
 
 class PyCallGraph(object):
-
     def __init__(self, output=None, config=None):
         '''output can be a single Output instance or an iterable with many
         of them.  Example usage:
 
-            PyCallGraph(config=Config(), output=GraphvizOutput())
+            PyCallGraph(output=GraphvizOutput(), config=Config())
         '''
         locale.setlocale(locale.LC_ALL, '')
 
