@@ -100,7 +100,7 @@ class GraphvizOutput(Output):
         with os.fdopen(fd, 'w') as f:
             f.write(source)
 
-        cmd = '{0} -T{1} -o{2} {3}'.format(
+        cmd = '"{0}" -T{1} -o{2} {3}'.format(
             self.tool, self.output_type, self.output_file, temp_name
         )
 
