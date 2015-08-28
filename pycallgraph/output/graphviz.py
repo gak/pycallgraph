@@ -3,6 +3,7 @@ from __future__ import division
 import tempfile
 import os
 import textwrap
+import subprocess as sub
 
 from ..metadata import __version__
 from ..exceptions import PyCallGraphException
@@ -106,7 +107,8 @@ class GraphvizOutput(Output):
 
         self.verbose('Executing: {0}'.format(cmd))
         try:
-            ret = os.system(cmd)
+            proc = sub.Popen(cmd, stdout=sub.PIPE, stderr=sub.PIPE, shell=True)
+            ret, output = proc.communicate()
             if ret:
                 raise PyCallGraphException(
                     'The command "%(cmd)s" failed with error '
