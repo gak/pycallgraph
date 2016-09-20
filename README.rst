@@ -3,14 +3,10 @@ Python Call Graph
 
 Welcome! Python Call Graph is a `Python <http://www.python.org>`_ module that creates `call graph <http://en.wikipedia.org/wiki/Call_graph>`_ visualizations for Python applications.
 
-.. image:: https://travis-ci.org/gak/pycallgraph.png
+.. image:: https://travis-ci.org/gak/pycallgraph.svg
     :target: https://travis-ci.org/gak/pycallgraph
-.. image:: https://coveralls.io/repos/gak/pycallgraph/badge.png?branch=develop
+.. image:: https://coveralls.io/repos/gak/pycallgraph/badge.svg?branch=develop
     :target: https://coveralls.io/r/gak/pycallgraph?branch=develop
-.. image:: https://pypip.in/v/pycallgraph/badge.png
-    :target: https://crate.io/packages/pycallgraph/
-.. image:: https://pypip.in/d/pycallgraph/badge.png
-    :target: https://crate.io/packages/pycallgraph/
 
 Screenshots
 ===========
