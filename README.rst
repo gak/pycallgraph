@@ -1,3 +1,14 @@
+.. image:: http://unmaintained.tech/badge.svg
+    :target: http://unmaintained.tech/
+    :alt: No Maintenance Intended
+
+Project Abandoned
+#################
+
+Many apologies. I've stopped maintaining this project due to personal time constraints.
+
+I'm happy to forward users to any new forks.
+
 Python Call Graph
 #################
 
