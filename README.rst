@@ -5,9 +5,9 @@
 Project Abandoned
 #################
 
-Many apologies. I've stopped maintaining this project due to personal time constraints.
+Many apologies. I've stopped maintaining this project due to personal time constraints. `Blog post <https://geraldkaszuba.com/retiring-projects/>`_ with more information.
 
-I'm happy to forward users to any new forks.
+I'm happy to forward users to any new forks, or to discuss PyPI ownership.
 
 Python Call Graph
 #################
